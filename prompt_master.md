@@ -370,5 +370,3 @@ Como Engenheiro Sênior, recomendo iniciarmos pela **Task 1.1, 1.2 e 1.3**:
 2. Implementar `src/preprocessing.py` com função única
 3. Implementar `src/config.py` com todas as configurações
 4. Implementar `src/data_loader.py` com carregamento polimórfico
-
-Quer que eu gere o código robusto desses módulos fundamentais?
