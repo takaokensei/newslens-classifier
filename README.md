@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # NewsLens AI Classifier
 
 Production-grade text classifier benchmarking **Sparse (TF-IDF)** vs. **Dense (BERT)** embeddings. Focus on **Cold Start**, **Latency** & **Semantic Performance** trade-offs using **SVM/XGBoost**.
@@ -118,3 +119,7 @@ MIT License
 - NeuralMind for Portuguese BERT model
 - Groq for LLM API access
 
+=======
+# newslens-classifier
+Production-grade text classifier benchmarking Sparse (TF-IDF) vs. Dense (BERT) embeddings. Focus on Cold Start, Latency &amp; Semantic Performance trade-offs using SVM/XGBoost.
+>>>>>>> 3f80be149174919448ccfeb49aedfd35acfe0d2d
