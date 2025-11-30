@@ -10,7 +10,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import numpy as np
 from scipy import sparse
-import pytest
 
 from src import config
 from src.preprocessing import preprocess_text, preprocess_batch
