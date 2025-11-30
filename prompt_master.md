@@ -102,11 +102,11 @@ O relatório deve conter **duas** tabelas principais:
 
 **📍 FASE 1: Data Engineering (Dias 1-3)**
 
-  * [ ] **Task 1.1:** Setup do `config.py` e estrutura completa de pastas (conforme seção 7).
-  * [ ] **Task 1.2:** `src/preprocessing.py` com função única `preprocess_text()`.
-  * [ ] **Task 1.3:** `data_loader.py` polimórfico (`.npz`/`.npy`).
-  * [ ] **Task 1.4:** Gerar embeddings BERT via `sentence-transformers` e salvar.
-  * [ ] **Task 1.5:** **Sanity Check:** Verificar shapes, NaNs e contagem de classes pós-split.
+  * [x] **Task 1.1:** Setup do `config.py` e estrutura completa de pastas (conforme seção 7).
+  * [x] **Task 1.2:** `src/preprocessing.py` com função única `preprocess_text()`.
+  * [x] **Task 1.3:** `data_loader.py` polimórfico (`.npz`/`.npy`).
+  * [x] **Task 1.4:** Gerar embeddings BERT via `sentence-transformers` e salvar.
+  * [x] **Task 1.5:** **Sanity Check:** Verificar shapes, NaNs e contagem de classes pós-split.
 
 **📍 FASE 2: Training & Benchmarking (Dias 4-5)**
 
