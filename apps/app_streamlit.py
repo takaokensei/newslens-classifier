@@ -702,9 +702,10 @@ def main():
             
             # Detect if user modified the text (and clear true_label if so)
             if original_sample_text and text_input != original_sample_text:
-                # User modified the text - clear true_label
+                # User modified the text - mark for removal (will be removed on next rerun)
                 if 'true_label' in st.session_state:
-                    del st.session_state.true_label
+                    # Set flag to trigger fade-out animation
+                    st.session_state.remove_true_label = True
                 if 'original_sample_text' in st.session_state:
                     del st.session_state.original_sample_text
             
@@ -712,30 +713,53 @@ def main():
             if 'true_label' in st.session_state:
                 true_label = st.session_state.true_label
                 true_category = CLASS_TO_CATEGORY.get(int(true_label), f"Classe {true_label}")
-                # Add CSS for fade-out animation
-                fade_out_css = """
+                
+                # Add CSS and JavaScript for fade-out animation
+                animation_code = """
                 <style>
                 @keyframes fadeOut {
                     from { 
                         opacity: 1; 
                         transform: translateY(0);
-                        max-height: 100px;
                     }
                     to { 
                         opacity: 0; 
                         transform: translateY(-10px);
-                        max-height: 0;
-                        margin: 0;
-                        padding: 0;
                     }
                 }
-                .ground-truth-label {
+                .ground-truth-fade-out {
                     animation: fadeOut 0.5s ease-out forwards;
                 }
                 </style>
+                <script>
+                (function() {
+                    // Check if we should trigger fade-out
+                    var shouldFadeOut = """ + str(st.session_state.get('remove_true_label', False)).lower() + """;
+                    if (shouldFadeOut) {
+                        // Find the ground truth label element
+                        var elements = window.parent.document.querySelectorAll('[data-testid="stInfo"]');
+                        if (elements.length > 0) {
+                            var lastElement = elements[elements.length - 1];
+                            // Check if it contains ground truth text
+                            if (lastElement.textContent.includes('Classe Real') || lastElement.textContent.includes('True Label')) {
+                                lastElement.classList.add('ground-truth-fade-out');
+                                // Remove after animation completes
+                                setTimeout(function() {
+                                    lastElement.style.display = 'none';
+                                }, 500);
+                            }
+                        }
+                    }
+                })();
+                </script>
                 """
-                st.markdown(fade_out_css, unsafe_allow_html=True)
-                # Use a container with class for animation
+                st.components.v1.html(animation_code, height=0)
+                
+                # Clear the flag after applying animation
+                if st.session_state.get('remove_true_label', False):
+                    del st.session_state.remove_true_label
+                    del st.session_state.true_label
+                
                 st.info(
                     f"🏷️ **Classe Real (Ground Truth):** {true_category}" if current_lang == 'pt' 
                     else f"🏷️ **True Label (Ground Truth):** {true_category}",
