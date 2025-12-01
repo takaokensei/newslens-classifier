@@ -691,10 +691,8 @@ def main():
                     with st.spinner("Carregando exemplo..." if current_lang == 'pt' else "Loading sample..."):
                         sample = get_validation_sample()
                         if sample:
+                            # Store sample in session_state - will be applied on next rerun
                             st.session_state.sample_text = sample
-                            # Force update text area by using key
-                            st.session_state.text_input_area = sample
-                            st.success("✅ Exemplo carregado!" if current_lang == 'pt' else "✅ Sample loaded!")
                             st.rerun()
                         else:
                             st.error("❌ Não foi possível carregar exemplo. Verifique os logs do console para mais detalhes." if current_lang == 'pt' else "❌ Could not load sample. Check console logs for details.")
