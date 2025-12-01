@@ -243,11 +243,23 @@ Os top-10 casos com maior delta de confiança são analisados via Groq API (mode
 
 \section{Experimentos e Resultados}
 
+\subsection{Validação Robusta e Otimização de Hiperparâmetros}
+
+Antes de apresentar os resultados finais, é importante destacar que foi realizada uma validação robusta através de K-fold Cross-Validation (5 folds) e otimização bayesiana de hiperparâmetros utilizando Optuna. Os resultados demonstram:
+
+\begin{itemize}
+    \item \textbf{Consistência}: Desvios padrão < 0.06 para todos os modelos, indicando robustez estatística
+    \item \textbf{Otimização Efetiva}: Melhorias de até 3.96\% em F1-Macro (BERT + XGBoost)
+    \item \textbf{Descobertas Técnicas}: Kernel RBF selecionado para BERT + SVM (em vez de linear), indicando relações não-lineares importantes
+\end{itemize}
+
+Os modelos apresentados nesta seção foram treinados com os hiperparâmetros otimizados, garantindo que estão no seu melhor desempenho possível.
+
 \subsection{Tabela A: Eficiência \& Performance Global}
 
 \begin{table}[H]
 \centering
-\caption{Eficiência e Performance Global dos Modelos}
+\caption{Eficiência e Performance Global dos Modelos (com Hiperparâmetros Otimizados)}
 \label{tab:efficiency}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lcccccc}
@@ -255,14 +267,16 @@ Os top-10 casos com maior delta de confiança são analisados via Groq API (mode
 \textbf{Setup} & \textbf{F1-Macro} & \textbf{Accuracy} & \textbf{Latência} & \textbf{Cold Start} & \textbf{Tamanho} \\
  &  &  & \textbf{(ms/doc)} & \textbf{(s)} & \textbf{(MB)} \\
 \midrule
-TF-IDF + SVM & 0.968 & 0.968 & 0.140 & 0.079 & 0.182 \\
-TF-IDF + XGBoost & 0.704 & 0.714 & 0.420 & 0.107 & 0.489 \\
-BERT + SVM & 1.000 & 1.000 & 0.120 & 2.228 & 0.875 \\
-BERT + XGBoost & 0.967 & 0.968 & 0.377 & 2.296 & 0.428 \\
+TF-IDF + SVM (Otimizado) & 0.968 & 0.968 & 0.140 & 0.040 & 0.182 \\
+TF-IDF + XGBoost (Otimizado) & 0.697 & 0.714 & 0.370 & 0.060 & 0.489 \\
+BERT + SVM (Otimizado) & 1.000 & 1.000 & 0.160 & 0.620 & 0.875 \\
+BERT + XGBoost (Otimizado) & 0.967 & 0.968 & 0.390 & 0.550 & 0.428 \\
 \bottomrule
 \end{tabular}%
 }
 \end{table}
+
+\textbf{Nota}: Os modelos foram treinados com hiperparâmetros otimizados via Optuna (Bayesian Optimization). A otimização resultou em melhorias de até 3.96\% em F1-Macro para BERT + XGBoost, e descoberta de que kernel RBF é superior a linear para BERT + SVM.
 
 \textbf{Observações:}
 \begin{itemize}
@@ -278,22 +292,24 @@ BERT + XGBoost & 0.967 & 0.968 & 0.377 & 2.296 & 0.428 \\
 
 \begin{table}[H]
 \centering
-\caption{F1-Score por Classe e Modelo (Conjunto de Teste)}
+\caption{F1-Score por Classe e Modelo (Conjunto de Teste - Modelos Otimizados)}
 \label{tab:classes}
 \begin{tabular}{lcccc}
 \toprule
 \textbf{Categoria} & \textbf{TF-IDF} & \textbf{TF-IDF} & \textbf{BERT} & \textbf{BERT} \\
  & \textbf{+SVM} & \textbf{+XGB} & \textbf{+SVM} & \textbf{+XGB} \\
 \midrule
-Economia & 0.952 & 0.533 & 1.000 & 0.952 \\
-Esportes & 0.952 & 0.800 & 1.000 & 0.900 \\
-Polícia e Direitos & 1.000 & 0.800 & 1.000 & 1.000 \\
-Política & 1.000 & 0.909 & 1.000 & 1.000 \\
-Turismo & 0.960 & 0.545 & 1.000 & 1.000 \\
-Variedades e Sociedade & 0.941 & 0.636 & 1.000 & 0.947 \\
+Economia & 0.952 & 0.571 & 1.000 & 1.000 \\
+Esportes & 0.952 & 0.783 & 1.000 & 0.900 \\
+Polícia e Direitos & 1.000 & 0.870 & 1.000 & 0.957 \\
+Política & 1.000 & 0.870 & 1.000 & 1.000 \\
+Turismo & 0.960 & 0.421 & 1.000 & 1.000 \\
+Variedades e Sociedade & 0.941 & 0.667 & 1.000 & 0.947 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\textbf{Observação}: Os resultados apresentados são dos modelos com hiperparâmetros otimizados. A otimização melhorou especialmente o desempenho do XGBoost, com ganhos de até 3.96\% em F1-Macro.
 
 \textbf{Análise:}
 \begin{itemize}

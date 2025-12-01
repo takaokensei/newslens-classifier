@@ -15,13 +15,31 @@ import os
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+# Lazy imports to avoid multiprocessing issues in Streamlit Cloud
+# Import config first (no heavy dependencies)
 from src.config import PATHS
-from src.preprocessing import preprocess_text
-from src.embeddings import load_tfidf_vectorizer, load_bert_model
-from src.train import load_trained_models
-from src.logging_system import log_prediction, load_prediction_logs, get_log_statistics
 from src.class_mapping import CLASS_TO_CATEGORY
-from src.llm_analysis import call_groq_llm, load_class_profiles
+
+# Delay heavy imports until needed (inside functions)
+# This prevents "can't register atexit after shutdown" errors
+def _lazy_imports():
+    """Lazy import of heavy dependencies to avoid multiprocessing issues."""
+    from src.preprocessing import preprocess_text
+    from src.embeddings import load_tfidf_vectorizer, load_bert_model
+    from src.train import load_trained_models
+    from src.logging_system import log_prediction, load_prediction_logs, get_log_statistics
+    from src.llm_analysis import call_groq_llm, load_class_profiles
+    return {
+        'preprocess_text': preprocess_text,
+        'load_tfidf_vectorizer': load_tfidf_vectorizer,
+        'load_bert_model': load_bert_model,
+        'load_trained_models': load_trained_models,
+        'log_prediction': log_prediction,
+        'load_prediction_logs': load_prediction_logs,
+        'get_log_statistics': get_log_statistics,
+        'call_groq_llm': call_groq_llm,
+        'load_class_profiles': load_class_profiles
+    }
 
 
 # Translations
@@ -158,9 +176,10 @@ if 'llm_explanation' not in st.session_state:
 def load_all_models():
     """Carrega todos os modelos e embeddings (em cache)."""
     try:
-        models = load_trained_models()
-        vectorizer = load_tfidf_vectorizer(PATHS['data_embeddings'] / 'tfidf_vectorizer.pkl')
-        bert_model = load_bert_model()
+        imports = _lazy_imports()
+        models = imports['load_trained_models']()
+        vectorizer = imports['load_tfidf_vectorizer'](PATHS['data_embeddings'] / 'tfidf_vectorizer.pkl')
+        bert_model = imports['load_bert_model']()
         return models, vectorizer, bert_model
     except Exception as e:
         return None, None, None
@@ -406,7 +425,8 @@ Confidence: {result['score']:.2%}
 Explain clearly and concisely why this text belongs to this category."""
                         
                         with st.spinner(t('generating')):
-                            explanation = call_groq_llm(prompt, max_tokens=600)
+                            imports = _lazy_imports()
+                            explanation = imports['call_groq_llm'](prompt, max_tokens=600)
                             st.session_state.llm_explanation = explanation
                             st.session_state.explanation_generated = True
                             st.rerun()
@@ -416,7 +436,8 @@ Explain clearly and concisely why this text belongs to this category."""
             
             # Save to log (only on new classification)
             if classify_button and save_prediction and text_input:
-                log_prediction(
+                imports = _lazy_imports()
+                imports['log_prediction'](
                     texto=text_input,
                     classe_predita=result['classe_predita'],
                     score=result['score'],
@@ -455,8 +476,9 @@ Explain clearly and concisely why this text belongs to this category."""
                     default=[]
                 )
         
-        # Load logs
-        logs_df = load_prediction_logs()
+        # Load logs (lazy import)
+        imports = _lazy_imports()
+        logs_df = imports['load_prediction_logs']()
         
         # Apply filters
         if not logs_df.empty:
@@ -470,7 +492,7 @@ Explain clearly and concisely why this text belongs to this category."""
         if logs_df.empty:
             st.info(t('no_predictions'))
         else:
-            stats = get_log_statistics()
+            stats = imports['get_log_statistics']()
             
             # Summary metrics
             col1, col2, col3, col4 = st.columns(4)
