@@ -27,3 +27,6 @@ tqdm>=4.65.0
 # LLM Integration
 groq>=0.4.0
 
+# Hyperparameter Optimization
+optuna>=3.0.0
+

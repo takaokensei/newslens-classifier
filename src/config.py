@@ -40,15 +40,24 @@ FEATURE_CONFIG = {
 MODELS_CONFIG = {
     'svm': {
         'kernel': 'linear',
+        'C': 1.0,  # Will be optimized
+        'gamma': 'scale',  # Will be optimized
         'class_weight': 'balanced',
         'probability': True
     },
     'xgboost': {
-        'n_estimators': 100,
-        'max_depth': 6,
+        'n_estimators': 100,  # Will be optimized
+        'max_depth': 6,  # Will be optimized
+        'learning_rate': 0.1,  # Will be optimized
+        'subsample': 1.0,  # Will be optimized
+        'colsample_bytree': 1.0,  # Will be optimized
         'n_jobs': -1
     }
 }
+
+# 3.1. Optimized Hyperparameters (loaded from best_hyperparameters.json if available)
+# These will be used after running optimization
+OPTIMIZED_HYPERPARAMS = None
 
 # 4. LLM API Configuration (Cost Control)
 LLM_CONFIG = {
