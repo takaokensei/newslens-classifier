@@ -55,6 +55,8 @@ models/*.json
 !models/*.csv
 !models/*.pkl
 !models/.gitkeep
+# Ignore Optuna study files (not final models)
+models/optuna_*.pkl
 
 # Logs (keep private - don't commit prediction logs)
 logs/*
