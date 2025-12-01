@@ -50,6 +50,24 @@ export GROQ_API_KEY=your_api_key_here
 streamlit run apps/app_streamlit.py
 ```
 
+**⚠️ Important Tip for Windows Users:**
+
+Always use the virtual environment activated before running Streamlit:
+
+```powershell
+# Activate virtual environment first
+.venv\Scripts\Activate.ps1
+streamlit run apps/app_streamlit.py
+```
+
+Or use the full path to ensure the correct Python environment:
+
+```powershell
+.venv\Scripts\streamlit.exe run apps/app_streamlit.py
+```
+
+This ensures that Streamlit uses the correct Python environment with all dependencies installed.
+
 ## 📁 Project Structure
 
 ```
