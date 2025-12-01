@@ -45,31 +45,61 @@ def load_raw_data(data_path: Optional[Path] = None) -> Tuple[pd.DataFrame, np.nd
     df = pd.read_csv(data_path)
     
     # Detect text column (common names: text, texto, content, noticia, etc.)
+    # Priority: "Texto Expandido" > "Texto Original" > other text columns
     text_cols = [col for col in df.columns if col.lower() in 
-                 ['text', 'texto', 'content', 'noticia', 'news', 'article']]
+                 ['texto expandido', 'texto original', 'text', 'texto', 'content', 'noticia', 'news', 'article']]
+    if not text_cols:
+        # Try partial match
+        text_cols = [col for col in df.columns if 'texto' in col.lower() or 'text' in col.lower()]
+    
     if not text_cols:
         # Assume first column is text
         text_col = df.columns[0]
         print(f"⚠️  No text column found, using first column: {text_col}")
     else:
-        text_col = text_cols[0]
+        # Prefer "Texto Expandido" if available
+        if 'Texto Expandido' in text_cols:
+            text_col = 'Texto Expandido'
+        elif 'Texto Original' in text_cols:
+            text_col = 'Texto Original'
+        else:
+            text_col = text_cols[0]
         print(f"✅ Using text column: {text_col}")
     
     # Detect label column (common names: label, classe, category, etc.)
+    # Priority: "Classe" > "Categoria" > other label columns
     label_cols = [col for col in df.columns if col.lower() in 
-                  ['label', 'classe', 'class', 'category', 'categoria']]
+                  ['classe', 'categoria', 'label', 'class', 'category']]
+    if not label_cols:
+        # Try partial match
+        label_cols = [col for col in df.columns if 'classe' in col.lower() or 'categoria' in col.lower()]
+    
     if not label_cols:
         # Assume last column is label
         label_col = df.columns[-1]
         print(f"⚠️  No label column found, using last column: {label_col}")
     else:
-        label_col = label_cols[0]
+        # Prefer "Classe" if available
+        if 'Classe' in label_cols:
+            label_col = 'Classe'
+        elif 'Categoria' in label_cols:
+            label_col = 'Categoria'
+        else:
+            label_col = label_cols[0]
         print(f"✅ Using label column: {label_col}")
     
     texts = df[text_col].astype(str).values
     labels = df[label_col].values
     
+    # Remove rows with empty texts or NaN
+    texts_series = pd.Series(texts)
+    mask = (texts_series != '') & (texts_series != 'nan') & (~texts_series.isna())
+    
+    texts = texts[mask.values]
+    labels = labels[mask.values]
+    
     print(f"📊 Loaded {len(texts)} samples with {len(np.unique(labels))} classes")
+    print(f"   Classes: {sorted(np.unique(labels))}")
     
     return df, labels
 
@@ -255,12 +285,47 @@ def prepare_full_pipeline(
     print("🚀 Starting Data Preparation Pipeline")
     print("="*60)
     
-    # 1. Load raw data
-    df, labels = load_raw_data(data_path)
+    # 1. Load raw data (this already filters empty texts)
+    df_full, labels_full = load_raw_data(data_path)
+    
+    # Get text column name
+    text_cols = [col for col in df_full.columns if col.lower() in 
+                 ['texto expandido', 'texto original', 'text', 'texto', 'content', 'noticia', 'news', 'article']]
+    if not text_cols:
+        text_cols = [col for col in df_full.columns if 'texto' in col.lower() or 'text' in col.lower()]
+    if 'Texto Expandido' in text_cols:
+        text_col = 'Texto Expandido'
+    elif 'Texto Original' in text_cols:
+        text_col = 'Texto Original'
+    elif text_cols:
+        text_col = text_cols[0]
+    else:
+        text_col = df_full.columns[0]
+    
+    # Get label column name
+    label_cols = [col for col in df_full.columns if col.lower() in 
+                  ['classe', 'categoria', 'label', 'class', 'category']]
+    if 'Classe' in label_cols:
+        label_col = 'Classe'
+    elif 'Categoria' in label_cols:
+        label_col = 'Categoria'
+    elif label_cols:
+        label_col = label_cols[0]
+    else:
+        label_col = df_full.columns[-1]
+    
+    # Apply same filtering as in load_raw_data
+    texts = df_full[text_col].astype(str).values
+    labels = df_full[label_col].values
+    
+    texts_series = pd.Series(texts)
+    mask = (texts_series != '') & (texts_series != 'nan') & (~texts_series.isna())
+    texts = texts[mask.values]
+    labels = labels[mask.values]
     
     # 2. Split data
     X_train, X_val, X_test, y_train, y_val, y_test = split_data(
-        df.iloc[:, 0].values,  # Assuming first column is text
+        texts,
         labels
     )
     

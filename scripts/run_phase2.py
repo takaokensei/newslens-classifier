@@ -20,11 +20,11 @@ import numpy as np
 def main():
     """Main execution function."""
     print("\n" + "="*60)
-    print("🎯 PHASE 2: Training & Benchmarking")
+    print("PHASE 2: Training & Benchmarking")
     print("="*60 + "\n")
     
     # Step 1: Prepare data
-    print("📍 Step 1: Data Preparation")
+    print("Step 1: Data Preparation")
     print("-" * 60)
     data = prepare_full_pipeline(
         data_path=None,  # Will look in data/raw/
@@ -33,7 +33,7 @@ def main():
     )
     
     # Step 2: Train models
-    print("\n📍 Step 2: Training Models")
+    print("\nStep 2: Training Models")
     print("-" * 60)
     models = train_all_models(
         data['embeddings'],
@@ -42,7 +42,7 @@ def main():
     )
     
     # Step 3: Evaluate on validation set
-    print("\n📍 Step 3: Evaluation on Validation Set")
+    print("\nStep 3: Evaluation on Validation Set")
     print("-" * 60)
     val_results = evaluate_all_models(
         models,
@@ -53,7 +53,7 @@ def main():
     )
     
     # Step 4: Evaluate on test set
-    print("\n📍 Step 4: Evaluation on Test Set")
+    print("\nStep 4: Evaluation on Test Set")
     print("-" * 60)
     test_results = evaluate_all_models(
         models,
@@ -64,7 +64,7 @@ def main():
     )
     
     # Step 5: Benchmark
-    print("\n📍 Step 5: Benchmarking")
+    print("\nStep 5: Benchmarking")
     print("-" * 60)
     benchmark_results = benchmark_all_models(
         models,
@@ -74,7 +74,7 @@ def main():
     )
     
     # Step 6: Generate comparison tables
-    print("\n📍 Step 6: Generating Comparison Tables")
+    print("\nStep 6: Generating Comparison Tables")
     print("-" * 60)
     
     # Table A: Efficiency & Performance Global
@@ -96,7 +96,7 @@ def main():
     table_a = pd.DataFrame(table_a_data)
     table_a_path = PATHS['models'] / 'table_a_efficiency.csv'
     table_a.to_csv(table_a_path, index=False)
-    print(f"\n✅ Table A saved to {table_a_path}")
+    print(f"\n[OK] Table A saved to {table_a_path}")
     print(table_a.to_string(index=False))
     
     # Table B: Granularity by Class
@@ -116,13 +116,13 @@ def main():
     table_b = pd.DataFrame(table_b_data)
     table_b_path = PATHS['models'] / 'table_b_classes.csv'
     table_b.to_csv(table_b_path, index=False)
-    print(f"\n✅ Table B saved to {table_b_path}")
+    print(f"\n[OK] Table B saved to {table_b_path}")
     print(table_b.to_string(index=False))
     
     print("\n" + "="*60)
-    print("✅ PHASE 2 COMPLETE!")
+    print("PHASE 2 COMPLETE!")
     print("="*60)
-    print("\n📊 Results saved to:")
+    print("\nResults saved to:")
     print(f"  - Models: {PATHS['models']}")
     print(f"  - Embeddings: {PATHS['data_embeddings']}")
     print(f"  - Tables: {table_a_path}, {table_b_path}")

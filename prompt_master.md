@@ -110,11 +110,11 @@ O relatório deve conter **duas** tabelas principais:
 
 **📍 FASE 2: Training & Benchmarking (Dias 4-5)**
 
-  * [ ] **Task 2.1:** Treinar os 4 pares de modelos (TF-IDF+SVM, TF-IDF+XGB, BERT+SVM, BERT+XGB) usando conjunto de TREINO.
-  * [ ] **Task 2.2:** Avaliação no conjunto de VALIDAÇÃO para ajuste fino (opcional) e comparação inicial.
-  * [ ] **Task 2.3:** Avaliação final no conjunto de TESTE: Accuracy, F1-Macro, F1 por classe, Matriz de Confusão (4 matrizes).
-  * [ ] **Task 2.4:** Script de benchmark: medir inferência com `batch_size=1` (simulação real).
-  * [ ] **Task 2.5:** Gerar Tabela A (Eficiência) e Tabela B (Classes) + visualizações.
+  * [x] **Task 2.1:** Treinar os 4 pares de modelos (TF-IDF+SVM, TF-IDF+XGB, BERT+SVM, BERT+XGB) usando conjunto de TREINO.
+  * [x] **Task 2.2:** Avaliação no conjunto de VALIDAÇÃO para ajuste fino (opcional) e comparação inicial.
+  * [x] **Task 2.3:** Avaliação final no conjunto de TESTE: Accuracy, F1-Macro, F1 por classe, Matriz de Confusão (4 matrizes).
+  * [x] **Task 2.4:** Script de benchmark: medir inferência com `batch_size=1` (simulação real).
+  * [x] **Task 2.5:** Gerar Tabela A (Eficiência) e Tabela B (Classes) + visualizações.
 
 **📍 FASE 3: AI Analysis & Dashboard (Dias 6-8)**
 

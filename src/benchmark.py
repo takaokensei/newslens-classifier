@@ -34,14 +34,24 @@ def measure_inference_latency(
     """
     latencies = []
     
+    # Get number of samples (works for both sparse and dense)
+    n_samples = X.shape[0]
+    
     # Warm-up
-    _ = model.predict(X[:min(10, len(X))])
+    warmup_size = min(10, n_samples)
+    if sparse.issparse(X):
+        _ = model.predict(X[:warmup_size])
+    else:
+        _ = model.predict(X[:warmup_size])
     
     # Measure latency
     for _ in range(n_iterations):
         # Select random sample(s)
-        indices = np.random.choice(len(X), size=batch_size, replace=False)
-        X_batch = X[indices]
+        indices = np.random.choice(n_samples, size=batch_size, replace=False)
+        if sparse.issparse(X):
+            X_batch = X[indices]
+        else:
+            X_batch = X[indices]
         
         start = time.perf_counter()
         _ = model.predict(X_batch)
@@ -61,10 +71,14 @@ def measure_inference_latency(
     }
 
 
+# Cache for BERT model to avoid reloading
+_bert_model_cache = None
+
 def measure_cold_start(
     model_path: Path,
     embedding_type: str,
-    sample_text: str = "Este é um texto de exemplo para teste."
+    sample_text: str = "Este é um texto de exemplo para teste.",
+    use_cache: bool = True
 ) -> Dict:
     """
     Measure cold start time (time to load model and make first prediction).
@@ -73,16 +87,22 @@ def measure_cold_start(
         model_path: Path to saved model
         embedding_type: 'tfidf' or 'bert'
         sample_text: Sample text for prediction
+        use_cache: Whether to cache BERT model (for faster subsequent calls)
     
     Returns:
         Dictionary with cold start statistics
     """
+    global _bert_model_cache
+    
     times = []
     
-    for _ in range(5):  # Multiple runs to average
-        # Clear any cached models
-        import gc
-        gc.collect()
+    for i in range(5):  # Multiple runs to average
+        # Clear any cached models (except on first run if using cache)
+        if not use_cache or i == 0:
+            import gc
+            gc.collect()
+            if embedding_type == 'bert':
+                _bert_model_cache = None
         
         start = time.perf_counter()
         
@@ -99,9 +119,12 @@ def measure_cold_start(
             else:
                 raise FileNotFoundError(f"Vectorizer not found: {vectorizer_path}")
         elif embedding_type == 'bert':
-            model_bert = load_bert_model()
+            # Use cache if available
+            if _bert_model_cache is None:
+                _bert_model_cache = load_bert_model()
+            model_bert = _bert_model_cache
             processed = preprocess_text(sample_text)
-            embedding = model_bert.encode([processed], convert_to_numpy=True)
+            embedding = model_bert.encode([processed], convert_to_numpy=True, show_progress_bar=False)
         else:
             raise ValueError(f"Unknown embedding type: {embedding_type}")
         
@@ -174,7 +197,11 @@ def benchmark_all_models(
             X = embeddings[emb_key][split]
             
             # Inference latency
-            latency = measure_inference_latency(models[model_key], X, batch_size=1)
+            try:
+                latency = measure_inference_latency(models[model_key], X, batch_size=1)
+            except Exception as e:
+                print(f"  Error measuring latency: {e}")
+                latency = {'mean_ms': 0, 'std_ms': 0, 'min_ms': 0, 'max_ms': 0, 'p50_ms': 0, 'p95_ms': 0, 'p99_ms': 0}
             print(f"  Latency: {latency['mean_ms']:.2f} ± {latency['std_ms']:.2f} ms/doc")
             
             # Cold start
