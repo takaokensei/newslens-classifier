@@ -702,34 +702,20 @@ def main():
             st.write("")  # Spacing
             st.write("")  # Spacing
             
-            # Check if data is available before showing button
-            raw_dir = PATHS['data_raw']
-            csv_files = list(raw_dir.glob('*.csv'))
-            data_available = len(csv_files) > 0
-            
-            if data_available:
-                if st.button(
-                    "📄 Exemplo do Conjunto de Validação" if current_lang == 'pt' else "📄 Validation Set Sample",
-                    width='stretch',
-                    help="Carrega um texto aleatório do conjunto de validação (não visto durante o treinamento)" if current_lang == 'pt' else "Load a random text from validation set (not seen during training)"
-                ):
-                    with st.spinner("Carregando exemplo..." if current_lang == 'pt' else "Loading sample..."):
-                        result = get_validation_sample()
-                        if result:
-                            # result is now a tuple (text, true_label)
-                            # Store sample in session_state - will be applied on next rerun
-                            st.session_state.sample_text = result
-                            st.rerun()
-                        else:
-                            st.error("❌ Não foi possível carregar exemplo. Verifique os logs do console para mais detalhes." if current_lang == 'pt' else "❌ Could not load sample. Check console logs for details.")
-            else:
-                # Disable button if data not available
-                st.button(
-                    "📄 Exemplo do Conjunto de Validação" if current_lang == 'pt' else "📄 Validation Set Sample",
-                    width='stretch',
-                    disabled=True,
-                    help="Dados não disponíveis no deploy. Disponível apenas localmente." if current_lang == 'pt' else "Data not available in deployment. Only available locally."
-                )
+            if st.button(
+                "📄 Exemplo do Conjunto de Validação" if current_lang == 'pt' else "📄 Validation Set Sample",
+                width='stretch',
+                help="Carrega um texto aleatório do conjunto de validação (não visto durante o treinamento)" if current_lang == 'pt' else "Load a random text from validation set (not seen during training)"
+            ):
+                with st.spinner("Carregando exemplo..." if current_lang == 'pt' else "Loading sample..."):
+                    result = get_validation_sample()
+                    if result:
+                        # result is now a tuple (text, true_label)
+                        # Store sample in session_state - will be applied on next rerun
+                        st.session_state.sample_text = result
+                        st.rerun()
+                    else:
+                        st.error("❌ Não foi possível carregar exemplo. Verifique os logs do console para mais detalhes." if current_lang == 'pt' else "❌ Could not load sample. Check console logs for details.")
         
         # Clear sample_text after use to avoid persistence
         if 'sample_text' in st.session_state and st.session_state.sample_text:

@@ -38,8 +38,10 @@ ENV/
 *.ipynb
 
 # Data files (keep structure, ignore actual data)
+# Allow CSV files for validation samples in Streamlit Cloud
 data/raw/*
 !data/raw/.gitkeep
+!data/raw/*.csv
 data/processed/*
 !data/processed/.gitkeep
 data/embeddings/*
