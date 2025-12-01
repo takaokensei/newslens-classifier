@@ -231,8 +231,7 @@ def load_and_sync_cookie_predictions():
                     st.session_state.cookie_loaded = True
                     # Clear query param to avoid reloading
                     st.query_params.clear()
-                    # Rerun to update UI with loaded data
-                    st.rerun()
+                    # Note: Don't call st.rerun() here - let the natural rerun from query param change handle it
             except Exception as e:
                 print(f"Error loading predictions from cookie: {e}")
                 st.session_state.cookie_loaded = True  # Mark as loaded even on error to avoid retry loop
