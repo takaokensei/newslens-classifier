@@ -1,6 +1,17 @@
 """
 Script de teste para validar o ambiente de produção.
 Testa todas as funcionalidades principais do sistema.
+
+Usage Examples:
+    # Run all production tests
+    python scripts/test_production.py
+    
+    # Tests performed:
+    # 1. Model Loading - Verifies all models can be loaded
+    # 2. Embeddings Loading - Verifies TF-IDF and BERT models load correctly
+    # 3. Text Classification - Tests classification with sample text
+    # 4. Logging System - Tests prediction logging and statistics
+    # 5. Production Script - Tests batch processing script
 """
 import sys
 from pathlib import Path

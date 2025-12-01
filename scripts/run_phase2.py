@@ -1,6 +1,24 @@
 """
 Main script for Phase 2: Training & Benchmarking.
 Orchestrates the complete pipeline: data preparation, training, evaluation, and benchmarking.
+
+Usage Examples:
+    # Run complete Phase 2 pipeline
+    python scripts/run_phase2.py
+    
+    # Pipeline steps:
+    # 1. Data Preparation - Loads raw data, generates TF-IDF and BERT embeddings
+    # 2. Training - Trains all 4 model combinations (TF-IDF/BERT + SVM/XGBoost)
+    # 3. Validation Evaluation - Evaluates models on validation set
+    # 4. Test Evaluation - Evaluates models on test set with confusion matrices
+    # 5. Benchmarking - Measures latency, cold start, and model size
+    # 6. Comparison Tables - Generates Table A (efficiency) and Table B (by class)
+    
+    # Outputs:
+    # - Trained models: models/*.pkl
+    # - Embeddings: data/embeddings/*.npz, *.npy
+    # - Confusion matrices: models/cm_*.png
+    # - Tables: models/table_a_efficiency.csv, models/table_b_classes.csv
 """
 import sys
 from pathlib import Path

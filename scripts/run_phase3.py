@@ -1,6 +1,23 @@
 """
 Main script for Phase 3: AI Analysis & Dashboard.
 Orchestrates class profiling and error analysis.
+
+Usage Examples:
+    # Run complete Phase 3 pipeline (requires GROQ_API_KEY)
+    python scripts/run_phase3.py
+    
+    # Pipeline steps:
+    # 1. Class Profiling - Creates hybrid profiles using Chi-Squared (TF-IDF) + Centroides (BERT)
+    # 2. Differential Error Analysis - Identifies cases where BERT is correct but TF-IDF fails
+    # 3. LLM Analysis - Uses Groq API to explain why BERT succeeded where TF-IDF failed
+    
+    # Requirements:
+    # - GROQ_API_KEY environment variable must be set
+    # - Models and embeddings from Phase 2 must exist
+    
+    # Outputs:
+    # - Class profiles: models/class_profiles.json
+    # - Error analysis: models/differential_errors.json
 """
 import sys
 from pathlib import Path

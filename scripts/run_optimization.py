@@ -5,6 +5,22 @@ This script:
 2. Runs Optuna optimization for all models
 3. Performs K-fold CV with optimized hyperparameters
 4. Saves results and best hyperparameters
+
+Usage Examples:
+    # Run optimization for all models
+    python scripts/run_optimization.py
+    
+    # Pipeline steps:
+    # 1. Load embeddings (TF-IDF and BERT) and labels
+    # 2. Run Optuna TPE optimization (50 trials per model)
+    # 3. Perform 5-fold stratified cross-validation with optimized hyperparameters
+    # 4. Save best hyperparameters and CV results
+    
+    # Outputs:
+    # - Best hyperparameters: models/best_hyperparameters.json
+    # - Optuna study objects: models/optuna_*.pkl
+    # - CV results: models/cv_results_optimized.csv
+    # - Comparison: models/optimization_comparison.csv
 """
 import sys
 from pathlib import Path

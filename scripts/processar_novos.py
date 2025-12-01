@@ -1,6 +1,21 @@
 """
 Script to classify new texts from data/novos/ directory.
 Simulates production environment by processing all texts and logging predictions.
+
+Usage Examples:
+    # Process all texts in data/novos/ using best model (BERT+SVM)
+    python scripts/processar_novos.py
+    
+    # Use specific model
+    python scripts/processar_novos.py --model tfidf_svm
+    
+    # Process texts from custom directory
+    python scripts/processar_novos.py --directory /path/to/texts
+    
+    # Process without logging predictions
+    python scripts/processar_novos.py --no-log
+    
+    # Available models: best, tfidf_svm, tfidf_xgb, bert_svm, bert_xgb
 """
 import sys
 from pathlib import Path

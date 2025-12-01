@@ -1,6 +1,24 @@
 """
 Script to generate additional comparison plots for the report.
 Creates visualizations showing trade-offs and comparisons.
+
+Usage Examples:
+    # Generate all comparison plots
+    python scripts/generate_comparison_plots.py
+    
+    # Generated plots:
+    # 1. F1-Score by Class Comparison - Bar chart comparing all models per class
+    # 2. Performance vs Efficiency Trade-off - Scatter plot (latency vs F1-Macro)
+    # 3. Cold Start Comparison - Horizontal bar chart comparing cold start times
+    
+    # Requirements:
+    # - Table A (models/table_a_efficiency.csv) must exist
+    # - Table B (models/table_b_classes_with_names.csv) must exist
+    
+    # Outputs:
+    # - models/f1_by_class_comparison.png
+    # - models/performance_efficiency_tradeoff.png
+    # - models/cold_start_comparison.png
 """
 import sys
 from pathlib import Path

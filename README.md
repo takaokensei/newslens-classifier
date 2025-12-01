@@ -317,6 +317,99 @@ python scripts/processar_novos.py --model best
 
 <br/>
 
+## `> script_examples`
+
+### 📋 Available Scripts
+
+<details>
+<summary><b>🔧 Training & Evaluation Scripts</b></summary>
+
+#### Phase 2: Training & Benchmarking
+```bash
+# Complete training pipeline (data prep → training → evaluation → benchmarking)
+python scripts/run_phase2.py
+
+# Outputs:
+# - Trained models: models/*.pkl
+# - Embeddings: data/embeddings/*.npz, *.npy
+# - Confusion matrices: models/cm_*.png
+# - Comparison tables: models/table_a_efficiency.csv, models/table_b_classes.csv
+```
+
+#### Hyperparameter Optimization
+```bash
+# Run Optuna optimization (50 trials per model) + K-fold CV
+python scripts/run_optimization.py
+
+# Outputs:
+# - Best hyperparameters: models/best_hyperparameters.json
+# - Optuna studies: models/optuna_*.pkl
+# - CV results: models/cv_results_optimized.csv
+```
+
+#### Phase 3: LLM Analysis
+```bash
+# Generate class profiles and error analysis (requires GROQ_API_KEY)
+python scripts/run_phase3.py
+
+# Outputs:
+# - Class profiles: models/class_profiles.json
+# - Error analysis: models/differential_errors.json
+```
+
+</details>
+
+<details>
+<summary><b>📊 Visualization & Analysis Scripts</b></summary>
+
+#### Generate Comparison Plots
+```bash
+# Create all comparison visualizations for the report
+python scripts/generate_comparison_plots.py
+
+# Outputs:
+# - F1 by class: models/f1_by_class_comparison.png
+# - Performance vs Efficiency: models/performance_efficiency_tradeoff.png
+# - Cold start comparison: models/cold_start_comparison.png
+```
+
+</details>
+
+<details>
+<summary><b>🚀 Production Scripts</b></summary>
+
+#### Batch Text Classification
+```bash
+# Process all texts in data/novos/ directory
+python scripts/processar_novos.py --model best
+
+# Use specific model
+python scripts/processar_novos.py --model tfidf_svm
+
+# Process from custom directory
+python scripts/processar_novos.py --directory /path/to/texts
+
+# Process without logging
+python scripts/processar_novos.py --no-log
+```
+
+#### Production Environment Test
+```bash
+# Validate all production components
+python scripts/test_production.py
+
+# Tests:
+# 1. Model loading
+# 2. Embeddings loading
+# 3. Text classification
+# 4. Logging system
+# 5. Production script
+```
+
+</details>
+
+<br/>
+
 ## `> model_performance`
 
 <div align="center">
