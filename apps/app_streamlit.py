@@ -884,6 +884,47 @@ def main():
                                     'Correto': '❌' if not p['correct'] else '✅'
                                 } for p in incorrect_preds])
                                 st.dataframe(error_df, width='stretch', hide_index=True)
+                                
+                                # AI Explanation for errors (generalized for multiple errors)
+                                st.markdown("### 🤖 Análise de Erros por IA" if current_lang == 'pt' else "### 🤖 AI Error Analysis")
+                                
+                                if st.button("🔍 Analisar Erros com IA" if current_lang == 'pt' else "🔍 Analyze Errors with AI", key="analyze_errors_ai"):
+                                    try:
+                                        # Create a generalized prompt for multiple errors
+                                        num_errors = len(incorrect_preds)
+                                        error_examples = incorrect_preds[:5]  # Use first 5 errors as examples
+                                        
+                                        examples_text = "\n\n".join([
+                                            f"Exemplo {i+1}:\n"
+                                            f"Texto: {p['text'][:200]}...\n"
+                                            f"Classe Real: {p['true_label']}\n"
+                                            f"Classe Predita: {p['predicted_label']}"
+                                            for i, p in enumerate(error_examples)
+                                        ])
+                                        
+                                        if current_lang == 'pt':
+                                            prompt = f"""O classificador de texto cometeu {num_errors} erros ao classificar um conjunto de {results['total']} notícias.
+
+Exemplos de erros:
+{examples_text}
+
+Analise os padrões de erro e explique brevemente (2-4 razões principais) por que o classificador pode estar errando. Seja conciso e focado nos motivos mais prováveis."""
+                                        else:
+                                            prompt = f"""The text classifier made {num_errors} errors when classifying a set of {results['total']} news articles.
+
+Error examples:
+{examples_text}
+
+Analyze the error patterns and briefly explain (2-4 main reasons) why the classifier may be making mistakes. Be concise and focus on the most likely reasons."""
+                                        
+                                        with st.spinner("Analisando erros com IA..." if current_lang == 'pt' else "Analyzing errors with AI..."):
+                                            imports = _lazy_imports()
+                                            error_analysis = imports['call_groq_llm'](prompt, max_tokens=600)
+                                            st.info(error_analysis)
+                                    except Exception as e:
+                                        st.warning(f"❌ Erro ao analisar com IA: {e}" if current_lang == 'pt' else f"❌ Error analyzing with AI: {e}")
+                                        st.info(t('explanation_info'))
+                                
                                 st.divider()
                             
                             # Show all predictions in a table
@@ -1133,6 +1174,16 @@ def main():
             # LLM Explanation section (always visible when result exists)
             st.subheader(t('ai_explanation'))
             
+            # Check if prediction is incorrect (if we have true_label)
+            is_incorrect = False
+            true_category = None
+            if 'true_label' in st.session_state:
+                predicted_class = result['classe_predita']
+                true_label = int(st.session_state.true_label)
+                is_incorrect = (predicted_class != true_label)
+                if is_incorrect:
+                    true_category = CLASS_TO_CATEGORY.get(true_label, f"Classe {true_label}")
+            
             # Show explanation if already generated
             if st.session_state.explanation_generated and st.session_state.llm_explanation:
                 st.info(st.session_state.llm_explanation)
@@ -1148,8 +1199,34 @@ def main():
                         # Use text if available, otherwise use a generic message
                         text_snippet = text_input_for_display[:500] if text_input_for_display else "Texto classificado anteriormente"
                         
-                        if current_lang == 'pt':
-                            prompt = f"""Classifique o seguinte texto de notícia e explique por que ele foi categorizado como "{result['categoria_predita']}".
+                        if is_incorrect and true_category:
+                            # Error explanation: explain why the classifier made a mistake
+                            if current_lang == 'pt':
+                                prompt = f"""O classificador de texto cometeu um erro ao classificar a seguinte notícia.
+
+Texto:
+{text_snippet}
+
+Classe Real (correta): {true_category}
+Classe Predita (incorreta): {result['categoria_predita']}
+Confiança da predição: {result['score']:.2%}
+
+Explique brevemente por que o classificador pode ter errado. Liste possíveis motivos de forma concisa (2-3 razões principais)."""
+                            else:
+                                prompt = f"""The text classifier made an error when classifying the following news.
+
+Text:
+{text_snippet}
+
+True Label (correct): {true_category}
+Predicted Label (incorrect): {result['categoria_predita']}
+Prediction confidence: {result['score']:.2%}
+
+Briefly explain why the classifier may have made this mistake. List possible reasons concisely (2-3 main reasons)."""
+                        else:
+                            # Correct prediction: explain why it's correct
+                            if current_lang == 'pt':
+                                prompt = f"""Classifique o seguinte texto de notícia e explique por que ele foi categorizado como "{result['categoria_predita']}".
 
 Texto:
 {text_snippet}
@@ -1158,8 +1235,8 @@ Categoria predita: {result['categoria_predita']}
 Confiança: {result['score']:.2%}
 
 Explique de forma clara e concisa por que este texto pertence a esta categoria."""
-                        else:
-                            prompt = f"""Classify the following news text and explain why it was categorized as "{result['categoria_predita']}".
+                            else:
+                                prompt = f"""Classify the following news text and explain why it was categorized as "{result['categoria_predita']}".
 
 Text:
 {text_snippet}
