@@ -110,10 +110,15 @@ def test_entire_validation_set(models, vectorizer, bert_model, embedding_type, m
                 if is_correct:
                     correct += 1
                 predictions.append({
-                    'text': text[:100] + '...' if len(text) > 100 else text,
+                    'text': text,  # Full text, not truncated
                     'predicted': predicted_class,
+                    'predicted_label': CLASS_TO_CATEGORY.get(predicted_class, f"Classe {predicted_class}"),
                     'true': true_label,
-                    'correct': is_correct
+                    'true_label': CLASS_TO_CATEGORY.get(true_label, f"Classe {true_label}"),
+                    'correct': is_correct,
+                    'score': result['score'],
+                    'embedding_usado': embedding_type,
+                    'modelo_usado': model_type
                 })
             except Exception as e:
                 print(f"Error classifying sample {i}: {e}")
@@ -826,6 +831,24 @@ def main():
                     if results:
                         st.success(f"✅ Teste concluído!" if current_lang == 'pt' else "✅ Test completed!")
                         
+                        # Save predictions to dashboard
+                        from datetime import datetime
+                        for pred in results['predictions']:
+                            prediction_entry = {
+                                'timestamp': datetime.now().isoformat(),
+                                'texto': pred['text'][:200] + '...' if len(pred['text']) > 200 else pred['text'],
+                                'classe_predita': pred['predicted'],
+                                'categoria_predita': pred['predicted_label'],
+                                'score': pred['score'],
+                                'embedding_usado': pred['embedding_usado'],
+                                'modelo_usado': pred['modelo_usado'],
+                                'fonte': 'validation_test'
+                            }
+                            st.session_state.session_predictions.append(prediction_entry)
+                        
+                        # Save to cookie
+                        save_predictions_to_cookie(st.session_state.session_predictions)
+                        
                         # Display metrics
                         col1, col2, col3 = st.columns(3)
                         with col1:
@@ -844,11 +867,36 @@ def main():
                                 results['total']
                             )
                         
-                        # Show some example predictions
+                        # Separate correct and incorrect predictions
+                        correct_preds = [p for p in results['predictions'] if p['correct']]
+                        incorrect_preds = [p for p in results['predictions'] if not p['correct']]
+                        
+                        # Show all predictions: errors first, then correct ones
                         if results['predictions']:
-                            st.subheader("📊 Exemplos de Predições" if current_lang == 'pt' else "📊 Prediction Examples")
-                            example_df = pd.DataFrame(results['predictions'][:10])
-                            st.dataframe(example_df, width='stretch', hide_index=True)
+                            st.subheader("📊 Todas as Predições do Conjunto de Validação" if current_lang == 'pt' else "📊 All Validation Set Predictions")
+                            
+                            # Show errors first if any
+                            if incorrect_preds:
+                                st.markdown("### ❌ Predições Incorretas" if current_lang == 'pt' else "### ❌ Incorrect Predictions")
+                                error_df = pd.DataFrame([{
+                                    'Texto': p['text'][:150] + '...' if len(p['text']) > 150 else p['text'],
+                                    'Classe Real': p['true_label'],
+                                    'Classe Predita': p['predicted_label'],
+                                    'Correto': '❌' if not p['correct'] else '✅'
+                                } for p in incorrect_preds])
+                                st.dataframe(error_df, width='stretch', hide_index=True)
+                                st.divider()
+                            
+                            # Show all predictions in a table
+                            st.markdown("### 📋 Todas as Predições" if current_lang == 'pt' else "### 📋 All Predictions")
+                            all_preds_df = pd.DataFrame([{
+                                'Texto': p['text'][:150] + '...' if len(p['text']) > 150 else p['text'],
+                                'Classe Real': p['true_label'],
+                                'Classe Predita': p['predicted_label'],
+                                'Confiança': f"{p['score']:.2%}",
+                                'Correto': '✅' if p['correct'] else '❌'
+                            } for p in (incorrect_preds + correct_preds)])  # Errors first
+                            st.dataframe(all_preds_df, width='stretch', hide_index=True)
                     else:
                         st.error("❌ Erro ao testar conjunto de validação. Verifique os logs." if current_lang == 'pt' else "❌ Error testing validation set. Check logs.")
                 
