@@ -74,10 +74,23 @@ PATHS = {
     'data_embeddings': PROJECT_ROOT / 'data' / 'embeddings',
     'data_novos': PROJECT_ROOT / 'data' / 'novos',
     'logs': PROJECT_ROOT / 'logs',
-    'models': PROJECT_ROOT / 'models'
+    'models': PROJECT_ROOT / 'models',
+    'db_path': PROJECT_ROOT / 'logs' / 'predicoes.db'
 }
 
 # Ensure directories exist
 for path in PATHS.values():
-    path.mkdir(parents=True, exist_ok=True)
+    if isinstance(path, Path) and path.suffix != '.db':  # Skip .db files
+        path.mkdir(parents=True, exist_ok=True)
+
+# 5.1. Load optimized hyperparameters if available
+_hyperparams_path = PATHS['models'] / 'best_hyperparameters.json'
+if _hyperparams_path.exists():
+    import json
+    try:
+        with open(_hyperparams_path, 'r') as f:
+            OPTIMIZED_HYPERPARAMS = json.load(f)
+        print(f"✅ Loaded optimized hyperparameters from {_hyperparams_path}")
+    except Exception as e:
+        print(f"⚠️ Could not load optimized hyperparameters: {e}")
 
