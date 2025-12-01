@@ -99,10 +99,12 @@ Política & 51 & 16.2\% \\
 Turismo & 60 & 19.0\% \\
 Variedades e Sociedade & 45 & 14.3\% \\
 \midrule
-\textbf{Total} & \textbf{315} & \textbf{100\%} \\
+\textbf{Total} & \textbf{319} & \textbf{100\%} \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\textbf{Nota:} Após remoção de textos vazios, a base final contém 315 amostras válidas utilizadas no treinamento.
 
 O tamanho médio dos textos é de aproximadamente 200-300 palavras por amostra, com variação significativa entre categorias.
 
@@ -233,11 +235,19 @@ BERT + XGBoost & 0.967 & 0.968 & 0.377 & 2.296 & 0.428 \\
 }
 \end{table}
 
+\textbf{Observações:}
+\begin{itemize}
+    \item BERT + SVM alcançou performance perfeita (F1=1.0, Accuracy=1.0) no conjunto de teste
+    \item TF-IDF + SVM oferece excelente eficiência (0.14ms/doc) com performance competitiva (F1=0.968)
+    \item Cold start do BERT é 28x maior que TF-IDF (2.23s vs 0.08s)
+    \item TF-IDF + XGBoost apresentou performance inferior (F1=0.704)
+\end{itemize}
+
 \subsection{Tabela B: Granularidade por Classe}
 
 \begin{table}[H]
 \centering
-\caption{F1-Score por Classe e Modelo}
+\caption{F1-Score por Classe e Modelo (Conjunto de Teste)}
 \label{tab:classes}
 \begin{tabular}{lcccc}
 \toprule
@@ -253,6 +263,14 @@ Variedades e Sociedade & 0.941 & 0.636 & 1.000 & 0.947 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\textbf{Análise:}
+\begin{itemize}
+    \item BERT + SVM alcança F1=1.0 em todas as classes, demonstrando compreensão semântica superior
+    \item TF-IDF + SVM mantém F1 > 0.94 em todas as classes, exceto Economia (0.952)
+    \item Classes "Política" e "Polícia e Direitos" são facilmente distinguíveis por ambos os métodos
+    \item TF-IDF + XGBoost apresenta dificuldades em Economia (0.533) e Turismo (0.545)
+\end{itemize}
 
 \subsection{Matrizes de Confusão}
 
@@ -331,15 +349,19 @@ Estes arquétipos estão disponíveis em \texttt{models/class\_profiles.json} e 
 
 \subsection{Análise Diferencial de Erros}
 
-A análise identificou 2 casos onde o BERT classificou corretamente enquanto o TF-IDF falhou. As explicações geradas pelo LLM destacaram:
+A análise identificou 2 casos no conjunto de teste onde o BERT classificou corretamente enquanto o TF-IDF falhou. Os casos foram priorizados por maior delta de confiança e analisados via Groq API (modelo \texttt{llama-3.3-70b-versatile}).
+
+As explicações geradas pelo LLM destacaram:
 
 \begin{itemize}
-    \item \textbf{Contexto semântico}: O BERT captura relações entre palavras que vão além da frequência léxica
-    \item \textbf{Ambiguidade lexical}: Palavras que aparecem em múltiplos contextos são melhor interpretadas pelo BERT
-    \item \textbf{Estrutura sintática}: A ordem e estrutura das frases influenciam a classificação semântica
+    \item \textbf{Contexto semântico}: O BERT captura relações entre palavras que vão além da frequência léxica. Por exemplo, em um texto sobre esportes que menciona termos econômicos, o BERT entende que o contexto geral é esportivo.
+    
+    \item \textbf{Ambiguidade lexical}: Palavras que aparecem em múltiplos contextos são melhor interpretadas pelo BERT. A palavra "viagem" pode aparecer em contextos de turismo ou metafóricos, e o BERT diferencia melhor.
+    
+    \item \textbf{Estrutura sintática}: A ordem e estrutura das frases influenciam a classificação semântica. O BERT considera a posição das palavras na sentença, não apenas sua presença.
 \end{itemize}
 
-Os resultados completos estão disponíveis em \texttt{models/differential\_errors.json}.
+Os resultados completos, incluindo os textos originais e explicações detalhadas, estão disponíveis em \texttt{models/differential\_errors.json}.
 
 \subsection{Discussão sobre o Valor Agregado}
 
@@ -397,11 +419,17 @@ Todas as predições são registradas em \texttt{logs/predicoes.csv} com as segu
 O script \texttt{scripts/processar\_novos.py} permite processar textos em lote a partir da pasta \texttt{data/novos/}, simulando um ambiente de produção. O script:
 
 \begin{itemize}
-    \item Lê arquivos .txt ou .csv da pasta
-    \item Classifica cada texto usando o modelo selecionado
-    \item Registra todas as predições no log
-    \item Gera um relatório resumido
+    \item Lê arquivos .txt ou .csv da pasta \texttt{data/novos/}
+    \item Aplica pré-processamento consistente
+    \item Classifica cada texto usando o modelo selecionado (best, tfidf\_svm, bert\_svm, etc.)
+    \item Registra todas as predições no log (\texttt{logs/predicoes.csv})
+    \item Gera um relatório resumido com distribuição de classes e score médio
 \end{itemize}
+
+Exemplo de uso:
+\begin{lstlisting}
+python scripts/processar_novos.py --model best
+\end{lstlisting}
 
 \subsection{Dashboard de Monitoramento}
 
@@ -441,18 +469,20 @@ O dashboard de monitoramento fornece visualizações em tempo real de:
 
 \textbf{Vantagens:}
 \begin{itemize}
-    \item Compreensão semântica profunda
-    \item Performance superior (F1=1.0)
-    \item Captura relações contextuais entre palavras
-    \item Robustez a variações lexicais
+    \item Compreensão semântica profunda: entende contexto e relações entre palavras
+    \item Performance superior: F1=1.0, Accuracy=1.0 no conjunto de teste
+    \item Captura relações contextuais: mesma palavra tem significado diferente conforme contexto
+    \item Robustez a variações lexicais: sinônimos, paráfrases, variações são bem tratadas
+    \item Bidirecional: considera palavras antes e depois na sentença
 \end{itemize}
 
 \textbf{Desvantagens:}
 \begin{itemize}
-    \item Cold start significativo (2.23s)
-    \item Maior uso de memória
-    \item Menor interpretabilidade
-    \item Dependência de GPU para treinamento (não para inferência)
+    \item Cold start significativo: 2.23s (28x maior que TF-IDF) devido ao carregamento do modelo
+    \item Maior uso de memória: 0.88 MB vs 0.18 MB do TF-IDF
+    \item Menor interpretabilidade: embeddings são difíceis de interpretar diretamente
+    \item Dependência de bibliotecas pesadas: sentence-transformers, transformers, torch
+    \item Latência de inferência similar, mas overhead de inicialização muito maior
 \end{itemize}
 
 \subsection{Comparação entre Modelos}
