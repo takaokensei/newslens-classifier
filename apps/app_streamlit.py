@@ -1078,7 +1078,8 @@ def main():
         result = st.session_state.last_classification_result
         text_input_for_display = st.session_state.get('last_text_input', '')
         
-        if result is not None and text_input_for_display:
+        # Show results if we have a result (even if text_input_for_display is empty, we can still show explanation)
+        if result is not None:
             # Display results
             st.divider()
             
