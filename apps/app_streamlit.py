@@ -908,42 +908,52 @@ def main():
                                 # AI Explanation for errors (generalized for multiple errors)
                                 st.markdown("### 🤖 Análise de Erros por IA" if current_lang == 'pt' else "### 🤖 AI Error Analysis")
                                 
-                                if st.button("🔍 Analisar Erros com IA" if current_lang == 'pt' else "🔍 Analyze Errors with AI", key="analyze_errors_ai"):
-                                    try:
-                                        # Create a generalized prompt for multiple errors
-                                        num_errors = len(incorrect_preds)
-                                        error_examples = incorrect_preds[:5]  # Use first 5 errors as examples
-                                        
-                                        examples_text = "\n\n".join([
-                                            f"Exemplo {i+1}:\n"
-                                            f"Texto: {p['text'][:200]}...\n"
-                                            f"Classe Real: {p['true_label']}\n"
-                                            f"Classe Predita: {p['predicted_label']}"
-                                            for i, p in enumerate(error_examples)
-                                        ])
-                                        
-                                        if current_lang == 'pt':
-                                            prompt = f"""O classificador de texto cometeu {num_errors} erros ao classificar um conjunto de {results['total']} notícias.
+                                # Check if error analysis already exists
+                                error_analysis_key = f'validation_error_analysis_{embedding_type_display}_{model_type_display}'
+                                if error_analysis_key in st.session_state and st.session_state[error_analysis_key]:
+                                    st.info(st.session_state[error_analysis_key])
+                                    if st.button("🔄 Gerar Nova Análise" if current_lang == 'pt' else "🔄 Generate New Analysis", key="regenerate_error_analysis"):
+                                        st.session_state[error_analysis_key] = None
+                                        st.rerun()
+                                else:
+                                    if st.button("🔍 Analisar Erros com IA" if current_lang == 'pt' else "🔍 Analyze Errors with AI", key="analyze_errors_ai"):
+                                        try:
+                                            # Create a generalized prompt for multiple errors
+                                            num_errors = len(incorrect_preds)
+                                            error_examples = incorrect_preds[:5]  # Use first 5 errors as examples
+                                            
+                                            examples_text = "\n\n".join([
+                                                f"Exemplo {i+1}:\n"
+                                                f"Texto: {p['text'][:200]}...\n"
+                                                f"Classe Real: {p['true_label']}\n"
+                                                f"Classe Predita: {p['predicted_label']}"
+                                                for i, p in enumerate(error_examples)
+                                            ])
+                                            
+                                            if current_lang == 'pt':
+                                                prompt = f"""O classificador de texto cometeu {num_errors} erros ao classificar um conjunto de {results['total']} notícias.
 
 Exemplos de erros:
 {examples_text}
 
 Analise os padrões de erro e explique brevemente (2-4 razões principais) por que o classificador pode estar errando. Seja conciso e focado nos motivos mais prováveis."""
-                                        else:
-                                            prompt = f"""The text classifier made {num_errors} errors when classifying a set of {results['total']} news articles.
+                                            else:
+                                                prompt = f"""The text classifier made {num_errors} errors when classifying a set of {results['total']} news articles.
 
 Error examples:
 {examples_text}
 
 Analyze the error patterns and briefly explain (2-4 main reasons) why the classifier may be making mistakes. Be concise and focus on the most likely reasons."""
-                                        
-                                        with st.spinner("Analisando erros com IA..." if current_lang == 'pt' else "Analyzing errors with AI..."):
-                                            imports = _lazy_imports()
-                                            error_analysis = imports['call_groq_llm'](prompt, max_tokens=600)
-                                            st.info(error_analysis)
-                                    except Exception as e:
-                                        st.warning(f"❌ Erro ao analisar com IA: {e}" if current_lang == 'pt' else f"❌ Error analyzing with AI: {e}")
-                                        st.info(t('explanation_info'))
+                                            
+                                            with st.spinner("Analisando erros com IA..." if current_lang == 'pt' else "Analyzing errors with AI..."):
+                                                imports = _lazy_imports()
+                                                error_analysis = imports['call_groq_llm'](prompt, max_tokens=600)
+                                                # Save to session_state for persistence
+                                                st.session_state[error_analysis_key] = error_analysis
+                                                st.info(error_analysis)
+                                        except Exception as e:
+                                            st.warning(f"❌ Erro ao analisar com IA: {e}" if current_lang == 'pt' else f"❌ Error analyzing with AI: {e}")
+                                            st.info(t('explanation_info'))
                                 
                                 st.divider()
                             
