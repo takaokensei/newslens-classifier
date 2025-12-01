@@ -170,6 +170,9 @@ if 'explanation_generated' not in st.session_state:
     st.session_state.explanation_generated = False
 if 'llm_explanation' not in st.session_state:
     st.session_state.llm_explanation = None
+# Session-based prediction logs (private per user/session)
+if 'session_predictions' not in st.session_state:
+    st.session_state.session_predictions = []
 
 
 @st.cache_resource
@@ -559,18 +562,21 @@ Explain clearly and concisely why this text belongs to this category."""
                         st.warning(f"{t('explanation_error')} {e}")
                         st.info(t('explanation_info'))
             
-            # Save to log (only on new classification)
+            # Save to session log (private per user/session)
             if classify_button and save_prediction and text_input:
-                imports = _lazy_imports()
-                imports['log_prediction'](
-                    texto=text_input,
-                    classe_predita=result['classe_predita'],
-                    score=result['score'],
-                    embedding_usado=result['embedding_usado'],
-                    modelo_usado=result['modelo_usado'],
-                    fonte="streamlit",
-                    categoria_predita=result['categoria_predita']
-                )
+                # Add to session-based predictions (private per browser/session)
+                prediction_entry = {
+                    'timestamp': datetime.now().isoformat(),
+                    'texto': text_input[:200] + "..." if len(text_input) > 200 else text_input,  # Truncate for display
+                    'classe_predita': result['classe_predita'],
+                    'categoria_predita': result['categoria_predita'],
+                    'score': result['score'],
+                    'embedding_usado': result['embedding_usado'],
+                    'modelo_usado': result['modelo_usado'],
+                    'fonte': 'streamlit'
+                }
+                st.session_state.session_predictions.append(prediction_entry)
+                
                 if not st.session_state.get('log_saved_for_current', False):
                     st.success(t('saved_log'))
                     st.session_state.log_saved_for_current = True
@@ -601,23 +607,40 @@ Explain clearly and concisely why this text belongs to this category."""
                     default=[]
                 )
         
-        # Load logs (lazy import)
-        imports = _lazy_imports()
-        logs_df = imports['load_prediction_logs']()
+        # Use session-based predictions (private per user/browser session)
+        # Each user has their own prediction history stored in session_state
+        session_predictions = st.session_state.get('session_predictions', [])
         
-        # Apply filters
-        if not logs_df.empty:
+        if not session_predictions:
+            st.info(t('no_predictions'))
+            st.caption("💡 **Dica**: As predições são salvas apenas na sua sessão atual. Cada navegador/computador tem seu próprio histórico." if current_lang == 'pt' else "💡 **Tip**: Predictions are saved only in your current session. Each browser/computer has its own history.")
+        else:
+            # Convert to DataFrame for easier manipulation
+            logs_df = pd.DataFrame(session_predictions)
+            
+            # Apply filters
             if filter_category:
                 logs_df = logs_df[logs_df['categoria_predita'].isin(filter_category)]
             if filter_embedding:
                 logs_df = logs_df[logs_df['embedding_usado'].isin(filter_embedding)]
             if filter_model:
                 logs_df = logs_df[logs_df['modelo_usado'].isin(filter_model)]
-        
-        if logs_df.empty:
-            st.info(t('no_predictions'))
-        else:
-            stats = imports['get_log_statistics']()
+            
+            if logs_df.empty:
+                st.info("Nenhuma predição encontrada com os filtros selecionados." if current_lang == 'pt' else "No predictions found with selected filters.")
+            else:
+                # Calculate statistics from session data
+                stats = {
+                    'total_predictions': len(logs_df),
+                    'avg_score': float(logs_df['score'].mean()) if 'score' in logs_df.columns else 0.0,
+                    'by_class': logs_df['categoria_predita'].value_counts().to_dict() if 'categoria_predita' in logs_df.columns else {},
+                    'by_model': logs_df['modelo_usado'].value_counts().to_dict() if 'modelo_usado' in logs_df.columns else {},
+                    'by_embedding': logs_df['embedding_usado'].value_counts().to_dict() if 'embedding_usado' in logs_df.columns else {},
+                    'date_range': {
+                        'start': logs_df['timestamp'].min() if 'timestamp' in logs_df.columns and not logs_df.empty else None,
+                        'end': logs_df['timestamp'].max() if 'timestamp' in logs_df.columns and not logs_df.empty else None
+                    }
+                }
             
             # Summary metrics
             col1, col2, col3, col4 = st.columns(4)
@@ -869,21 +892,28 @@ Explain clearly and concisely why this text belongs to this category."""
                 display_df = display_df.sort_values('timestamp', ascending=False)
                 st.dataframe(display_df, use_container_width=True, hide_index=True)
             
-            # Export data (bonus feature - Módulo 16)
+            # Export data and clear session (bonus feature - Módulo 16)
             st.divider()
-            col1, col2 = st.columns(2)
+            col1, col2, col3 = st.columns(3)
             with col1:
-                csv_export = logs_df.to_csv(index=False).encode('utf-8')
-                st.download_button(
-                    label="📥 Exportar CSV" if current_lang == 'pt' else "📥 Export CSV",
-                    data=csv_export,
-                    file_name=f"predicoes_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-                    mime="text/csv",
-                    use_container_width=True
-                )
+                if not logs_df.empty:
+                    csv_export = logs_df.to_csv(index=False).encode('utf-8')
+                    st.download_button(
+                        label="📥 Exportar CSV" if current_lang == 'pt' else "📥 Export CSV",
+                        data=csv_export,
+                        file_name=f"predicoes_sessao_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                        mime="text/csv",
+                        use_container_width=True
+                    )
             with col2:
                 if not logs_df.empty and 'timestamp' in logs_df.columns:
-                    st.info(f"📊 {len(logs_df)} predições no período filtrado" if current_lang == 'pt' else f"📊 {len(logs_df)} predictions in filtered period")
+                    st.info(f"📊 {len(logs_df)} predições na sua sessão" if current_lang == 'pt' else f"📊 {len(logs_df)} predictions in your session")
+            with col3:
+                if st.session_state.get('session_predictions'):
+                    if st.button("🗑️ Limpar Histórico da Sessão" if current_lang == 'pt' else "🗑️ Clear Session History", use_container_width=True):
+                        st.session_state.session_predictions = []
+                        st.success("Histórico limpo!" if current_lang == 'pt' else "History cleared!")
+                        st.rerun()
 
 
 if __name__ == "__main__":
