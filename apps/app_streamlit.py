@@ -194,8 +194,10 @@ def classify_text_streamlit(
     bert_model
 ) -> dict:
     """Classify text using specified model."""
+    # Lazy import
+    imports = _lazy_imports()
     # Preprocess
-    processed_text = preprocess_text(text)
+    processed_text = imports['preprocess_text'](text)
     
     # Generate embeddings
     if embedding_type == "TF-IDF":
