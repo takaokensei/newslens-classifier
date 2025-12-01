@@ -834,6 +834,8 @@ def main():
                         st.session_state.validation_test_results = results
                         st.session_state.validation_test_embedding = embedding_type
                         st.session_state.validation_test_model = model_type
+                        # Reset saved flag for new test
+                        st.session_state.validation_test_saved = False
                         # Don't clear test_validation_set yet - keep it to show results
                     
         # Show validation test results if available (either from new test or previous)
