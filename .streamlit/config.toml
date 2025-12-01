@@ -5,11 +5,6 @@ secondaryBackgroundColor = "#262730"
 textColor = "#FAFAFA"
 font = "sans serif"
 base = "dark"
-# Sidebar theme colors (fixes "Invalid color" errors)
-[theme.sidebar]
-widgetBackgroundColor = "#262730"
-widgetBorderColor = "#3A3F4B"
-skeletonBackgroundColor = "#1E2229"
 
 [server]
 headless = true

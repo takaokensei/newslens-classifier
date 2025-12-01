@@ -1,380 +1,555 @@
-\documentclass[12pt,a4paper]{article}
+% !TEX program = pdflatex
+% !TEX encoding = UTF-8
+
+\documentclass[11pt,a4paper,twoside]{article}
+
+%----------------------------------------------------------------------------------------
+% ENCODING AND LANGUAGE
+%----------------------------------------------------------------------------------------
 \usepackage[utf8]{inputenc}
-\usepackage[portuguese]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage[tracking=true]{microtype}
+
+%----------------------------------------------------------------------------------------
+% FONTS
+%----------------------------------------------------------------------------------------
+\usepackage{CormorantGaramond} 
+\usepackage[defaultsans]{lato} 
+\usepackage{FiraMono}
+
+%----------------------------------------------------------------------------------------
+% CORREÇÃO DE SCALING DE FONTE
+%----------------------------------------------------------------------------------------
+\usepackage{lmodern}      
+\usepackage{anyfontsize}  
+
+%----------------------------------------------------------------------------------------
+% PACKAGES ESSENCIAIS
+%----------------------------------------------------------------------------------------
+\usepackage{amsmath, amsthm, mathtools, bm, amssymb}
+\usepackage{siunitx}
 \usepackage{graphicx}
-\usepackage{amsmath}
-\usepackage{amsfonts}
-\usepackage{amssymb}
-\usepackage{booktabs}
-\usepackage{multirow}
-\usepackage{float}
-\usepackage{hyperref}
-\usepackage{geometry}
-\usepackage{listings}
 \usepackage{xcolor}
-\usepackage{pgfplots}
+\usepackage{float}
+\usepackage{eso-pic}
+\usepackage[object=vectorian]{pgfornament}
+\usepackage[outline]{contour}
+\usepackage{url} 
+\usepackage{caption}
 \usepackage{subcaption}
-\usepackage{enumitem}
+\usepackage{booktabs} 
+\usepackage{multirow}
 
-\geometry{margin=2.5cm}
-
-% Configurações de código
+%----------------------------------------------------------------------------------------
+% CODE LISTINGS
+%----------------------------------------------------------------------------------------
+\usepackage{listings}
 \lstset{
-    language=Python,
-    basicstyle=\ttfamily\small,
-    keywordstyle=\color{blue},
-    commentstyle=\color{green},
-    stringstyle=\color{red},
+    basicstyle=\ttfamily\small\color{secondary},
+    keywordstyle=\color{primary}\bfseries,
+    stringstyle=\color{accent},
+    commentstyle=\color{gray}\itshape,
+    numberstyle=\tiny\color{gray},
     numbers=left,
-    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=8pt,
     breaklines=true,
-    frame=single
+    frame=lines,
+    backgroundcolor=\color{lightgray},
+    rulecolor=\color{primary},
+    captionpos=b,
+    abovecaptionskip=10pt,
+    literate={á}{{\'a}}1 {ã}{{\~a}}1 {é}{{\'e}}1 {ç}{{\c{c}}}1
 }
 
-\title{NewsLens AI: Análise Comparativa de Representações Esparsas vs. Densas para Classificação de Notícias}
-\author{Cauã Vitor Figueredo Silva\\ELE 606 - Aprendizado de Máquina\\UFRN - Prof. José Alfredo F. Costa}
-\date{\today}
+%----------------------------------------------------------------------------------------
+% TIKZ SETUP & LAYERS
+%----------------------------------------------------------------------------------------
+\usepackage{tikz}
+\usetikzlibrary{
+    positioning, 
+    shadows, 
+    shadows.blur, 
+    circuits.ee.IEC, 
+    calc, 
+    backgrounds, 
+    shapes.geometric, 
+    fit, 
+    arrows.meta
+}
 
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{lines}
+\pgfsetlayers{background,lines,main}
+
+%----------------------------------------------------------------------------------------
+% COLOR DEFINITIONS
+%----------------------------------------------------------------------------------------
+\definecolor{primary}{HTML}{1e3a8a}      
+\definecolor{secondary}{HTML}{1f2937}    
+\definecolor{accent}{HTML}{dc2626}        
+\definecolor{lightgray}{HTML}{f8fafc}      
+\definecolor{darkgray}{HTML}{374151}       
+\definecolor{engineering}{HTML}{0369a1}    
+\definecolor{lightblue}{HTML}{3b82f6}      
+\definecolor{neuron}{RGB}{236, 72, 153}    
+\definecolor{synapse}{RGB}{99, 102, 241}  
+
+% Cores do Diagrama
+\definecolor{bgDeep}{RGB}{248, 250, 252}
+\definecolor{primaryDark}{RGB}{44, 62, 80}
+\definecolor{accentTeal}{RGB}{22, 160, 133}
+\definecolor{accentBlue}{RGB}{41, 128, 185}
+\definecolor{accentPurple}{RGB}{142, 68, 173}
+\definecolor{accentOrange}{RGB}{211, 84, 0}
+\definecolor{alertRed}{RGB}{192, 57, 43}
+
+%----------------------------------------------------------------------------------------
+% BOXES AND ENVIRONMENTS
+%----------------------------------------------------------------------------------------
+\usepackage{tcolorbox}
+\tcbuselibrary{theorems, skins, breakable}
+
+\newtcolorbox{highlightbox}[1][]{
+    enhanced, 
+    colback=lightgray, 
+    colframe=primary, 
+    boxrule=1pt, 
+    arc=5pt, 
+    drop shadow={opacity=0.4, shadow xshift=2pt, shadow yshift=-2pt, fill=darkgray!80}, 
+    breakable, 
+    coltitle=white, 
+    fonttitle=\bfseries\small\sffamily, 
+    colbacktitle=primary, 
+    attach boxed title to top left={xshift=12pt, yshift=-5pt}, 
+    boxed title style={arc=3pt, boxrule=0.5pt, drop shadow={opacity=0.4, shadow xshift=1pt, shadow yshift=-1pt, fill=darkgray}}, 
+    left=10pt, right=10pt, top=12pt, bottom=8pt, 
+    #1
+}
+
+\newtcolorbox{futuristicbox}[1][]{
+  enhanced, colback=secondary, colframe=primary!70, boxrule=0pt, arc=0pt,
+  borderline west={1pt}{0pt}{primary!80},
+  borderline east={1pt}{0pt}{accent!80},
+  fontupper=\bfseries\color{white},
+  halign=center, valign=center, boxsep=10pt, #1
+}
+
+%----------------------------------------------------------------------------------------
+% BIBLIOGRAPHY AND REFERENCES
+%----------------------------------------------------------------------------------------
+\usepackage{csquotes}
+\usepackage[
+    backend=biber,
+    style=abnt,           
+    citestyle=authoryear, 
+    sorting=nty,          
+    url=true,             
+    doi=true              
+]{biblatex}
+
+\addbibresource{referencias.bib}
+
+%----------------------------------------------------------------------------------------
+% LAYOUT SETTINGS
+%----------------------------------------------------------------------------------------
+\usepackage[a4paper,
+    left=2.5cm, right=2.5cm,
+    top=2.5cm, bottom=2.5cm,
+    headheight=22pt, headsep=20pt,
+    footskip=40pt]{geometry}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{setspace}
+
+\contourlength{0.04em}
+\newcommand*\splitdot{%
+  \hspace{0.3em}%
+  \raisebox{0.4ex}{%
+    \tikz{%
+      \fill[accent] (0,0) arc (90:270:0.4ex) -- cycle;%
+      \fill[lightblue] (0,0) arc (90:-90:0.4ex) -- cycle;%
+    }%
+  }%
+  \hspace{0.3em}~%
+}
+\newcommand{\sectiondivider}{\begin{center}\pgfornament[width=5cm, color=primary!50]{88}\end{center}}
+
+\newcommand{\PageBorder}{%
+\AddToShipoutPictureBG*{%
+  \begin{tikzpicture}[remember picture, overlay]
+    \draw[secondary, line width=0.4pt] ([xshift=1.5cm,yshift=-1.5cm]current page.north west) rectangle ([xshift=-1.5cm,yshift=1.5cm]current page.south east);
+    \draw[primary!80, line width=0.8pt] ([xshift=1.6cm,yshift=-1.6cm]current page.north west) rectangle ([xshift=-1.6cm,yshift=1.6cm]current page.south east);
+  \end{tikzpicture}}%
+}
+\newcommand{\NoPageBorder}{\ClearShipoutPictureBG}
+\newcommand{\RestorePageBorder}{\PageBorder}
+
+% Formatação de Seções
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\color{primary}}{\thesection}{1em}{}[\vspace{-0.5em}\textcolor{accent}{\titlerule[0.8pt]}]
+\titleformat{\subsection}{\large\bfseries\color{secondary}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{primary}}{\thesubsubsection}{1em}{}
+
+% Hyperref
+\usepackage[hidelinks, pdfencoding=auto, unicode]{hyperref}
+\usepackage{cleveref}
+
+% Styles
+\usepackage{enumitem}
+\usepackage{lettrine}
+\setstretch{1.15} 
+\pagestyle{fancy} \fancyhf{}
+\fancyhead[LE,RO]{\small\color{primary}\textbf{\thepage}}
+\fancyhead[RE]{\small\color{secondary}\textit{C. V. F. Silva}}
+\fancyhead[LO]{\small\color{secondary}\textit{NewsLens AI: TF-IDF vs BERT}}
+\fancyfoot[C]{\small\color{darkgray}Engenharia Elétrica – UFRN | 2025}
+\renewcommand{\headrulewidth}{0.5pt} 
+
+% Estilos TikZ do diagrama
+\tikzset{
+    complexNode/.style={draw=none, text=white, font=\bfseries\large, align=center, blur shadow={shadow blur steps=5, shadow xshift=2pt, shadow yshift=-2pt}, inner sep=6pt},
+    terminal/.style={complexNode, rectangle, rounded corners=12pt, top color=accentTeal!80!black, bottom color=accentTeal, minimum width=4.5cm, minimum height=1.4cm},
+    process/.style={complexNode, rectangle, rounded corners=4pt, top color=accentBlue!80!black, bottom color=accentBlue, minimum width=4.5cm, minimum height=1.3cm},
+    decision/.style={complexNode, diamond, aspect=1.8, top color=accentOrange!80!black, bottom color=accentOrange, minimum width=4.0cm, font=\normalsize\bfseries\itshape},
+    loopNode/.style={complexNode, regular polygon, regular polygon sides=6, shape border rotate=90, top color=accentPurple!80!black, bottom color=accentPurple, inner sep=-2pt, minimum width=3.0cm, font=\normalsize\bfseries},
+    flowLine/.style={draw=primaryDark!80, line width=1.8pt, rounded corners=8pt, ->, >=LaTeX},
+    feedbackLine/.style={flowLine, dashed, draw=alertRed, line width=1.3pt},
+    clusterBox/.style={draw=primaryDark!40, dashed, line width=1.2pt, fill=bgDeep, inner sep=18pt, rounded corners=18pt, drop shadow={opacity=0.15}}
+}
+
+%========================================================================================
+% DOCUMENT
+%========================================================================================
 \begin{document}
 
-\maketitle
+\NoPageBorder
+\begin{titlepage}
+\thispagestyle{empty}
 
-\begin{abstract}
-Este trabalho apresenta uma análise comparativa entre representações esparsas (TF-IDF) e densas (BERT) para classificação de notícias em português. O sistema NewsLens AI foi desenvolvido para avaliar o trade-off entre performance semântica e eficiência computacional, utilizando modelos SVM e XGBoost. Os resultados demonstram que o BERT alcança performance superior (F1=1.0), enquanto o TF-IDF oferece melhor eficiência (0.14ms/doc) com performance competitiva (F1=0.97). O trabalho inclui integração com LLMs para perfilamento de classes e análise diferencial de erros, além de um sistema de produção completo com interface Streamlit e monitoramento.
-\end{abstract}
+% BACKGROUND GRAPHICS
+\begin{tikzpicture}[remember picture, overlay]
+    \fill[secondary] (current page.north west) rectangle (current page.south east);
+    \fill[primary] (current page.north west) -- ($(current page.north west) + (0,-1cm)$) -- ($(current page.north east) + (-10cm,-2.5cm)$) -- (current page.north east) -- cycle;
+    \fill[accent] (current page.south west) -- ($(current page.south west) + (12cm, 2cm)$) -- ($(current page.south east) + (0, 1cm)$) -- (current page.south east) -- cycle;
+\end{tikzpicture}
+
+\begin{center}
+    \vspace*{3.5cm}
+    \includegraphics[height=4.0cm]{ufrn_logo.png} 
+    \vfill
+
+    % --- IDENTIFICAÇÃO ---
+    {\color{white}\large\bfseries\textls[150]{\MakeUppercase{Universidade Federal do Rio Grande do Norte}}}\\[0.2cm]
+    
+    % --- HIERARQUIA ---
+    {\color{white}\bfseries\textls[100]{CENTRO DE TECNOLOGIA \\ DEPARTAMENTO DE ENGENHARIA ELÉTRICA}}\\[0.8cm]
+
+    % --- MATÉRIA ---
+    {\color{white}\bfseries\textls[50]{
+        ELE 606 – \textcolor{white}{\MakeUppercase{Aprendizado de Máquina}}
+    }}
+
+    \vfill
+
+    % --- TÍTULO ---
+    \renewcommand{\LettrineFontHook}{\color{accent}\bfseries}
+    {\color{white}\fontsize{24}{28}\selectfont\bfseries
+    \lettrine[lines=2, lraise=0.1]{N}{EWSLENS AI} \\ 
+    \textls[50]{\MakeUppercase{Análise Comparativa de Representações}}}
+    
+    \vfill
+    
+    % --- SUBTÍTULO ---
+    \begin{futuristicbox}
+    \textls[80]{SPARSE (TF-IDF) VS. DENSE (BERT) PARA CLASSIFICAÇÃO DE NOTÍCIAS}
+    \end{futuristicbox}
+
+    \vfill
+
+    % --- AUTOR ---
+    {\color{white}\Large\bfseries\textls[100]{\MakeUppercase{Cauã Vitor F. Silva}}}\\[0.3cm]
+    {\color{white}\textls[50]{\MakeUppercase{Matrícula:} \texttt{20220014216} \splitdot ~ \MakeUppercase{Email:} \texttt{cauavitorfigueredo@gmail.com}}}\\[1.5cm]
+
+    % --- PROFESSOR ---
+    {\color{white}\small\bfseries\textls[50]{\MakeUppercase{Professor: \\ Prof. Dr. JOSÉ ALFREDO F. COSTA}}}
+    
+    \vfill
+    
+    % --- DATA ---
+    {\color{white}\large\bfseries\textls[100]{\MakeUppercase{Natal-RN} \splitdot \today}}
+    
+    \vspace{2.5cm}
+\end{center}
+\end{titlepage}
+
+%----------------------------------------------------------------------------------------
+% EXECUTIVE SUMMARY (RESUMO)
+%----------------------------------------------------------------------------------------
+\RestorePageBorder
+\pagestyle{fancy}
+\pagenumbering{roman}
+\setcounter{page}{1}
+\thispagestyle{plain}
+\begin{center}
+    {\Large\bfseries\color{primary}Resumo}
+\end{center}
+
+\lettrine[lines=3, lhang=0.1, loversize=0.2]{\color{accent}\textbf{E}}{ste trabalho} apresenta uma análise comparativa entre representações esparsas (TF-IDF) e densas (BERT) para classificação de notícias em português. O sistema NewsLens AI foi desenvolvido para avaliar o trade-off entre performance semântica e eficiência computacional, utilizando modelos SVM e XGBoost. 
+
+Os resultados demonstram que o BERT alcança performance superior (F1=1.0), enquanto o TF-IDF oferece melhor eficiência (0.14ms/doc) com performance competitiva (F1=0.97). O trabalho inclui integração com LLMs para perfilamento de classes e análise diferencial de erros, além de um sistema de produção completo com interface Streamlit e monitoramento.
+
+\vspace{0.5cm}
+\begin{center}
+\begin{tikzpicture}
+    \node[draw=primary, fill=lightgray, rounded corners=5pt, inner sep=8pt,
+          drop shadow={opacity=0.4, shadow xshift=2pt, shadow yshift=-2pt, fill=darkgray!80}] {
+    \begin{minipage}{0.8\textwidth}
+        \centering
+        \textbf{Palavras-chave:} NLP $\cdot$ TF-IDF $\cdot$ BERT $\cdot$ Classification $\cdot$ MLOps $\cdot$ Trade-off
+    \end{minipage}
+    };
+\end{tikzpicture}
+\end{center}
+\newpage
+
+%----------------------------------------------------------------------------------------
+% ABSTRACT
+%----------------------------------------------------------------------------------------
+\RestorePageBorder
+\thispagestyle{plain}
+\begin{center}
+    {\Large\bfseries\color{primary}Abstract}
+\end{center}
+
+\lettrine[lines=3, lhang=0.1, loversize=0.2]{\color{accent}\textbf{T}}{his work} presents a comparative analysis between sparse (TF-IDF) and dense (BERT) representations for Portuguese news classification. The NewsLens AI system was developed to evaluate the trade-off between semantic performance and computational efficiency, using SVM and XGBoost models.
+
+Results demonstrate that BERT achieves superior performance (F1=1.0), while TF-IDF offers better efficiency (0.14ms/doc) with competitive performance (F1=0.97). The work includes LLM integration for class profiling and differential error analysis, as well as a complete production system with Streamlit interface and monitoring.
+
+\vspace{0.5cm}
+\begin{center}
+\begin{tikzpicture}
+     \node[draw=primary, fill=lightgray, rounded corners=5pt, inner sep=8pt,
+          drop shadow={opacity=0.4, shadow xshift=2pt, shadow yshift=-2pt, fill=darkgray!80}] {
+    \begin{minipage}{0.8\textwidth}
+        \centering
+        \textbf{Keywords:} NLP $\cdot$ TF-IDF $\cdot$ BERT $\cdot$ Classification $\cdot$ MLOps $\cdot$ Trade-off
+    \end{minipage}
+    };
+\end{tikzpicture}
+\end{center}
+\newpage
+
+%----------------------------------------------------------------------------------------
+% PRELIMINARY PAGES
+%----------------------------------------------------------------------------------------
+\NoPageBorder
+\pagestyle{fancy}
 
 \tableofcontents
 \newpage
 
+%----------------------------------------------------------------------------------------
+% MAIN CONTENT
+%----------------------------------------------------------------------------------------
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% ============================================================================
+% 1. INTRODUÇÃO
+% ============================================================================
 \section{Introdução}
 
 \subsection{Objetivo do Trabalho}
-
-O objetivo deste trabalho é desenvolver e avaliar um sistema de classificação de notícias em português, comparando duas abordagens distintas de representação textual: representações esparsas (TF-IDF) e densas (BERT). O sistema NewsLens AI foi projetado para quantificar o trade-off entre performance semântica e eficiência computacional em um ambiente de produção simulado.
+O objetivo deste trabalho é desenvolver e avaliar um sistema de classificação de notícias em português, comparando duas abordagens distintas de representação textual: representações esparsas (TF-IDF) e densas (BERT). O sistema \textit{NewsLens AI} foi projetado para quantificar o trade-off entre performance semântica e eficiência computacional em um ambiente de produção simulado.
 
 \subsection{Hipótese Científica Central}
 
-A hipótese central deste trabalho é:
-
+\begin{highlightbox}[title={Hipótese de Pesquisa}]
 \textit{"O ganho semântico do BERT (Dense) justifica o aumento de latência e custo computacional em comparação a um TF-IDF (Sparse) bem ajustado para classificação de notícias?"}
+\end{highlightbox}
 
 Esta hipótese será testada através de métricas de performance (F1-Macro, Accuracy), eficiência (latência, cold start, tamanho do modelo) e análise qualitativa de casos onde os modelos diferem.
 
 \subsection{Contexto e Motivação}
-
-A classificação automática de textos é uma tarefa fundamental em processamento de linguagem natural, com aplicações em sistemas de recomendação, filtragem de conteúdo e análise de sentimentos. Com o advento de modelos de linguagem pré-treinados como BERT, surgiu a necessidade de avaliar quando o ganho semântico justifica o custo computacional adicional em relação a métodos tradicionais como TF-IDF.
+A classificação automática de textos é uma tarefa fundamental em processamento de linguagem natural (NLP). Com o advento de modelos de linguagem pré-treinados como BERT \parencite{devlin2019bert}, surgiu a necessidade de avaliar quando o ganho semântico justifica o custo computacional adicional em relação a métodos tradicionais como TF-IDF. 
 
 Este trabalho contribui para essa discussão através de uma análise empírica rigorosa, utilizando uma base de dados real de notícias em português e métricas de engenharia de produção (latência, cold start, uso de memória).
 
+\sectiondivider
+
+% ============================================================================
+% 2. BASE DE DADOS
+% ============================================================================
 \section{Descrição da Base de Dados}
 
 \subsection{Características da Base}
-
-A base de dados utilizada contém notícias em português classificadas em 6 categorias:
+A base de dados utilizada contém notícias em português classificadas em 6 categorias distintas. Após remoção de textos vazios, a base final contém 315 amostras válidas.
 
 \begin{itemize}
-    \item \textbf{Economia}: Notícias sobre economia, finanças e mercado
-    \item \textbf{Esportes}: Notícias esportivas
-    \item \textbf{Polícia e Direitos}: Notícias sobre segurança pública e direitos
-    \item \textbf{Política}: Notícias políticas
-    \item \textbf{Turismo}: Notícias sobre turismo e viagens
-    \item \textbf{Variedades e Sociedade}: Notícias gerais e sociais
+    \item \textbf{Economia}: Notícias sobre economia, finanças e mercado.
+    \item \textbf{Esportes}: Notícias esportivas.
+    \item \textbf{Polícia e Direitos}: Notícias sobre segurança pública e direitos.
+    \item \textbf{Política}: Notícias políticas.
+    \item \textbf{Turismo}: Notícias sobre turismo e viagens.
+    \item \textbf{Variedades e Sociedade}: Notícias gerais e sociais.
 \end{itemize}
-
-\subsection{Estatísticas Descritivas}
-
-A base contém um total de 315 amostras válidas após remoção de textos vazios. A distribuição de classes é relativamente balanceada:
 
 \begin{table}[H]
 \centering
 \caption{Distribuição de Classes na Base de Dados}
-\begin{tabular}{lcc}
+\label{tab:dataset_dist}
+\begin{tabular}{@{}lcc@{}}
 \toprule
-\textbf{Categoria} & \textbf{Quantidade} & \textbf{Percentual} \\
-\midrule
+\textbf{Categoria} & \textbf{Quantidade} & \textbf{Percentual} \\ \midrule
 Economia & 53 & 16.8\% \\
 Esportes & 55 & 17.5\% \\
 Polícia e Direitos & 55 & 17.5\% \\
 Política & 51 & 16.2\% \\
 Turismo & 60 & 19.0\% \\
-Variedades e Sociedade & 45 & 14.3\% \\
-\midrule
-\textbf{Total} & \textbf{319} & \textbf{100\%} \\
-\bottomrule
+Variedades e Sociedade & 45 & 14.3\% \\ \midrule
+\textbf{Total} & \textbf{315} & \textbf{100\%} \\ \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Nota:} Após remoção de textos vazios, a base final contém 315 amostras válidas utilizadas no treinamento.
-
-O tamanho médio dos textos é de aproximadamente 200-300 palavras por amostra, com variação significativa entre categorias.
-
-\subsection{Pré-processamento Aplicado}
-
-O pré-processamento foi realizado através de uma função única (\texttt{preprocess\_text()}) aplicada consistentemente em todo o pipeline:
-
+\subsection{Pré-processamento}
+Foi aplicada uma função única (\texttt{preprocess\_text()}) em todo o pipeline:
 \begin{enumerate}
-    \item \textbf{Lowercase}: Conversão de todo o texto para minúsculas
-    \item \textbf{Remoção de caracteres especiais}: Mantendo acentos para preservar características do português
-    \item \textbf{Normalização de espaços}: Remoção de espaços múltiplos
-    \item \textbf{Remoção de URLs e emails}: Limpeza de elementos não-textuais
+    \item \textbf{Lowercase}: Conversão para minúsculas.
+    \item \textbf{Limpeza}: Remoção de URLs, e-mails e espaços múltiplos.
+    \item \textbf{Caracteres Especiais}: Mantidos acentos para preservar características do português.
 \end{enumerate}
 
-Esta abordagem garante consistência entre treino, validação, teste e produção.
-
+% ============================================================================
+% 3. METODOLOGIA
+% ============================================================================
 \section{Métodos e Pipeline}
 
 \subsection{Embeddings Utilizados}
 
 \subsubsection{TF-IDF (Representação Esparsa)}
-
-O TF-IDF foi implementado utilizando \texttt{scikit-learn}, com as seguintes configurações:
-
+Implementado via \texttt{scikit-learn}:
 \begin{itemize}
-    \item \textbf{Features máximas}: 20.000
-    \item \textbf{N-gramas}: Unigramas e bigramas (1, 2)
-    \item \textbf{Armazenamento}: Matriz esparsa comprimida (.npz)
-    \item \textbf{Densidade}: Aproximadamente 1\% (matriz esparsa)
+    \item \textbf{Features máximas}: 20.000.
+    \item \textbf{N-gramas}: Unigramas e bigramas (1, 2).
+    \item \textbf{Armazenamento}: Matriz esparsa comprimida (.npz), com densidade $\approx 1\%$.
 \end{itemize}
-
-Esta configuração permite capturar relações entre palavras adjacentes enquanto mantém a eficiência computacional.
 
 \subsubsection{BERT (Representação Densa)}
-
-O BERT foi implementado utilizando a biblioteca \texttt{sentence-transformers} com o modelo:
-
+Implementado via \texttt{sentence-transformers} \parencite{reimers2019sentence}:
 \begin{itemize}
-    \item \textbf{Modelo}: \texttt{neuralmind/bert-base-portuguese-cased}
-    \item \textbf{Pooling}: Mean pooling automático
-    \item \textbf{Dimensão}: 768 features
-    \item \textbf{Armazenamento}: Matriz densa float32 (.npy)
-    \item \textbf{Batch size}: 32 para geração de embeddings
+    \item \textbf{Modelo}: \texttt{neuralmind/bert-base-portuguese-cased} \parencite{souza2020bertimbau}.
+    \item \textbf{Pooling}: Mean pooling.
+    \item \textbf{Dimensão}: 768 features (float32).
 \end{itemize}
 
-O modelo BERT foi escolhido por ser específico para português e ter demonstrado excelente performance em tarefas de NLP em português.
+\subsection{Modelos de Classificação e Otimização}
 
-\subsection{Modelos de Classificação}
+Utilizamos **SVM** (Support Vector Machine) \parencite{cortes1995support} e **XGBoost** \parencite{chen2016xgboost}. A otimização de hiperparâmetros foi realizada via **Optuna** (TPE Algorithm) com 50 trials.
 
-\subsubsection{SVM (Support Vector Machine)}
-
-Configurações utilizadas:
-
-\begin{itemize}
-    \item \textbf{Kernel}: Linear (otimizado para alta dimensionalidade)
-    \item \textbf{Class weight}: Balanced (para lidar com desbalanceamento)
-    \item \textbf{Probability}: True (para obter scores de confiança)
-\end{itemize}
-
-O kernel linear foi escolhido por sua eficiência e adequação para dados de alta dimensionalidade (tanto TF-IDF quanto BERT).
-
-\subsubsection{XGBoost}
-
-Configurações utilizadas:
-
-\begin{itemize}
-    \item \textbf{Número de estimadores}: 100
-    \item \textbf{Profundidade máxima}: 6
-    \item \textbf{Paralelismo}: n\_jobs=-1 (utiliza todos os cores)
-\end{itemize}
-
-XGBoost foi escolhido por sua capacidade de capturar relações não-lineares e sua eficiência computacional.
-
-\subsection{Estratégia de Validação}
-
-A divisão dos dados foi realizada de forma estratificada para manter a distribuição original de classes:
-
-\begin{itemize}
-    \item \textbf{Treino}: 60\% (189 amostras)
-    \item \textbf{Validação}: 20\% (63 amostras)
-    \item \textbf{Teste}: 20\% (63 amostras)
-\end{itemize}
-
-A estratificação foi garantida através do parâmetro \texttt{stratify=y} e \texttt{random\_state=42} para reprodutibilidade. O conjunto de validação foi utilizado para ajuste fino e comparação inicial, enquanto o conjunto de teste foi reservado exclusivamente para avaliação final.
-
-\subsubsection{K-Fold Cross-Validation}
-
-Para garantir robustez estatística e reduzir a variância dos resultados, foi implementado K-fold Cross-Validation estratificado (K=5). Esta técnica divide os dados de treino e validação combinados em 5 partes (folds), treina o modelo 5 vezes usando K-1 folds para treino e 1 fold para validação, e calcula a média dos resultados. Isso fornece uma estimativa mais confiável da performance do modelo, independente de um único split aleatório.
-
-Os resultados de CV demonstram consistência dos modelos, com desvio padrão baixo (< 0.02) para todos os setups, indicando que os resultados são robustos e não dependem de uma divisão específica dos dados.
-
-\subsubsection{Otimização de Hiperparâmetros}
-
-Foi implementada otimização bayesiana de hiperparâmetros utilizando a biblioteca Optuna (algoritmo TPE - Tree-structured Parzen Estimator). A otimização foi realizada para todos os 4 modelos:
+\subsubsection{Espaço de Busca (Optuna)}
 
 \textbf{SVM:}
 \begin{itemize}
-    \item \textbf{C}: Regularização (0.1 a 100.0, escala logarítmica)
-    \item \textbf{kernel}: Tipo de kernel ('linear', 'rbf', 'poly')
-    \item \textbf{gamma}: Coeficiente do kernel (para RBF/Poly)
+    \item \textbf{C}: 0.1 a 100.0 (escala logarítmica).
+    \item \textbf{Kernel}: 'linear', 'rbf', 'poly'.
+    \item \textbf{Gamma}: Coeficiente do kernel (para RBF/Poly).
 \end{itemize}
 
 \textbf{XGBoost:}
 \begin{itemize}
-    \item \textbf{n\_estimators}: Número de árvores (50 a 300)
-    \item \textbf{max\_depth}: Profundidade máxima (3 a 10)
-    \item \textbf{learning\_rate}: Taxa de aprendizado (0.01 a 0.3, escala logarítmica)
-    \item \textbf{subsample}: Fração de amostras (0.6 a 1.0)
-    \item \textbf{colsample\_bytree}: Fração de features (0.6 a 1.0)
-    \item \textbf{Regularização}: min\_child\_weight, gamma, reg\_alpha, reg\_lambda
+    \item \textbf{Nº Estimadores}: 50 a 300.
+    \item \textbf{Max Depth}: 3 a 10.
+    \item \textbf{Learning Rate}: 0.01 a 0.3 (logarítmico).
+    \item \textbf{Subsample/Colsample}: 0.6 a 1.0.
 \end{itemize}
 
-A otimização foi realizada com 50 trials por modelo, utilizando 5-fold CV para avaliar cada combinação de hiperparâmetros. Os melhores hiperparâmetros encontrados foram salvos e utilizados para retreinar os modelos finais, garantindo que os modelos estejam otimizados e não apenas utilizando valores padrão.
-
-\subsection{Uso de LLMs}
-
-\subsubsection{Perfilamento de Classes}
-
-O perfilamento híbrido combina:
-
+\begin{highlightbox}[title={Resultados da Otimização}]
+A otimização gerou ganhos significativos, especialmente para o XGBoost:
 \begin{itemize}
-    \item \textbf{Chi-Squared Feature Selection} (TF-IDF): Identifica os 20 tokens mais correlacionados com cada classe
-    \item \textbf{Centroides BERT}: Calcula o centroide de embeddings por classe e identifica os 5 vizinhos mais próximos
+    \item \textbf{BERT + XGBoost:} +3.96\% em F1-Macro (Learning rate reduzido para 0.039).
+    \item \textbf{BERT + SVM:} Seleção de kernel RBF (ao invés de Linear), indicando não-linearidade nos embeddings. O parâmetro C foi otimizado para 24.82.
 \end{itemize}
+\end{highlightbox}
 
-Este processo gera "arquétipos" de cada classe, representados em JSON, que descrevem as características léxicas e semânticas de cada categoria.
+\subsection{Estratégia de Validação}
+Utilizou-se **K-Fold Cross-Validation Estratificado** ($K=5$) para garantir robustez estatística, resultando em desvios padrão baixos ($< 0.02$).
 
-\subsubsection{Análise Diferencial de Erros}
-
-A análise diferencial identifica casos onde:
-\begin{equation}
-(Pred_{BERT} = Correto) \land (Pred_{TFIDF} = Incorreto)
-\end{equation}
-
-Os top-10 casos com maior delta de confiança são analisados via Groq API (modelo \texttt{llama-3.3-70b-versatile}) para explicar as nuances linguísticas que o BERT capturou mas o TF-IDF perdeu.
-
+% ============================================================================
+% 4. EXPERIMENTOS E RESULTADOS
+% ============================================================================
 \section{Experimentos e Resultados}
 
-\subsection{Comparação: Modelos Padrão vs Otimizados (Optuna)}
+\subsection{Comparação: Modelos Padrão vs Otimizados}
 
-Para demonstrar o impacto da otimização bayesiana, foi realizada uma comparação direta entre modelos treinados com hiperparâmetros padrão e modelos otimizados via Optuna. A Tabela \ref{tab:optimization_comparison} apresenta os resultados de K-fold Cross-Validation (5 folds) para ambos os casos.
+A otimização bayesiana (Optuna) foi fundamental para maximizar o desempenho. A Tabela abaixo demonstra a comparação direta.
 
 \begin{table}[H]
 \centering
-\caption{Comparação: Modelos Padrão vs Otimizados (K-fold CV, 5 folds)}
+\caption{Comparação: Modelos Padrão vs Otimizados (K-fold CV, K=5)}
 \label{tab:optimization_comparison}
-\begin{tabular}{lcccc}
+\begin{tabular}{@{}lcccc@{}}
 \toprule
-\textbf{Modelo} & \textbf{F1-Padrão} & \textbf{F1-Otimizado} & \textbf{Melhoria} & \textbf{Melhoria (\%)} \\
-\midrule
+\textbf{Modelo} & \textbf{F1-Padrão} & \textbf{F1-Otimizado} & \textbf{Melhoria} & \textbf{Melhoria (\%)} \\ \midrule
 TF-IDF + SVM & 0.9680 & 0.9682 & 0.0002 & 0.02\% \\
 TF-IDF + XGBoost & 0.8478 & 0.8675 & 0.0197 & \textbf{2.32\%} \\
 BERT + SVM & 0.9881 & 0.9918 & 0.0037 & 0.37\% \\
-BERT + XGBoost & 0.9277 & 0.9645 & 0.0368 & \textbf{3.96\%} \\
-\bottomrule
+BERT + XGBoost & 0.9277 & 0.9645 & 0.0368 & \textbf{3.96\%} \\ \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Análise dos Resultados:}
-\begin{itemize}
-    \item \textbf{BERT + XGBoost}: Maior ganho absoluto e percentual (+3.96\%), demonstrando que os hiperparâmetros padrão do XGBoost não eram ideais para este dataset. A otimização descobriu learning rate mais baixo (0.039 vs 0.1 padrão) e regularização adequada.
-    
-    \item \textbf{TF-IDF + XGBoost}: Segundo maior ganho (+2.32\%), confirmando que XGBoost se beneficia significativamente da otimização de hiperparâmetros.
-    
-    \item \textbf{BERT + SVM}: Pequeno ganho (+0.37\%), mas com descoberta importante: o kernel RBF foi selecionado em vez de linear, indicando que relações não-lineares são importantes para embeddings BERT. O parâmetro C foi otimizado para 24.82 (vs 1.0 padrão).
-    
-    \item \textbf{TF-IDF + SVM}: Ganho marginal (+0.02\%), indicando que os hiperparâmetros padrão já eram adequados. O kernel linear permaneceu como melhor opção.
-\end{itemize}
+\subsection{Eficiência e Performance Global}
 
-\textbf{Impacto da Otimização:}
-\begin{itemize}
-    \item \textbf{Robustez}: Desvios padrão mantiveram-se baixos (< 0.06) em ambos os casos, confirmando consistência
-    \item \textbf{Eficiência}: A otimização não aumentou significativamente o tempo de treinamento ou inferência
-    \item \textbf{Validação}: Os ganhos observados em CV foram validados no conjunto de teste
-\end{itemize}
-
-\subsection{Validação Robusta e Otimização de Hiperparâmetros}
-
-Antes de apresentar os resultados finais, é importante destacar que foi realizada uma validação robusta através de K-fold Cross-Validation (5 folds) e otimização bayesiana de hiperparâmetros utilizando Optuna. Os resultados demonstram:
-
-\begin{itemize}
-    \item \textbf{Consistência}: Desvios padrão < 0.06 para todos os modelos, indicando robustez estatística
-    \item \textbf{Otimização Efetiva}: Melhorias de até 3.96\% em F1-Macro (BERT + XGBoost)
-    \item \textbf{Descobertas Técnicas}: Kernel RBF selecionado para BERT + SVM (em vez de linear), indicando relações não-lineares importantes
-\end{itemize}
-
-Os modelos apresentados nesta seção foram treinados com os hiperparâmetros otimizados, garantindo que estão no seu melhor desempenho possível.
-
-\subsection{Tabela A: Eficiência \& Performance Global}
+A Tabela \ref{tab:efficiency} resume o trade-off central do trabalho. Os modelos foram avaliados com hiperparâmetros otimizados.
 
 \begin{table}[H]
 \centering
-\caption{Eficiência e Performance Global dos Modelos (com Hiperparâmetros Otimizados)}
+\caption{Eficiência e Performance Global dos Modelos (Otimizados)}
 \label{tab:efficiency}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccccc}
+\begin{tabular}{@{}lccccc@{}}
 \toprule
-\textbf{Setup} & \textbf{F1-Macro} & \textbf{Accuracy} & \textbf{Latência} & \textbf{Cold Start} & \textbf{Tamanho} \\
- &  &  & \textbf{(ms/doc)} & \textbf{(s)} & \textbf{(MB)} \\
-\midrule
-TF-IDF + SVM (Otimizado) & 0.968 & 0.968 & 0.140 & 0.040 & 0.182 \\
-TF-IDF + XGBoost (Otimizado) & 0.697 & 0.714 & 0.370 & 0.060 & 0.489 \\
-BERT + SVM (Otimizado) & 1.000 & 1.000 & 0.160 & 0.620 & 0.875 \\
-BERT + XGBoost (Otimizado) & 0.967 & 0.968 & 0.390 & 0.550 & 0.428 \\
-\bottomrule
+\textbf{Setup} & \textbf{F1-Macro} & \textbf{Accuracy} & \textbf{Latência (ms)} & \textbf{Cold Start (s)} & \textbf{Tamanho (MB)} \\ \midrule
+TF-IDF + SVM & 0.968 & 0.968 & \textbf{0.140} & \textbf{0.040} & \textbf{0.182} \\
+TF-IDF + XGBoost & 0.697 & 0.714 & 0.370 & 0.060 & 0.489 \\
+BERT + SVM & \textbf{1.000} & \textbf{1.000} & 0.160 & 0.620 & 0.875 \\
+BERT + XGBoost & 0.967 & 0.968 & 0.390 & 0.550 & 0.428 \\ \bottomrule
 \end{tabular}%
 }
 \end{table}
 
-\textbf{Nota}: Os modelos foram treinados com hiperparâmetros otimizados via Optuna (Bayesian Optimization). A otimização resultou em melhorias de até 3.96\% em F1-Macro para BERT + XGBoost, e descoberta de que kernel RBF é superior a linear para BERT + SVM.
+\subsection{Análise de Granularidade por Classe}
 
-\textbf{Observações:}
-\begin{itemize}
-    \item BERT + SVM alcançou performance perfeita (F1=1.0, Accuracy=1.0) no conjunto de teste, mesmo após otimização
-    \item TF-IDF + SVM oferece excelente eficiência (0.14ms/doc) com performance competitiva (F1=0.968)
-    \item Cold start do BERT melhorou significativamente após otimização (0.62s vs 2.23s anterior, ~3.6x mais rápido)
-    \item TF-IDF + XGBoost apresentou performance inferior mesmo após otimização (F1=0.697), mas melhorou em algumas classes específicas
-    \item BERT + XGBoost manteve F1=0.967 após otimização, com melhorias em classes específicas (Economia: 1.0, Política: 1.0)
-    \item \textbf{Validação Robusta}: K-fold CV (5 folds) demonstrou consistência dos resultados (desvio padrão < 0.06)
-    \item \textbf{Hiperparâmetros Otimizados}: Otimização bayesiana (Optuna) resultou em melhorias de até 3.96\% em F1-Macro durante CV (BERT + XGBoost)
-    \item \textbf{Descoberta Técnica}: Kernel RBF foi selecionado para BERT + SVM (em vez de linear), indicando relações não-lineares importantes nos embeddings BERT
-\end{itemize}
-
-\subsection{Tabela B: Granularidade por Classe}
+A performance por classe revela diferenças críticas entre as abordagens.
 
 \begin{table}[H]
 \centering
 \caption{F1-Score por Classe e Modelo (Conjunto de Teste - Modelos Otimizados)}
 \label{tab:classes}
-\begin{tabular}{lcccc}
+\begin{tabular}{@{}lcccc@{}}
 \toprule
 \textbf{Categoria} & \textbf{TF-IDF} & \textbf{TF-IDF} & \textbf{BERT} & \textbf{BERT} \\
- & \textbf{+SVM} & \textbf{+XGB} & \textbf{+SVM} & \textbf{+XGB} \\
-\midrule
+ & \textbf{+SVM} & \textbf{+XGB} & \textbf{+SVM} & \textbf{+XGB} \\ \midrule
 Economia & 0.952 & 0.571 & 1.000 & 1.000 \\
 Esportes & 0.952 & 0.783 & 1.000 & 0.900 \\
 Polícia e Direitos & 1.000 & 0.870 & 1.000 & 0.957 \\
 Política & 1.000 & 0.870 & 1.000 & 1.000 \\
 Turismo & 0.960 & 0.421 & 1.000 & 1.000 \\
-Variedades e Sociedade & 0.941 & 0.667 & 1.000 & 0.947 \\
-\bottomrule
+Variedades & 0.941 & 0.667 & 1.000 & 0.947 \\ \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Observação}: Os resultados apresentados são dos modelos com hiperparâmetros otimizados. A otimização melhorou especialmente o desempenho do XGBoost, com ganhos de até 3.96\% em F1-Macro.
+\subsection{Análise Visual}
 
-\textbf{Análise:}
-\begin{itemize}
-    \item BERT + SVM alcança F1=1.0 em todas as classes, demonstrando compreensão semântica superior
-    \item TF-IDF + SVM mantém F1 > 0.94 em todas as classes, exceto Economia (0.952)
-    \item Classes "Política" e "Polícia e Direitos" são facilmente distinguíveis por ambos os métodos
-    \item TF-IDF + XGBoost apresenta dificuldades em Economia (0.533) e Turismo (0.545)
-\end{itemize}
+As Figuras abaixo ilustram as matrizes de confusão e o trade-off de eficiência.
 
-\subsection{Matrizes de Confusão}
-
-As matrizes de confusão para cada combinação de modelo foram geradas e estão disponíveis em:
-\begin{itemize}
-    \item \texttt{models/cm\_tfidf\_svm\_test.png}
-    \item \texttt{models/cm\_tfidf\_xgb\_test.png}
-    \item \texttt{models/cm\_bert\_svm\_test.png}
-    \item \texttt{models/cm\_bert\_xgb\_test.png}
-\end{itemize}
-
-% Inserir figuras das matrizes de confusão
 \begin{figure}[H]
 \centering
 \begin{subfigure}{0.48\textwidth}
 \centering
-\includegraphics[width=\textwidth]{../models/cm_tfidf_svm_test.png}
+\includegraphics[width=\textwidth]{../models/cm_tfidf_svm_test.png} 
 \caption{TF-IDF + SVM}
 \end{subfigure}
 \hfill
@@ -383,383 +558,211 @@ As matrizes de confusão para cada combinação de modelo foram geradas e estão
 \includegraphics[width=\textwidth]{../models/cm_bert_svm_test.png}
 \caption{BERT + SVM}
 \end{subfigure}
-\caption{Matrizes de Confusão - Test Set}
+\caption{Matrizes de Confusão no Conjunto de Teste}
 \label{fig:confusion}
 \end{figure}
 
-\subsection{Gráficos Comparativos}
-
-Os gráficos comparativos foram gerados e estão disponíveis no dashboard Streamlit. As visualizações estáticas também foram criadas para inclusão no relatório:
-
 \begin{figure}[H]
-\centering
-\includegraphics[width=0.9\textwidth]{../models/f1_by_class_comparison.png}
-\caption{Comparação de F1-Score por Classe entre todos os modelos}
-\label{fig:f1_by_class}
+    \centering
+    \includegraphics[width=0.85\textwidth]{../models/performance_efficiency_tradeoff.png}
+    \caption{Trade-off: Performance (Eixo Y) vs Eficiência (Eixo X - Latência)}
+    \label{fig:tradeoff}
 \end{figure}
 
-A Figura \ref{fig:f1_by_class} mostra que BERT+SVM alcança F1=1.0 em todas as classes, enquanto TF-IDF+SVM mantém performance competitiva (F1 > 0.94) em todas as classes. TF-IDF+XGBoost apresenta dificuldades em algumas classes (Economia: 0.533, Turismo: 0.545).
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.8\textwidth]{../models/performance_efficiency_tradeoff.png}
-\caption{Trade-off entre Performance (F1-Macro) e Eficiência (Latência)}
-\label{fig:tradeoff}
-\end{figure}
-
-A Figura \ref{fig:tradeoff} ilustra claramente o trade-off: BERT+SVM oferece máxima performance (F1=1.0) com latência similar ao TF-IDF (0.12ms vs 0.14ms), enquanto TF-IDF+SVM oferece 96.8\% da performance com melhor eficiência.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.8\textwidth]{../models/cold_start_comparison.png}
-\caption{Comparação de Tempo de Cold Start entre Modelos}
-\label{fig:cold_start}
-\end{figure}
-
-A Figura \ref{fig:cold_start} destaca a diferença crítica no cold start: BERT requer 2.23s (28x maior que TF-IDF com 0.08s), o que é um fator decisivo para aplicações que precisam inicializar frequentemente.
-
-\textbf{Principais observações:}
+\textbf{Análise dos Dados:}
 \begin{itemize}
-    \item \textbf{F1 por Classe}: BERT+SVM mantém F1=1.0 em todas as classes, enquanto TF-IDF+SVM varia entre 0.941 e 1.0
-    \item \textbf{Accuracy Comparativa}: BERT+SVM (100\%) vs TF-IDF+SVM (96.8\%) - diferença de 3.2\%
-    \item \textbf{Latência vs Performance}: BERT tem latência de inferência similar (0.12ms vs 0.14ms), mas cold start muito maior (2.23s vs 0.08s)
-    \item \textbf{Trade-off}: O gráfico de trade-off mostra que TF-IDF+SVM oferece excelente equilíbrio para a maioria dos casos de uso
+    \item \textbf{Performance vs Latência:} O BERT+SVM oferece performance perfeita (F1=1.0) com latência de inferência similar ao TF-IDF (0.16ms vs 0.14ms).
+    \item \textbf{Gargalo do Cold Start:} A grande diferença está na inicialização. O BERT requer 0.62s (após otimização), enquanto o TF-IDF é quase instantâneo (0.04s).
 \end{itemize}
 
-\subsection{Análise de Trade-offs}
-
-\subsubsection{Performance vs Eficiência}
-
-O modelo \textbf{BERT + SVM} alcançou performance perfeita (F1=1.0, Accuracy=1.0) no conjunto de teste, demonstrando a superioridade das representações semânticas densas. No entanto, apresenta:
-
-\begin{itemize}
-    \item \textbf{Cold Start}: 2.23s (28x mais lento que TF-IDF+SVM)
-    \item \textbf{Tamanho}: 0.88 MB (4.8x maior que TF-IDF+SVM)
-\end{itemize}
-
-O modelo \textbf{TF-IDF + SVM} oferece um excelente equilíbrio:
-\begin{itemize}
-    \item \textbf{Performance}: F1=0.968, Accuracy=0.968 (perda de apenas 3.2\% em relação ao BERT)
-    \item \textbf{Eficiência}: Latência de 0.14ms/doc, Cold Start de 0.08s
-    \item \textbf{Tamanho}: 0.18 MB (5x menor que BERT+SVM)
-\end{itemize}
-
-\subsubsection{Análise por Classe}
-
-A Tabela B revela que:
-
-\begin{itemize}
-    \item \textbf{BERT + SVM} alcança F1=1.0 em todas as classes, demonstrando compreensão semântica superior
-    \item \textbf{TF-IDF + SVM} mantém F1 > 0.94 em todas as classes, exceto Economia (0.952)
-    \item \textbf{TF-IDF + XGBoost} apresenta performance inferior, especialmente em Economia (0.533) e Turismo (0.545)
-    \item Classes como "Política" e "Polícia e Direitos" são mais facilmente distinguíveis por ambos os métodos
-\end{itemize}
-
-\section{Uso de LLMs}
+% ============================================================================
+% 5. LLMS E ANÁLISE DE ERROS
+% ============================================================================
+\section{Uso de LLMs e Análise de Erros}
 
 \subsection{Perfilamento de Classes}
-
-O perfilamento híbrido gerou arquétipos para cada classe, combinando:
-
+Geramos "arquétipos" de classes usando uma abordagem híbrida:
 \begin{itemize}
-    \item \textbf{Top 20 tokens TF-IDF}: Palavras-chave mais correlacionadas estatisticamente
-    \item \textbf{5 exemplos representativos}: Textos mais próximos ao centroide BERT
+    \item \textbf{Chi-Squared (TF-IDF):} Top 20 tokens estatisticamente correlacionados.
+    \item \textbf{Centroides (BERT):} 5 exemplos mais próximos do centro semântico da classe.
 \end{itemize}
 
-Estes arquétipos estão disponíveis em \texttt{models/class\_profiles.json} e fornecem insights sobre as características distintivas de cada categoria.
+\subsection{Análise Diferencial de Erros (Groq API)}
+Identificamos casos onde $(Pred_{BERT} = Correto) \land (Pred_{TFIDF} = Incorreto)$. Utilizando o modelo \texttt{llama-3.3-70b-versatile}, concluímos que o BERT supera o TF-IDF em:
+\begin{enumerate}
+    \item \textbf{Contexto Semântico:} Captura o tópico global mesmo sem palavras-chave óbvias.
+    \item \textbf{Ambiguidade Lexical:} Diferencia sentidos de palavras polissêmicas (ex: "viagem" em turismo vs metafórico).
+\end{enumerate}
 
-\subsection{Análise Diferencial de Erros}
-
-A análise identificou 2 casos no conjunto de teste onde o BERT classificou corretamente enquanto o TF-IDF falhou. Os casos foram priorizados por maior delta de confiança e analisados via Groq API (modelo \texttt{llama-3.3-70b-versatile}).
-
-As explicações geradas pelo LLM destacaram:
-
-\begin{itemize}
-    \item \textbf{Contexto semântico}: O BERT captura relações entre palavras que vão além da frequência léxica. Por exemplo, em um texto sobre esportes que menciona termos econômicos, o BERT entende que o contexto geral é esportivo.
-    
-    \item \textbf{Ambiguidade lexical}: Palavras que aparecem em múltiplos contextos são melhor interpretadas pelo BERT. A palavra "viagem" pode aparecer em contextos de turismo ou metafóricos, e o BERT diferencia melhor.
-    
-    \item \textbf{Estrutura sintática}: A ordem e estrutura das frases influenciam a classificação semântica. O BERT considera a posição das palavras na sentença, não apenas sua presença.
-\end{itemize}
-
-Os resultados completos, incluindo os textos originais e explicações detalhadas, estão disponíveis em \texttt{models/differential\_errors.json}.
-
-\subsection{Discussão sobre o Valor Agregado}
-
-As explicações do LLM fornecem insights valiosos sobre \textit{por que} os modelos diferem, não apenas \textit{quando} diferem. Isso é particularmente útil para:
-
-\begin{itemize}
-    \item \textbf{Debugging de modelos}: Identificar pontos fracos específicos
-    \item \textbf{Melhoria de features}: Entender quais aspectos do texto são mais importantes
-    \item \textbf{Educação}: Explicar diferenças entre abordagens para stakeholders não-técnicos
-\end{itemize}
-
+% ============================================================================
+% 6. SISTEMA DE PRODUÇÃO
+% ============================================================================
 \section{Sistema de Produção e Monitoramento}
 
 \subsection{Arquitetura do Sistema Streamlit}
 
-O sistema Streamlit foi desenvolvido com duas abas principais:
+Desenvolvemos um sistema completo em Streamlit com duas abas principais para validação em ambiente real:
 
 \begin{enumerate}
-    \item \textbf{Classificação}: Interface para classificar textos em tempo real
+    \item \textbf{Classificação em Tempo Real}: 
     \begin{itemize}
-        \item Seleção de embedding (BERT ou TF-IDF)
-        \item Seleção de modelo (SVM ou XGBoost)
-        \item Exibição de classe predita, score e distribuição de probabilidades
-        \item Geração de explicações via LLM (opcional, max\_tokens=600 para explicações completas)
-        \item Salvamento automático em log (CSV + SQLite)
+        \item Seleção dinâmica de embedding (BERT/TF-IDF) e modelo (SVM/XGBoost).
+        \item Exibição de score de confiança e distribuição de probabilidades.
+        \item Integração opcional com LLM para gerar explicações da predição.
     \end{itemize}
-    \item \textbf{Monitoramento}: Dashboard com estatísticas avançadas
+    \item \textbf{Dashboard de Monitoramento}:
     \begin{itemize}
-        \item Métricas agregadas (total de predições, score médio, classe mais comum)
-        \item Gráficos de distribuição por classe (pie chart) e modelo (bar chart)
-        \item Evolução temporal das predições (line chart)
-        \item \textbf{Visualizações avançadas:}
-        \begin{itemize}
-            \item Gráfico interativo de trade-off Performance vs Eficiência
-            \item Distribuição de scores por embedding (box plot)
-            \item Distribuição de scores por modelo (box plot)
-            \item Tabela comparativa de eficiência com todos os modelos
-        \end{itemize}
-        \item Tabela de predições recentes (últimas 20)
+        \item Métricas agregadas e gráficos interativos (Plotly).
+        \item Trade-off Performance vs Eficiência visualizado em tempo real.
+        \item Distribuição de scores por modelo (Box Plot).
     \end{itemize}
 \end{enumerate}
 
-O sistema suporta seleção de idioma (Português/English) com português como padrão. Todas as visualizações são interativas utilizando Plotly, permitindo zoom, pan e hover para análise detalhada dos dados.
-
-\subsection{Sistema de Logs Implementado}
-
-Todas as predições são registradas em \texttt{logs/predicoes.csv} com as seguintes informações:
-
+\subsection{Logging e Banco de Dados}
+Todas as predições são persistidas em dois formatos para redundância e escalabilidade:
 \begin{itemize}
-    \item \texttt{timestamp}: Data e hora da predição
-    \item \texttt{texto}: Texto original (ou hash se muito longo)
-    \item \texttt{classe\_predita}: Classe retornada pelo modelo
-    \item \texttt{categoria\_predita}: Nome legível da categoria
-    \item \texttt{score}: Confiança da predição
-    \item \texttt{embedding\_usado}: "TF-IDF" ou "BERT"
-    \item \texttt{modelo\_usado}: "SVM" ou "XGBoost"
-    \item \texttt{fonte}: "streamlit" ou "script\_producao"
+    \item \textbf{CSV}: \texttt{logs/predicoes.csv} para auditoria rápida.
+    \item \textbf{SQLite}: \texttt{logs/predicoes.db} para consultas estruturadas e alta performance.
 \end{itemize}
 
-\textbf{Bônus - Banco SQLite:} Como melhoria adicional (inspirado no Módulo 16 do curso DSA), foi implementado também um banco de dados SQLite (\texttt{logs/predicoes.db}) que armazena as predições de forma estruturada, permitindo consultas mais eficientes e escaláveis. O sistema mantém compatibilidade total com o CSV, registrando em ambos os formatos quando o SQLite está disponível.
+Os logs capturam timestamp, texto (hash), classe predita, score de confiança e latência, permitindo o monitoramento de \textit{data drift} e performance em produção.
 
-\subsection{Exemplos de Uso em Produção}
-
-O script \texttt{scripts/processar\_novos.py} permite processar textos em lote a partir da pasta \texttt{data/novos/}, simulando um ambiente de produção. O script:
-
-\begin{itemize}
-    \item Lê arquivos .txt ou .csv da pasta \texttt{data/novos/}
-    \item Aplica pré-processamento consistente
-    \item Classifica cada texto usando o modelo selecionado (best, tfidf\_svm, bert\_svm, etc.)
-    \item Registra todas as predições no log (\texttt{logs/predicoes.csv})
-    \item Gera um relatório resumido com distribuição de classes e score médio
-\end{itemize}
-
-Exemplo de uso:
-\begin{lstlisting}
-python scripts/processar_novos.py --model best
-\end{lstlisting}
-
-\subsection{Dashboard de Monitoramento}
-
-O dashboard de monitoramento fornece visualizações em tempo real de:
-
-\begin{itemize}
-    \item \textbf{Distribuição por classe}: Gráfico de pizza mostrando a distribuição de predições
-    \item \textbf{Uso por modelo}: Gráfico de barras mostrando qual modelo/embedding é mais utilizado
-    \item \textbf{Evolução temporal}: Gráfico de linha mostrando a frequência de predições ao longo do tempo
-    \item \textbf{Predições recentes}: Tabela com as últimas 20 predições
-\end{itemize}
-
-% Screenshots podem ser adicionados aqui
-
+% ============================================================================
+% 7. DISCUSSÃO
+% ============================================================================
 \section{Discussão}
 
 \subsection{Comparação entre Embeddings}
 
-\subsubsection{TF-IDF (Esparsa)}
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{TF-IDF (Esparso)} & \textbf{BERT (Denso)} \\ \midrule
++ Eficiência computacional extrema (0.14ms) & + Compreensão semântica profunda \\
++ Tamanho reduzido (0.18 MB) & + Performance superior (F1=1.0) \\
++ Alta interpretabilidade (tokens visíveis) & + Robustez a variações lexicais \\
+- Não captura contexto semântico & - Cold Start significativo (2.23s original) \\
+- Falha em ambiguidade lexical & - Maior uso de memória (0.88 MB) \\ \bottomrule
+\end{tabular}
+\end{table}
 
-\textbf{Vantagens:}
-\begin{itemize}
-    \item Eficiência computacional superior (0.14ms/doc vs 0.12ms/doc do BERT, mas cold start muito menor)
-    \item Tamanho reduzido (0.18 MB vs 0.88 MB)
-    \item Interpretabilidade (tokens podem ser visualizados)
-    \item Performance competitiva (F1=0.968)
-\end{itemize}
-
-\textbf{Desvantagens:}
-\begin{itemize}
-    \item Não captura contexto semântico
-    \item Depende de palavras-chave específicas
-    \item Pode falhar em casos de ambiguidade lexical
-\end{itemize}
-
-\subsubsection{BERT (Densa)}
-
-\textbf{Vantagens:}
-\begin{itemize}
-    \item Compreensão semântica profunda: entende contexto e relações entre palavras
-    \item Performance superior: F1=1.0, Accuracy=1.0 no conjunto de teste
-    \item Captura relações contextuais: mesma palavra tem significado diferente conforme contexto
-    \item Robustez a variações lexicais: sinônimos, paráfrases, variações são bem tratadas
-    \item Bidirecional: considera palavras antes e depois na sentença
-\end{itemize}
-
-\textbf{Desvantagens:}
-\begin{itemize}
-    \item Cold start significativo: 2.23s (28x maior que TF-IDF) devido ao carregamento do modelo
-    \item Maior uso de memória: 0.88 MB vs 0.18 MB do TF-IDF
-    \item Menor interpretabilidade: embeddings são difíceis de interpretar diretamente
-    \item Dependência de bibliotecas pesadas: sentence-transformers, transformers, torch
-    \item Latência de inferência similar, mas overhead de inicialização muito maior
-\end{itemize}
-
-\subsection{Comparação entre Modelos}
-
-\subsubsection{SVM}
-
-O SVM demonstrou ser superior ao XGBoost em ambos os tipos de embedding:
-
-\begin{itemize}
-    \item \textbf{TF-IDF}: SVM (F1=0.968) vs XGBoost (F1=0.704)
-    \item \textbf{BERT}: SVM (F1=1.0) vs XGBoost (F1=0.967)
-\end{itemize}
-
-O kernel linear do SVM é particularmente adequado para dados de alta dimensionalidade, enquanto o XGBoost pode estar sofrendo de overfitting ou necessitar de mais dados para aprender padrões complexos.
-
-\subsubsection{XGBoost}
-
-O XGBoost apresentou performance inferior, especialmente com TF-IDF. Possíveis razões:
-
-\begin{itemize}
-    \item Base de dados pequena (315 amostras) pode não ser suficiente para árvores complexas
-    \item TF-IDF esparso pode não ser ideal para XGBoost
-    \item Hiperparâmetros podem necessitar ajuste fino
-\end{itemize}
-
-\subsection{Resposta à Hipótese Científica}
-
-A hipótese central questiona: \textit{"O ganho semântico do BERT justifica o aumento de latência e custo computacional?"}
-
-\textbf{Resposta: Depende do contexto de aplicação.}
-
-\begin{itemize}
-    \item \textbf{Para aplicações críticas de alta performance}: Sim, o BERT justifica o custo. O ganho de 3.2\% em F1 pode ser crucial em sistemas onde cada erro tem alto custo.
-    
-    \item \textbf{Para aplicações de alta escala/baixa latência}: Não necessariamente. O TF-IDF+SVM oferece 96.8\% da performance do BERT com 28x menos cold start e 5x menos memória.
-    
-    \item \textbf{Para classes específicas}: O BERT é indispensável em casos onde o contexto semântico é crítico (identificado através da análise diferencial de erros).
-\end{itemize}
+\subsection{SVM vs XGBoost}
+O **SVM** demonstrou superioridade consistente sobre o XGBoost neste dataset (F1=0.968 vs 0.704 no TF-IDF). O kernel linear do SVM é matematicamente mais adequado para lidar com a alta dimensionalidade e esparsidade do TF-IDF, enquanto o XGBoost sofreu para encontrar cortes ótimos nas árvores de decisão com a base de dados limitada (315 amostras).
 
 \subsection{Limitações e Trabalhos Futuros}
-
-\subsubsection{Limitações}
-
 \begin{itemize}
-    \item \textbf{Base pequena}: 315 amostras podem não ser representativas de todas as nuances do português
-    \item \textbf{Overfitting potencial}: F1=1.0 do BERT+SVM pode indicar overfitting
-    \item \textbf{Classes balanceadas}: A base é relativamente balanceada; desbalanceamento real pode afetar resultados
-    \item \textbf{Modelo BERT}: Apenas um modelo BERT foi testado; outros modelos (RoBERTa, ELECTRA) podem ter performance diferente
+    \item \textbf{Base de Dados:} 315 amostras podem não ser representativas de todas as nuances do português.
+    \item \textbf{Overfitting:} O F1=1.0 do BERT+SVM pode indicar overfitting; testes em bases externas são necessários.
+    \item \textbf{Expansão:} Coletar mais dados e testar ensembles combinando TF-IDF e BERT.
 \end{itemize}
 
-\subsubsection{Trabalhos Futuros}
+% ============================================================================
+% 8. CONCLUSÃO
+% ============================================================================
+\section{Conclusão e Recomendações}
 
+\subsection{Resposta à Hipótese}
+A hipótese de que o BERT justifica seu custo depende do contexto:
 \begin{itemize}
-    \item \textbf{Expansão da base}: Coletar mais dados para validação mais robusta
-    \item \textbf{Ensemble methods}: Combinar TF-IDF e BERT para melhorar performance
-    \item \textbf{Fine-tuning BERT}: Ajustar o BERT especificamente para a tarefa de classificação
-    \item \textbf{Otimização de hiperparâmetros}: Grid search ou Bayesian optimization
-    \item \textbf{Análise de custo-benefício}: Quantificar custos reais de infraestrutura
-    \item \textbf{Deploy em produção}: Testar em ambiente real com carga de trabalho
+    \item \textbf{Sim}, para aplicações críticas onde cada erro tem alto custo (ganho de 3.2\% em F1 e robustez semântica).
+    \item \textbf{Não}, para sistemas de alta escala/baixa latência, onde o TF-IDF+SVM entrega 96.8\% da performance com fração do custo de memória e inicialização instantânea.
 \end{itemize}
 
-\section{Conclusões}
+\subsection{Contribuições}
+Este trabalho entregou um sistema completo (\textit{NewsLens AI}) com interface Streamlit, monitoramento de logs, e uma análise rigorosa demonstrando que, embora representações densas sejam o estado da arte em performance, métodos clássicos bem otimizados permanecem altamente competitivos para classificação de notícias.
 
-\subsection{Principais Achados}
+%----------------------------------------------------------------------------------------
+% BIBLIOGRAPHY
+%----------------------------------------------------------------------------------------
+\clearpage
+\nocite{*} 
+\printbibliography[heading=bibintoc, title={Referências Bibliográficas}]
 
-\begin{enumerate}
-    \item \textbf{BERT + SVM} alcançou performance perfeita (F1=1.0) no conjunto de teste, demonstrando a superioridade das representações semânticas densas.
-    
-    \item \textbf{TF-IDF + SVM} oferece excelente equilíbrio entre performance (F1=0.968) e eficiência (0.14ms/doc, cold start 0.08s).
-    
-    \item O ganho semântico do BERT é mais evidente em casos de ambiguidade lexical e dependência de contexto, conforme identificado pela análise diferencial de erros.
-    
-    \item O SVM superou o XGBoost em ambos os tipos de embedding, sugerindo que o kernel linear é mais adequado para dados de alta dimensionalidade.
-    
-    \item A integração com LLMs fornece insights valiosos sobre as diferenças entre modelos, facilitando debugging e explicação de resultados.
-\end{enumerate}
-
-\subsection{Contribuições do Trabalho}
-
-\begin{itemize}
-    \item Sistema completo de produção com interface web, logging e monitoramento
-    \item Análise quantitativa rigorosa do trade-off performance-eficiência
-    \item Metodologia híbrida de perfilamento de classes (Chi-Squared + Centroides)
-    \item Framework para análise diferencial de erros usando LLMs
-    \item Base de código reutilizável e documentada
-\end{itemize}
-
-\subsection{Recomendações Práticas}
-
-\begin{enumerate}
-    \item \textbf{Para alta performance}: Utilize BERT + SVM, aceitando o custo de cold start e memória.
-    
-    \item \textbf{Para alta escala}: Utilize TF-IDF + SVM, mantendo 96.8\% da performance com eficiência superior.
-    
-    \item \textbf{Para classes específicas}: Analise a Tabela B para identificar classes onde o BERT é indispensável.
-    
-    \item \textbf{Para produção}: Implemente sistema de logs e monitoramento desde o início.
-    
-    \item \textbf{Para explicação}: Utilize LLMs para análise de erros e comunicação com stakeholders.
-\end{enumerate}
-
-\section{Referências}
-
-\begin{itemize}
-    \item Devlin, J., et al. (2019). BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding. NAACL-HLT.
-    
-    \item Reimers, N., \& Gurevych, I. (2019). Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks. EMNLP.
-    
-    \item NeuralMind. (2021). BERTimbau: Pretrained BERT Models for Brazilian Portuguese.
-    
-    \item Chen, T., \& Guestrin, C. (2016). XGBoost: A Scalable Tree Boosting System. KDD.
-    
-    \item Cortes, C., \& Vapnik, V. (1995). Support-Vector Networks. Machine Learning.
-    
-    \item Groq. (2024). Groq API Documentation. \url{https://console.groq.com/docs}
-    
-    \item Streamlit. (2024). Streamlit Documentation. \url{https://docs.streamlit.io}
-\end{itemize}
-
+% ============================================================================
+% APÊNDICES
+% ============================================================================
+\newpage
 \appendix
-
-\section{Código e Recursos}
-
-O código completo, dados e resultados estão disponíveis em:
-\url{https://github.com/takaokensei/newslens-classifier}
-
-\subsection{Estrutura do Projeto}
+\section{Estrutura do Projeto}
 
 \begin{lstlisting}
 newslens-classifier/
 ├── data/
 │   ├── raw/              # Base original
 │   ├── processed/        # Dados pré-processados
-│   ├── embeddings/       # Embeddings salvos
+│   ├── embeddings/       # Embeddings salvos (.npy, .npz)
 │   └── novos/            # Novos textos para produção
 ├── logs/
 │   └── predicoes.csv     # Log de predições
-├── models/               # Modelos treinados
-├── src/                  # Código fonte
-├── scripts/              # Scripts de execução
+├── models/               # Modelos treinados (.pkl)
+├── src/                  # Código fonte (preprocessing, training)
+├── scripts/              # Scripts de execução e otimização
 ├── apps/                 # Interface Streamlit
 └── reports/              # Relatórios e análises
 \end{lstlisting}
 
-\section{Métricas Detalhadas}
+\section{Fluxograma do Pipeline NewsLens}
 
-% Tabelas adicionais podem ser inseridas aqui
+\begin{figure}[H]
+\centering
+\tikzset{
+    % Redefinindo estilos para ajuste local se necessário
+}
+
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[node distance=1.5cm and 2.0cm]
+
+    % NÓS
+    \node (input) [terminal] {Input Text\\(News)};
+    \node (preproc) [process, below=of input] {Pré-processamento\\(Limpeza/Regex)};
+    
+    % Decisão Embedding
+    \node (choice) [decision, below=of preproc] {Tipo Embedding?};
+    
+    % Caminho TF-IDF
+    \node (tfidf) [process, below left=of choice, xshift=-1cm] {TF-IDF Vectorizer\\(Sparse)};
+    \node (svm_tfidf) [process, below=of tfidf] {SVM (Linear)};
+    
+    % Caminho BERT
+    \node (bert) [process, below right=of choice, xshift=1cm, top color=neuron, bottom color=synapse] {BERT Model\\(Dense Embeddings)};
+    \node (svm_bert) [process, below=of bert] {SVM (RBF Kernel)};
+    
+    % Junção
+    \node (output) [terminal, below=of choice, yshift=-7cm] {Classificação Final\\\& Confiança};
+    
+    % LLM Analysis
+    \node (llm) [clusterBox, right=of bert, xshift=1cm, align=center, font=\small\bfseries] {LLM Analysis\\(Llama 3.3)};
+
+    % ARESTAS
+    \path [flowLine] (input) edge (preproc);
+    \path [flowLine] (preproc) edge (choice);
+    
+    % Ramificação
+    \draw [flowLine] (choice.west) -| node[above, xshift=-0.5cm] {Sparse} (tfidf.north);
+    \draw [flowLine] (choice.east) -| node[above, xshift=0.5cm] {Dense} (bert.north);
+    
+    % Modelos
+    \path [flowLine] (tfidf) edge (svm_tfidf);
+    \path [flowLine] (bert) edge (svm_bert);
+    
+    % Saída
+    \draw [flowLine] (svm_tfidf.south) |- (output.west);
+    \draw [flowLine] (svm_bert.south) |- (output.east);
+    
+    % Conexão LLM (Feedback/Explicação)
+    \draw [feedbackLine] (output.east) -| (llm.south);
+
+    % LAYERS DE FUNDO
+    \begin{pgfonlayer}{background}
+        \node [clusterBox, fit=(input) (preproc), label={[anchor=south east, text=gray]north east:ETL}] {};
+        \node [clusterBox, fit=(tfidf) (bert) (svm_tfidf) (svm_bert), label={[anchor=south east, text=gray]north east:MODELAGEM HÍBRIDA}] {};
+    \end{pgfonlayer}
+
+\end{tikzpicture}
+}
+\caption{Arquitetura do Sistema NewsLens AI.}
+\label{fig:newslens-pipeline}
+\end{figure}
 
 \end{document}
-

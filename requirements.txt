@@ -19,6 +19,7 @@ plotly>=5.14.0
 
 # Web App
 streamlit>=1.25.0
+extra-streamlit-components>=0.1.60
 
 # Utilities
 python-dotenv>=1.0.0

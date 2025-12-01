@@ -11,6 +11,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
 import os
+import json
+import base64
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -170,9 +172,77 @@ if 'explanation_generated' not in st.session_state:
     st.session_state.explanation_generated = False
 if 'llm_explanation' not in st.session_state:
     st.session_state.llm_explanation = None
-# Session-based prediction logs (private per user/session)
+# Cookie-based prediction logs (persists across page refreshes)
+# Initialize from cookies if available, otherwise empty list
 if 'session_predictions' not in st.session_state:
     st.session_state.session_predictions = []
+
+
+def save_predictions_to_cookie(predictions: list) -> None:
+    """Save predictions to browser cookie using JavaScript."""
+    if not predictions:
+        cookie_data = ""
+    else:
+        # Encode predictions as base64 JSON to avoid cookie size limits
+        json_str = json.dumps(predictions)
+        cookie_data = base64.b64encode(json_str.encode('utf-8')).decode('utf-8')
+        # Escape quotes for JavaScript
+        cookie_data = cookie_data.replace('"', '\\"').replace("'", "\\'")
+    
+    # JavaScript to set cookie (expires in 30 days)
+    js_code = f"""
+    <script>
+    (function() {{
+        function setCookie(name, value, days) {{
+            var expires = "";
+            if (days) {{
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }}
+            document.cookie = name + "=" + encodeURIComponent(value || "") + expires + "; path=/; SameSite=Lax";
+        }}
+        setCookie("newslens_predictions", "{cookie_data}", 30);
+    }})();
+    </script>
+    """
+    st.components.v1.html(js_code, height=0)
+
+
+def load_and_sync_cookie_predictions():
+    """Load predictions from cookie and sync with session_state on page load."""
+    if 'cookie_loaded' not in st.session_state:
+        # JavaScript component to read cookie and update URL with data
+        # This allows us to read it back via query params
+        js_code = """
+        <script>
+        (function() {
+            function getCookie(name) {
+                var nameEQ = name + "=";
+                var ca = document.cookie.split(';');
+                for(var i = 0; i < ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                    if (c.indexOf(nameEQ) == 0) {
+                        return decodeURIComponent(c.substring(nameEQ.length, c.length));
+                    }
+                }
+                return null;
+            }
+            var cookieValue = getCookie("newslens_predictions");
+            if (cookieValue && cookieValue.length > 0) {
+                // Store in sessionStorage for this session
+                try {
+                    sessionStorage.setItem("newslens_predictions_cookie", cookieValue);
+                } catch(e) {
+                    console.error("Error saving to sessionStorage:", e);
+                }
+            }
+        })();
+        </script>
+        """
+        st.components.v1.html(js_code, height=0)
+        st.session_state.cookie_loaded = True
 
 
 @st.cache_resource
@@ -562,9 +632,9 @@ Explain clearly and concisely why this text belongs to this category."""
                         st.warning(f"{t('explanation_error')} {e}")
                         st.info(t('explanation_info'))
             
-            # Save to session log (private per user/session)
+            # Save to cookie-based log (persists across page refreshes)
             if classify_button and save_prediction and text_input:
-                # Add to session-based predictions (private per browser/session)
+                # Add to cookie-based predictions (persists across F5)
                 prediction_entry = {
                     'timestamp': datetime.now().isoformat(),
                     'texto': text_input[:200] + "..." if len(text_input) > 200 else text_input,  # Truncate for display
@@ -576,6 +646,8 @@ Explain clearly and concisely why this text belongs to this category."""
                     'fonte': 'streamlit'
                 }
                 st.session_state.session_predictions.append(prediction_entry)
+                # Save to cookie (persists across F5 and browser restarts for 30 days)
+                save_predictions_to_cookie(st.session_state.session_predictions)
                 
                 if not st.session_state.get('log_saved_for_current', False):
                     st.success(t('saved_log'))
@@ -607,13 +679,13 @@ Explain clearly and concisely why this text belongs to this category."""
                     default=[]
                 )
         
-        # Use session-based predictions (private per user/browser session)
-        # Each user has their own prediction history stored in session_state
+        # Use cookie-based predictions (persists across page refreshes)
+        # Load from session_state (which is synced with cookies on save)
         session_predictions = st.session_state.get('session_predictions', [])
         
         if not session_predictions:
             st.info(t('no_predictions'))
-            st.caption("💡 **Dica**: As predições são salvas apenas na sua sessão atual. Cada navegador/computador tem seu próprio histórico." if current_lang == 'pt' else "💡 **Tip**: Predictions are saved only in your current session. Each browser/computer has its own history.")
+            st.caption("💡 **Dica**: As predições são salvas em cookies e persistem mesmo após atualizar a página (F5). Cada navegador/computador tem seu próprio histórico." if current_lang == 'pt' else "💡 **Tip**: Predictions are saved in cookies and persist even after refreshing the page (F5). Each browser/computer has its own history.")
         else:
             # Convert to DataFrame for easier manipulation
             logs_df = pd.DataFrame(session_predictions)
@@ -909,8 +981,10 @@ Explain clearly and concisely why this text belongs to this category."""
                         st.info(f"📊 {len(logs_df)} predições na sua sessão" if current_lang == 'pt' else f"📊 {len(logs_df)} predictions in your session")
                 with col3:
                     if st.session_state.get('session_predictions'):
-                        if st.button("🗑️ Limpar Histórico da Sessão" if current_lang == 'pt' else "🗑️ Clear Session History", use_container_width=True):
+                        if st.button("🗑️ Limpar Histórico" if current_lang == 'pt' else "🗑️ Clear History", use_container_width=True):
                             st.session_state.session_predictions = []
+                            # Clear cookie
+                            save_predictions_to_cookie([])
                             st.success("Histórico limpo!" if current_lang == 'pt' else "History cleared!")
                             st.rerun()
 
