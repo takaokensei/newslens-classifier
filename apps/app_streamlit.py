@@ -433,8 +433,39 @@ Explain clearly and concisely why this text belongs to this category."""
     with tab2:
         st.header(t('monitoring_dashboard'))
         
+        # Advanced filters (bonus feature inspired by Módulo 16)
+        with st.expander("🔍 Filtros Avançados" if current_lang == 'pt' else "🔍 Advanced Filters"):
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                filter_category = st.multiselect(
+                    "Categoria" if current_lang == 'pt' else "Category",
+                    options=["Economia", "Esportes", "Polícia e Direitos", "Política", "Turismo", "Variedades e Sociedade"],
+                    default=[]
+                )
+            with col2:
+                filter_embedding = st.multiselect(
+                    "Embedding" if current_lang == 'pt' else "Embedding",
+                    options=["TF-IDF", "BERT"],
+                    default=[]
+                )
+            with col3:
+                filter_model = st.multiselect(
+                    "Modelo" if current_lang == 'pt' else "Model",
+                    options=["SVM", "XGBoost"],
+                    default=[]
+                )
+        
         # Load logs
         logs_df = load_prediction_logs()
+        
+        # Apply filters
+        if not logs_df.empty:
+            if filter_category:
+                logs_df = logs_df[logs_df['categoria_predita'].isin(filter_category)]
+            if filter_embedding:
+                logs_df = logs_df[logs_df['embedding_usado'].isin(filter_embedding)]
+            if filter_model:
+                logs_df = logs_df[logs_df['modelo_usado'].isin(filter_model)]
         
         if logs_df.empty:
             st.info(t('no_predictions'))
@@ -594,6 +625,22 @@ Explain clearly and concisely why this text belongs to this category."""
             display_df = logs_df[['timestamp', 'categoria_predita', 'score', 'embedding_usado', 'modelo_usado']].tail(20)
             display_df = display_df.sort_values('timestamp', ascending=False)
             st.dataframe(display_df, use_container_width=True, hide_index=True)
+            
+            # Export data (bonus feature - Módulo 16)
+            st.divider()
+            col1, col2 = st.columns(2)
+            with col1:
+                csv_export = logs_df.to_csv(index=False).encode('utf-8')
+                st.download_button(
+                    label="📥 Exportar CSV" if current_lang == 'pt' else "📥 Export CSV",
+                    data=csv_export,
+                    file_name=f"predicoes_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                    mime="text/csv",
+                    use_container_width=True
+                )
+            with col2:
+                if not logs_df.empty and 'timestamp' in logs_df.columns:
+                    st.info(f"📊 {len(logs_df)} predições no período filtrado" if current_lang == 'pt' else f"📊 {len(logs_df)} predictions in filtered period")
 
 
 if __name__ == "__main__":
