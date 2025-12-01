@@ -181,7 +181,35 @@ def load_all_models():
         
         # Check if models were loaded
         if not models:
-            return None, None, None
+            # Try automatic training (only if not in Streamlit Cloud to avoid blocking)
+            # In Streamlit Cloud, we'll show a message instead
+            try:
+                import sys
+                # Check if we're in a Streamlit environment
+                is_streamlit = 'streamlit' in sys.modules
+                
+                if is_streamlit:
+                    # In Streamlit, we'll let the UI handle the training message
+                    # Don't block here, return None and let UI show message
+                    print("⚠️  Models not found. UI will show training option.")
+                else:
+                    # In CLI/script mode, try automatic training
+                    from scripts.auto_train_models import train_models_automatically
+                    print("🔄 Models not found. Attempting automatic training...")
+                    result = train_models_automatically(force=False)
+                    
+                    if result['success'] and result.get('models_trained', False):
+                        # Reload models after training
+                        models = imports['load_trained_models']()
+                        print("✅ Models trained and loaded successfully!")
+                    else:
+                        print(f"⚠️  Automatic training failed or skipped: {result.get('message', 'Unknown error')}")
+                        return None, None, None
+            except Exception as e:
+                print(f"⚠️  Error during automatic training: {e}")
+                import traceback
+                traceback.print_exc()
+                return None, None, None
         
         # Try to load vectorizer
         vectorizer_path = PATHS['data_embeddings'] / 'tfidf_vectorizer.pkl'
@@ -326,9 +354,30 @@ def main():
         
         # Load models
         if not st.session_state.models_loaded:
-            with st.spinner(t('loading_models')):
+            loading_text = t('loading_models')
+            with st.spinner(loading_text):
                 models, vectorizer, bert_model = load_all_models()
-                if models and len(models) > 0:
+                
+                # Check if automatic training is in progress
+                if models is None:
+                    # Check if data exists for training
+                    from pathlib import Path
+                    raw_dir = PATHS['data_raw']
+                    csv_files = list(raw_dir.glob('*.csv'))
+                    
+                    if csv_files:
+                        # Data exists, show training message
+                        st.info("🔄 **Treinando modelos automaticamente...** Isso pode levar alguns minutos na primeira vez." if current_lang == 'pt' else "🔄 **Training models automatically...** This may take a few minutes on first run.")
+                        st.info("⏳ Por favor, aguarde. A página será recarregada automaticamente quando os modelos estiverem prontos." if current_lang == 'pt' else "⏳ Please wait. The page will reload automatically when models are ready.")
+                        # Force rerun to check again
+                        import time
+                        time.sleep(2)
+                        st.rerun()
+                    else:
+                        st.error(t('models_error'))
+                        st.info("💡 **Dica**: Adicione um arquivo CSV em `data/raw/` com colunas: 'Texto', 'Classe', 'Categoria'. Os modelos serão treinados automaticamente." if current_lang == 'pt' else "💡 **Tip**: Add a CSV file in `data/raw/` with columns: 'Texto', 'Classe', 'Categoria'. Models will be trained automatically.")
+                        st.stop()
+                elif models and len(models) > 0:
                     st.session_state.models = models
                     st.session_state.vectorizer = vectorizer
                     st.session_state.bert_model = bert_model
@@ -340,7 +389,7 @@ def main():
                         st.warning("⚠️ Modelo BERT não encontrado. Apenas modelos TF-IDF estarão disponíveis." if current_lang == 'pt' else "⚠️ BERT model not found. Only TF-IDF models will be available.")
                 else:
                     st.error(t('models_error'))
-                    st.info("💡 **Dica**: Os modelos precisam ser treinados primeiro. Execute `python scripts/run_phase1.py` e `python scripts/run_phase2.py` para gerar os modelos." if current_lang == 'pt' else "💡 **Tip**: Models need to be trained first. Run `python scripts/run_phase1.py` and `python scripts/run_phase2.py` to generate models.")
+                    st.info("💡 **Dica**: Os modelos precisam ser treinados primeiro. Execute `python scripts/auto_train_models.py` para treinar automaticamente." if current_lang == 'pt' else "💡 **Tip**: Models need to be trained first. Run `python scripts/auto_train_models.py` to train automatically.")
                     st.stop()
         else:
             models = st.session_state.models
