@@ -656,57 +656,57 @@ Explain clearly and concisely why this text belongs to this category."""
                         st.metric(t('date_range'), f"{stats['date_range']['start'][:10]} a {stats['date_range']['end'][:10]}" if current_lang == 'pt' else f"{stats['date_range']['start'][:10]} to {stats['date_range']['end'][:10]}")
                 
                 st.divider()
-            
-            # Charts
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.subheader(t('by_class'))
-                if stats['by_class']:
-                    class_df = pd.DataFrame({
-                        'Categoria' if current_lang == 'pt' else 'Category': list(stats['by_class'].keys()),
-                        'Quantidade' if current_lang == 'pt' else 'Count': list(stats['by_class'].values())
-                    })
-                    fig = px.pie(
-                        class_df,
-                        values='Quantidade' if current_lang == 'pt' else 'Count',
-                        names='Categoria' if current_lang == 'pt' else 'Category',
-                        title=t('dist_by_category')
-                    )
-                    st.plotly_chart(fig, use_container_width=True)
-            
-            with col2:
-                st.subheader(t('by_model'))
-                if stats['by_model']:
-                    model_df = pd.DataFrame({
-                        'Modelo' if current_lang == 'pt' else 'Model': list(stats['by_model'].keys()),
-                        'Quantidade' if current_lang == 'pt' else 'Count': list(stats['by_model'].values())
-                    })
-                    fig = px.bar(
-                        model_df,
-                        x='Modelo' if current_lang == 'pt' else 'Model',
-                        y='Quantidade' if current_lang == 'pt' else 'Count',
-                        title=t('usage_by_model'),
-                        color='Quantidade' if current_lang == 'pt' else 'Count',
-                        color_continuous_scale='Blues'
-                    )
-                    st.plotly_chart(fig, use_container_width=True)
-            
-            # Temporal evolution
-            if 'timestamp' in logs_df.columns:
-                st.subheader(t('temporal_evolution'))
-                logs_df['date'] = pd.to_datetime(logs_df['timestamp']).dt.date
-                daily_counts = logs_df.groupby('date').size().reset_index(name='count')
-                daily_counts = daily_counts.sort_values('date')
                 
-                fig = px.line(
-                    daily_counts,
-                    x='date',
-                    y='count',
-                    title=t('predictions_over_time'),
-                    markers=True
-                )
-                st.plotly_chart(fig, use_container_width=True)
+                # Charts
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.subheader(t('by_class'))
+                    if stats['by_class']:
+                        class_df = pd.DataFrame({
+                            'Categoria' if current_lang == 'pt' else 'Category': list(stats['by_class'].keys()),
+                            'Quantidade' if current_lang == 'pt' else 'Count': list(stats['by_class'].values())
+                        })
+                        fig = px.pie(
+                            class_df,
+                            values='Quantidade' if current_lang == 'pt' else 'Count',
+                            names='Categoria' if current_lang == 'pt' else 'Category',
+                            title=t('dist_by_category')
+                        )
+                        st.plotly_chart(fig, use_container_width=True)
+                
+                with col2:
+                    st.subheader(t('by_model'))
+                    if stats['by_model']:
+                        model_df = pd.DataFrame({
+                            'Modelo' if current_lang == 'pt' else 'Model': list(stats['by_model'].keys()),
+                            'Quantidade' if current_lang == 'pt' else 'Count': list(stats['by_model'].values())
+                        })
+                        fig = px.bar(
+                            model_df,
+                            x='Modelo' if current_lang == 'pt' else 'Model',
+                            y='Quantidade' if current_lang == 'pt' else 'Count',
+                            title=t('usage_by_model'),
+                            color='Quantidade' if current_lang == 'pt' else 'Count',
+                            color_continuous_scale='Blues'
+                        )
+                        st.plotly_chart(fig, use_container_width=True)
+                
+                # Temporal evolution
+                if 'timestamp' in logs_df.columns:
+                    st.subheader(t('temporal_evolution'))
+                    logs_df['date'] = pd.to_datetime(logs_df['timestamp']).dt.date
+                    daily_counts = logs_df.groupby('date').size().reset_index(name='count')
+                    daily_counts = daily_counts.sort_values('date')
+                    
+                    fig = px.line(
+                        daily_counts,
+                        x='date',
+                        y='count',
+                        title=t('predictions_over_time'),
+                        markers=True
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
             
             # Additional visualizations
             st.divider()
