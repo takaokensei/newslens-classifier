@@ -876,23 +876,8 @@ def main():
                 st.subheader("🧪 Teste do Conjunto de Validação" if current_lang == 'pt' else "🧪 Validation Set Test")
             
             if results:
-                            prediction_entry = {
-                                'timestamp': datetime.now().isoformat(),
-                                'texto': pred['text'][:200] + '...' if len(pred['text']) > 200 else pred['text'],
-                                'classe_predita': pred['predicted'],
-                                'categoria_predita': pred['predicted_label'],
-                                'score': pred['score'],
-                                'embedding_usado': pred['embedding_usado'],
-                                'modelo_usado': pred['modelo_usado'],
-                                'fonte': 'validation_test'
-                            }
-                            st.session_state.session_predictions.append(prediction_entry)
-                        
-                        # Save to cookie
-                        save_predictions_to_cookie(st.session_state.session_predictions)
-                        
-                        # Display metrics
-                        col1, col2, col3 = st.columns(3)
+                # Display metrics
+                col1, col2, col3 = st.columns(3)
                         with col1:
                             st.metric(
                                 "Precisão" if current_lang == 'pt' else "Accuracy",
