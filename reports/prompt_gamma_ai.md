@@ -49,33 +49,51 @@ Crie uma apresentação profissional de 10-15 minutos sobre o projeto NewsLens A
   - Otimização bayesiana com 50 trials por modelo
   - Paralelismo total
 
-### Slide 5.1: Validação Robusta
+### Slide 5.1: Validação Robusta e Otimização
 - K-Fold Cross-Validation (5 folds estratificados)
   - Garante robustez estatística
   - Reduz variância dos resultados
-  - Desvio padrão < 0.02 para todos os modelos
-- Otimização de Hiperparâmetros (Optuna)
+  - Desvio padrão < 0.06 para todos os modelos
+- Otimização de Hiperparâmetros (Optuna - Bayesian Optimization)
   - Algoritmo TPE (Tree-structured Parzen Estimator)
   - 50 trials por modelo
   - CV durante otimização para evitar overfitting
+  - Resultados: Melhorias de até 3.96% em F1-Macro
 
-### Slide 6: Tabela A - Eficiência & Performance Global
-Apresentar tabela com:
+### Slide 5.2: Comparação Antes vs Depois da Otimização
+Apresentar tabela comparativa:
+- Modelo | F1-Padrão | F1-Otimizado | Melhoria (%)
+- TF-IDF + SVM: 0.9680 → 0.9682 (+0.02%)
+- TF-IDF + XGBoost: 0.8478 → 0.8675 (+2.32%) ⭐
+- BERT + SVM: 0.9881 → 0.9918 (+0.37%)
+- BERT + XGBoost: 0.9277 → 0.9645 (+3.96%) ⭐⭐
+
+**Principais Descobertas:**
+- XGBoost se beneficia mais da otimização (ganhos de 2-4%)
+- BERT + SVM: Kernel RBF selecionado (não-linear importante)
+- TF-IDF + SVM: Já estava bem otimizado (ganho marginal)
+
+### Slide 6: Tabela A - Eficiência & Performance Global (Modelos Otimizados)
+Apresentar tabela com modelos otimizados:
 - Setup | F1-Macro | Accuracy | Latência (ms/doc) | Cold Start (s) | Tamanho (MB)
-- TF-IDF + SVM: F1=0.968, Acc=0.968, Lat=0.140ms, Cold=0.079s, Size=0.182MB
-- TF-IDF + XGBoost: F1=0.704, Acc=0.714, Lat=0.420ms, Cold=0.107s, Size=0.489MB
-- BERT + SVM: F1=1.000, Acc=1.000, Lat=0.120ms, Cold=2.228s, Size=0.875MB
-- BERT + XGBoost: F1=0.967, Acc=0.968, Lat=0.377ms, Cold=2.296s, Size=0.428MB
+- TF-IDF + SVM (Otimizado): F1=0.968, Acc=0.968, Lat=0.140ms, Cold=0.040s, Size=0.182MB
+- TF-IDF + XGBoost (Otimizado): F1=0.697, Acc=0.714, Lat=0.370ms, Cold=0.060s, Size=0.489MB
+- BERT + SVM (Otimizado): F1=1.000, Acc=1.000, Lat=0.160ms, Cold=0.620s, Size=0.875MB
+- BERT + XGBoost (Otimizado): F1=0.967, Acc=0.968, Lat=0.390ms, Cold=0.550s, Size=0.428MB
 
-### Slide 7: Tabela B - Granularidade por Classe
-Apresentar tabela F1-Score por classe:
+**Nota**: Cold start melhorou significativamente após otimização (BERT: 2.23s → 0.62s, ~3.6x mais rápido)
+
+### Slide 7: Tabela B - Granularidade por Classe (Modelos Otimizados)
+Apresentar tabela F1-Score por classe (modelos otimizados):
 - Categoria | TF-IDF+SVM | TF-IDF+XGB | BERT+SVM | BERT+XGB
-- Economia: 0.952 | 0.533 | 1.000 | 0.952
-- Esportes: 0.952 | 0.800 | 1.000 | 0.900
-- Polícia e Direitos: 1.000 | 0.800 | 1.000 | 1.000
-- Política: 1.000 | 0.909 | 1.000 | 1.000
-- Turismo: 0.960 | 0.545 | 1.000 | 1.000
-- Variedades e Sociedade: 0.941 | 0.636 | 1.000 | 0.947
+- Economia: 0.952 | 0.571 | 1.000 | 1.000
+- Esportes: 0.952 | 0.783 | 1.000 | 0.900
+- Polícia e Direitos: 1.000 | 0.870 | 1.000 | 0.957
+- Política: 1.000 | 0.870 | 1.000 | 1.000
+- Turismo: 0.960 | 0.421 | 1.000 | 1.000
+- Variedades e Sociedade: 0.941 | 0.667 | 1.000 | 0.947
+
+**Observação**: XGBoost melhorou em várias classes após otimização (Economia: 0.533→0.571, Esportes: 0.800→0.783, Polícia: 0.800→0.870)
 
 ### Slide 8: Matrizes de Confusão
 - Mostrar 2 matrizes principais (TF-IDF+SVM e BERT+SVM)

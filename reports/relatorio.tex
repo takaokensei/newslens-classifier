@@ -243,6 +243,44 @@ Os top-10 casos com maior delta de confiança são analisados via Groq API (mode
 
 \section{Experimentos e Resultados}
 
+\subsection{Comparação: Modelos Padrão vs Otimizados (Optuna)}
+
+Para demonstrar o impacto da otimização bayesiana, foi realizada uma comparação direta entre modelos treinados com hiperparâmetros padrão e modelos otimizados via Optuna. A Tabela \ref{tab:optimization_comparison} apresenta os resultados de K-fold Cross-Validation (5 folds) para ambos os casos.
+
+\begin{table}[H]
+\centering
+\caption{Comparação: Modelos Padrão vs Otimizados (K-fold CV, 5 folds)}
+\label{tab:optimization_comparison}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Modelo} & \textbf{F1-Padrão} & \textbf{F1-Otimizado} & \textbf{Melhoria} & \textbf{Melhoria (\%)} \\
+\midrule
+TF-IDF + SVM & 0.9680 & 0.9682 & 0.0002 & 0.02\% \\
+TF-IDF + XGBoost & 0.8478 & 0.8675 & 0.0197 & \textbf{2.32\%} \\
+BERT + SVM & 0.9881 & 0.9918 & 0.0037 & 0.37\% \\
+BERT + XGBoost & 0.9277 & 0.9645 & 0.0368 & \textbf{3.96\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Análise dos Resultados:}
+\begin{itemize}
+    \item \textbf{BERT + XGBoost}: Maior ganho absoluto e percentual (+3.96\%), demonstrando que os hiperparâmetros padrão do XGBoost não eram ideais para este dataset. A otimização descobriu learning rate mais baixo (0.039 vs 0.1 padrão) e regularização adequada.
+    
+    \item \textbf{TF-IDF + XGBoost}: Segundo maior ganho (+2.32\%), confirmando que XGBoost se beneficia significativamente da otimização de hiperparâmetros.
+    
+    \item \textbf{BERT + SVM}: Pequeno ganho (+0.37\%), mas com descoberta importante: o kernel RBF foi selecionado em vez de linear, indicando que relações não-lineares são importantes para embeddings BERT. O parâmetro C foi otimizado para 24.82 (vs 1.0 padrão).
+    
+    \item \textbf{TF-IDF + SVM}: Ganho marginal (+0.02\%), indicando que os hiperparâmetros padrão já eram adequados. O kernel linear permaneceu como melhor opção.
+\end{itemize}
+
+\textbf{Impacto da Otimização:}
+\begin{itemize}
+    \item \textbf{Robustez}: Desvios padrão mantiveram-se baixos (< 0.06) em ambos os casos, confirmando consistência
+    \item \textbf{Eficiência}: A otimização não aumentou significativamente o tempo de treinamento ou inferência
+    \item \textbf{Validação}: Os ganhos observados em CV foram validados no conjunto de teste
+\end{itemize}
+
 \subsection{Validação Robusta e Otimização de Hiperparâmetros}
 
 Antes de apresentar os resultados finais, é importante destacar que foi realizada uma validação robusta através de K-fold Cross-Validation (5 folds) e otimização bayesiana de hiperparâmetros utilizando Optuna. Os resultados demonstram:

@@ -566,6 +566,95 @@ Explain clearly and concisely why this text belongs to this category."""
             st.divider()
             st.subheader("📊 Análise Comparativa Avançada" if current_lang == 'pt' else "📊 Advanced Comparative Analysis")
             
+            # Optimization Comparison Section
+            st.divider()
+            st.subheader("🎯 Comparação: Antes vs Depois da Otimização (Optuna)" if current_lang == 'pt' else "🎯 Comparison: Before vs After Optimization (Optuna)")
+            
+            try:
+                opt_comparison_path = Path(__file__).parent.parent / 'models' / 'optimization_comparison.csv'
+                if opt_comparison_path.exists():
+                    opt_df = pd.read_csv(opt_comparison_path)
+                    
+                    # Create comparison chart
+                    fig = go.Figure()
+                    
+                    models_list = opt_df['Model'].tolist()
+                    f1_optimized = opt_df['F1-Optimized'].tolist()
+                    f1_default = opt_df['F1-Default'].tolist()
+                    improvements = opt_df['Improvement %'].tolist()
+                    
+                    fig.add_trace(go.Bar(
+                        name='F1-Default (Padrão)' if current_lang == 'pt' else 'F1-Default',
+                        x=models_list,
+                        y=f1_default,
+                        marker_color='lightblue',
+                        text=[f'{val:.3f}' for val in f1_default],
+                        textposition='auto'
+                    ))
+                    
+                    fig.add_trace(go.Bar(
+                        name='F1-Optimized (Otimizado)' if current_lang == 'pt' else 'F1-Optimized',
+                        x=models_list,
+                        y=f1_optimized,
+                        marker_color='darkblue',
+                        text=[f'{val:.3f}' for val in f1_optimized],
+                        textposition='auto'
+                    ))
+                    
+                    fig.update_layout(
+                        title='Comparação F1-Macro: Padrão vs Otimizado (K-fold CV)' if current_lang == 'pt' else 'F1-Macro Comparison: Default vs Optimized (K-fold CV)',
+                        xaxis_title='Modelo' if current_lang == 'pt' else 'Model',
+                        yaxis_title='F1-Macro',
+                        barmode='group',
+                        height=500,
+                        showlegend=True
+                    )
+                    
+                    st.plotly_chart(fig, use_container_width=True)
+                    
+                    # Improvement metrics
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.markdown("**Melhorias por Modelo**" if current_lang == 'pt' else "**Improvements by Model**")
+                        improvement_df = pd.DataFrame({
+                            'Modelo' if current_lang == 'pt' else 'Model': models_list,
+                            'Melhoria (%)' if current_lang == 'pt' else 'Improvement (%)': [f"+{imp:.2f}%" for imp in improvements]
+                        })
+                        st.dataframe(improvement_df, use_container_width=True, hide_index=True)
+                    
+                    with col2:
+                        st.markdown("**Tabela Comparativa Completa**" if current_lang == 'pt' else "**Complete Comparison Table**")
+                        display_df = opt_df.copy()
+                        display_df['F1-Optimized'] = display_df['F1-Optimized'].round(4)
+                        display_df['F1-Default'] = display_df['F1-Default'].round(4)
+                        display_df['Improvement'] = display_df['Improvement'].round(4)
+                        display_df['Improvement %'] = display_df['Improvement %'].round(2)
+                        if current_lang == 'pt':
+                            display_df.columns = ['Modelo', 'F1-Otimizado', 'F1-Padrão', 'Melhoria', 'Melhoria (%)']
+                        st.dataframe(display_df, use_container_width=True, hide_index=True)
+                    
+                    # Key insights
+                    st.info("""
+                    **💡 Principais Descobertas:**
+                    - **BERT + XGBoost**: Maior ganho (+3.96%) - otimização muito benéfica
+                    - **TF-IDF + XGBoost**: Ganho significativo (+2.32%) - hiperparâmetros padrão não eram ideais
+                    - **BERT + SVM**: Pequeno ganho (+0.37%) - mudou para kernel RBF (importante!)
+                    - **TF-IDF + SVM**: Ganho marginal (+0.02%) - já estava bem otimizado
+                    """ if current_lang == 'pt' else """
+                    **💡 Key Findings:**
+                    - **BERT + XGBoost**: Largest gain (+3.96%) - optimization very beneficial
+                    - **TF-IDF + XGBoost**: Significant gain (+2.32%) - default hyperparameters not ideal
+                    - **BERT + SVM**: Small gain (+0.37%) - changed to RBF kernel (important!)
+                    - **TF-IDF + SVM**: Marginal gain (+0.02%) - already well optimized
+                    """)
+                else:
+                    st.warning("Arquivo de comparação de otimização não encontrado. Execute scripts/run_optimization.py primeiro." if current_lang == 'pt' else "Optimization comparison file not found. Run scripts/run_optimization.py first.")
+            except Exception as e:
+                st.warning(f"Erro ao carregar comparação de otimização: {e}" if current_lang == 'pt' else f"Error loading optimization comparison: {e}")
+            
+            st.divider()
+            st.subheader("📈 Visualizações Adicionais" if current_lang == 'pt' else "📈 Additional Visualizations")
+            
             col1, col2 = st.columns(2)
             
             with col1:
