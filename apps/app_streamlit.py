@@ -847,10 +847,11 @@ def main():
             else:
                 st.warning("⚠️ Modelos não carregados. Aguarde o carregamento dos modelos." if current_lang == 'pt' else "⚠️ Models not loaded. Please wait for models to load.")
                 st.session_state.test_validation_set = False
-                else:
-                    st.error(t('models_error'))
-                    st.info("💡 **Dica**: Os modelos precisam ser treinados primeiro. Execute `python scripts/auto_train_models.py` para treinar automaticamente." if current_lang == 'pt' else "💡 **Tip**: Models need to be trained first. Run `python scripts/auto_train_models.py` to train automatically.")
-                    st.stop()
+        else:
+            if not st.session_state.models_loaded:
+                st.error(t('models_error'))
+                st.info("💡 **Dica**: Os modelos precisam ser treinados primeiro. Execute `python scripts/auto_train_models.py` para treinar automaticamente." if current_lang == 'pt' else "💡 **Tip**: Models need to be trained first. Run `python scripts/auto_train_models.py` to train automatically.")
+                st.stop()
         else:
             models = st.session_state.models
             vectorizer = st.session_state.vectorizer
