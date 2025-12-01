@@ -72,12 +72,15 @@ class NewsLensClassifier:
     def production_features(self):
         return [
             "Stratified Train/Val/Test Split (60/20/20)",
-            "Prediction Logging System (CSV)",
-            "Streamlit Monitoring Dashboard",
+            "K-Fold Cross-Validation (5 folds) for robust evaluation",
+            "Bayesian Hyperparameter Optimization (Optuna TPE)",
+            "Prediction Logging System (CSV + SQLite)",
+            "Streamlit Monitoring Dashboard with Advanced Filters",
             "Groq LLM Integration (llama-3.3-70b-versatile)",
             "Class Profiling & Differential Error Analysis",
             "Batch Processing Pipeline",
-            "Real-time Classification API"
+            "Real-time Classification API",
+            "Export functionality (CSV download)"
         ]
     
     def final_results(self):

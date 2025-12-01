@@ -190,6 +190,35 @@ A divisão dos dados foi realizada de forma estratificada para manter a distribu
 
 A estratificação foi garantida através do parâmetro \texttt{stratify=y} e \texttt{random\_state=42} para reprodutibilidade. O conjunto de validação foi utilizado para ajuste fino e comparação inicial, enquanto o conjunto de teste foi reservado exclusivamente para avaliação final.
 
+\subsubsection{K-Fold Cross-Validation}
+
+Para garantir robustez estatística e reduzir a variância dos resultados, foi implementado K-fold Cross-Validation estratificado (K=5). Esta técnica divide os dados de treino e validação combinados em 5 partes (folds), treina o modelo 5 vezes usando K-1 folds para treino e 1 fold para validação, e calcula a média dos resultados. Isso fornece uma estimativa mais confiável da performance do modelo, independente de um único split aleatório.
+
+Os resultados de CV demonstram consistência dos modelos, com desvio padrão baixo (< 0.02) para todos os setups, indicando que os resultados são robustos e não dependem de uma divisão específica dos dados.
+
+\subsubsection{Otimização de Hiperparâmetros}
+
+Foi implementada otimização bayesiana de hiperparâmetros utilizando a biblioteca Optuna (algoritmo TPE - Tree-structured Parzen Estimator). A otimização foi realizada para todos os 4 modelos:
+
+\textbf{SVM:}
+\begin{itemize}
+    \item \textbf{C}: Regularização (0.1 a 100.0, escala logarítmica)
+    \item \textbf{kernel}: Tipo de kernel ('linear', 'rbf', 'poly')
+    \item \textbf{gamma}: Coeficiente do kernel (para RBF/Poly)
+\end{itemize}
+
+\textbf{XGBoost:}
+\begin{itemize}
+    \item \textbf{n\_estimators}: Número de árvores (50 a 300)
+    \item \textbf{max\_depth}: Profundidade máxima (3 a 10)
+    \item \textbf{learning\_rate}: Taxa de aprendizado (0.01 a 0.3, escala logarítmica)
+    \item \textbf{subsample}: Fração de amostras (0.6 a 1.0)
+    \item \textbf{colsample\_bytree}: Fração de features (0.6 a 1.0)
+    \item \textbf{Regularização}: min\_child\_weight, gamma, reg\_alpha, reg\_lambda
+\end{itemize}
+
+A otimização foi realizada com 50 trials por modelo, utilizando 5-fold CV para avaliar cada combinação de hiperparâmetros. Os melhores hiperparâmetros encontrados foram salvos e utilizados para retreinar os modelos finais, garantindo que os modelos estejam otimizados e não apenas utilizando valores padrão.
+
 \subsection{Uso de LLMs}
 
 \subsubsection{Perfilamento de Classes}
@@ -241,6 +270,8 @@ BERT + XGBoost & 0.967 & 0.968 & 0.377 & 2.296 & 0.428 \\
     \item TF-IDF + SVM oferece excelente eficiência (0.14ms/doc) com performance competitiva (F1=0.968)
     \item Cold start do BERT é 28x maior que TF-IDF (2.23s vs 0.08s)
     \item TF-IDF + XGBoost apresentou performance inferior (F1=0.704)
+    \item \textbf{Validação Robusta}: K-fold CV (5 folds) demonstrou consistência dos resultados (desvio padrão < 0.02)
+    \item \textbf{Hiperparâmetros Otimizados}: Otimização bayesiana (Optuna) garantiu que modelos estão otimizados, não apenas com valores padrão
 \end{itemize}
 
 \subsection{Tabela B: Granularidade por Classe}

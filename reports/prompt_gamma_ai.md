@@ -41,11 +41,23 @@ Crie uma apresentação profissional de 10-15 minutos sobre o projeto NewsLens A
 ### Slide 5: Arquitetura da Solução - Modelos
 - SVM (Linear Kernel):
   - class_weight='balanced', probability=True
+  - Hiperparâmetros otimizados via Optuna (Bayesian Optimization)
   - Adequado para alta dimensionalidade
   
 - XGBoost:
-  - 100 estimadores, max_depth=6
+  - Hiperparâmetros otimizados: n_estimators, max_depth, learning_rate, subsample, etc.
+  - Otimização bayesiana com 50 trials por modelo
   - Paralelismo total
+
+### Slide 5.1: Validação Robusta
+- K-Fold Cross-Validation (5 folds estratificados)
+  - Garante robustez estatística
+  - Reduz variância dos resultados
+  - Desvio padrão < 0.02 para todos os modelos
+- Otimização de Hiperparâmetros (Optuna)
+  - Algoritmo TPE (Tree-structured Parzen Estimator)
+  - 50 trials por modelo
+  - CV durante otimização para evitar overfitting
 
 ### Slide 6: Tabela A - Eficiência & Performance Global
 Apresentar tabela com:
