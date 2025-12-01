@@ -623,11 +623,38 @@ def main():
             bert_model = st.session_state.bert_model
         
         # Text input
-        text_input = st.text_area(
-            t('enter_text'),
-            height=200,
-            placeholder=t('text_placeholder')
-        )
+        # Text input with sample button
+        col_text, col_btn = st.columns([4, 1])
+        
+        with col_text:
+            text_input = st.text_area(
+                t('enter_text'),
+                height=200,
+                placeholder=t('text_placeholder'),
+                key="text_input_area",
+                value=st.session_state.get('sample_text', '')
+            )
+        
+        with col_btn:
+            st.write("")  # Spacing
+            st.write("")  # Spacing
+            if st.button(
+                "📄 Exemplo do Conjunto de Validação" if current_lang == 'pt' else "📄 Validation Set Sample",
+                use_container_width=True,
+                help="Carrega um texto aleatório do conjunto de validação (não visto durante o treinamento)" if current_lang == 'pt' else "Load a random text from validation set (not seen during training)"
+            ):
+                sample = get_validation_sample()
+                if sample:
+                    st.session_state.sample_text = sample
+                    st.session_state.text_input_area = sample  # Update text area
+                    st.rerun()
+                else:
+                    st.error("Não foi possível carregar exemplo. Verifique se os dados estão disponíveis." if current_lang == 'pt' else "Could not load sample. Please check if data is available.")
+        
+        # Clear sample_text after use to avoid persistence
+        if 'sample_text' in st.session_state and st.session_state.sample_text:
+            if text_input != st.session_state.sample_text:
+                st.session_state.sample_text = ''
         
         col1, col2 = st.columns([1, 4])
         with col1:
