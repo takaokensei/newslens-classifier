@@ -163,7 +163,7 @@ newslens-classifier/
 │   ├── run_phase2.py           # Training & evaluation
 │   ├── run_phase3.py           # LLM analysis & profiling
 │   ├── processar_novos.py      # Batch production script
-│   └── test_production.py      # Production validation
+│   └── test_production.py      # Production environment validation
 │
 ├── 🎨 apps/
 │   └── app_streamlit.py        # Web interface (classification + monitoring)
