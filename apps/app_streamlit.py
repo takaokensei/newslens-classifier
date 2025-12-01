@@ -358,21 +358,69 @@ def main():
             with st.spinner(loading_text):
                 models, vectorizer, bert_model = load_all_models()
                 
-                # Check if automatic training is in progress
+                # Check if automatic training is needed
                 if models is None:
                     # Check if data exists for training
-                    from pathlib import Path
                     raw_dir = PATHS['data_raw']
                     csv_files = list(raw_dir.glob('*.csv'))
                     
                     if csv_files:
-                        # Data exists, show training message
+                        # Data exists, try to train automatically
                         st.info("🔄 **Treinando modelos automaticamente...** Isso pode levar alguns minutos na primeira vez." if current_lang == 'pt' else "🔄 **Training models automatically...** This may take a few minutes on first run.")
-                        st.info("⏳ Por favor, aguarde. A página será recarregada automaticamente quando os modelos estiverem prontos." if current_lang == 'pt' else "⏳ Please wait. The page will reload automatically when models are ready.")
-                        # Force rerun to check again
-                        import time
-                        time.sleep(2)
-                        st.rerun()
+                        
+                        # Try to train in background (non-blocking)
+                        try:
+                            # Import training function
+                            import sys
+                            sys.path.insert(0, str(Path(__file__).parent.parent))
+                            from scripts.auto_train_models import train_models_automatically
+                            
+                            # Show progress
+                            progress_bar = st.progress(0)
+                            status_text = st.empty()
+                            
+                            status_text.text("📊 Preparando dados..." if current_lang == 'pt' else "📊 Preparing data...")
+                            progress_bar.progress(20)
+                            
+                            # Train models
+                            result = train_models_automatically(force=False)
+                            
+                            progress_bar.progress(80)
+                            
+                            if result['success'] and result.get('models_trained', False):
+                                status_text.text("✅ Modelos treinados! Carregando..." if current_lang == 'pt' else "✅ Models trained! Loading...")
+                                progress_bar.progress(100)
+                                
+                                # Reload models
+                                imports = _lazy_imports()
+                                models = imports['load_trained_models']()
+                                
+                                if models and len(models) > 0:
+                                    st.session_state.models = models
+                                    st.session_state.vectorizer = imports['load_tfidf_vectorizer'](PATHS['data_embeddings'] / 'tfidf_vectorizer.pkl') if (PATHS['data_embeddings'] / 'tfidf_vectorizer.pkl').exists() else None
+                                    st.session_state.bert_model = imports['load_bert_model']()
+                                    st.session_state.models_loaded = True
+                                    st.success(t('models_loaded'))
+                                    progress_bar.empty()
+                                    status_text.empty()
+                                    st.rerun()
+                                else:
+                                    progress_bar.empty()
+                                    status_text.empty()
+                                    st.error("❌ Erro ao carregar modelos após treinamento." if current_lang == 'pt' else "❌ Error loading models after training.")
+                                    st.stop()
+                            else:
+                                progress_bar.empty()
+                                status_text.empty()
+                                st.warning(f"⚠️ {result.get('message', 'Training failed')}")
+                                st.info("💡 Tente recarregar a página ou execute `python scripts/auto_train_models.py` manualmente." if current_lang == 'pt' else "💡 Try reloading the page or run `python scripts/auto_train_models.py` manually.")
+                                st.stop()
+                        except Exception as e:
+                            st.error(f"❌ Erro durante treinamento: {str(e)}" if current_lang == 'pt' else f"❌ Error during training: {str(e)}")
+                            import traceback
+                            st.code(traceback.format_exc())
+                            st.info("💡 Execute `python scripts/auto_train_models.py` manualmente para treinar os modelos." if current_lang == 'pt' else "💡 Run `python scripts/auto_train_models.py` manually to train models.")
+                            st.stop()
                     else:
                         st.error(t('models_error'))
                         st.info("💡 **Dica**: Adicione um arquivo CSV em `data/raw/` com colunas: 'Texto', 'Classe', 'Categoria'. Os modelos serão treinados automaticamente." if current_lang == 'pt' else "💡 **Tip**: Add a CSV file in `data/raw/` with columns: 'Texto', 'Classe', 'Categoria'. Models will be trained automatically.")
