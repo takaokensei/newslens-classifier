@@ -391,6 +391,9 @@ def classify_text_streamlit(
 
 def main():
     """Aplicação principal do Streamlit."""
+    # Load predictions from cookie on page load (survives F5)
+    load_and_sync_cookie_predictions()
+    
     # Language selector
     lang = st.sidebar.selectbox(
         "🌐 Idioma / Language",
