@@ -280,12 +280,14 @@ BERT + XGBoost (Otimizado) & 0.967 & 0.968 & 0.390 & 0.550 & 0.428 \\
 
 \textbf{Observações:}
 \begin{itemize}
-    \item BERT + SVM alcançou performance perfeita (F1=1.0, Accuracy=1.0) no conjunto de teste
+    \item BERT + SVM alcançou performance perfeita (F1=1.0, Accuracy=1.0) no conjunto de teste, mesmo após otimização
     \item TF-IDF + SVM oferece excelente eficiência (0.14ms/doc) com performance competitiva (F1=0.968)
-    \item Cold start do BERT é 28x maior que TF-IDF (2.23s vs 0.08s)
-    \item TF-IDF + XGBoost apresentou performance inferior (F1=0.704)
-    \item \textbf{Validação Robusta}: K-fold CV (5 folds) demonstrou consistência dos resultados (desvio padrão < 0.02)
-    \item \textbf{Hiperparâmetros Otimizados}: Otimização bayesiana (Optuna) garantiu que modelos estão otimizados, não apenas com valores padrão
+    \item Cold start do BERT melhorou significativamente após otimização (0.62s vs 2.23s anterior, ~3.6x mais rápido)
+    \item TF-IDF + XGBoost apresentou performance inferior mesmo após otimização (F1=0.697), mas melhorou em algumas classes específicas
+    \item BERT + XGBoost manteve F1=0.967 após otimização, com melhorias em classes específicas (Economia: 1.0, Política: 1.0)
+    \item \textbf{Validação Robusta}: K-fold CV (5 folds) demonstrou consistência dos resultados (desvio padrão < 0.06)
+    \item \textbf{Hiperparâmetros Otimizados}: Otimização bayesiana (Optuna) resultou em melhorias de até 3.96\% em F1-Macro durante CV (BERT + XGBoost)
+    \item \textbf{Descoberta Técnica}: Kernel RBF foi selecionado para BERT + SVM (em vez de linear), indicando relações não-lineares importantes nos embeddings BERT
 \end{itemize}
 
 \subsection{Tabela B: Granularidade por Classe}
