@@ -714,7 +714,7 @@ def main():
         
         col1, col2 = st.columns([1, 4])
         with col1:
-            classify_button = st.button(t('classify'), type="primary", use_container_width=True)
+            classify_button = st.button(t('classify'), type="primary", width='stretch')
         with col2:
             save_prediction = st.checkbox(t('save_log'), value=True)
         
@@ -772,7 +772,7 @@ def main():
                     title=t('prob_dist')
                 )
                 fig.update_layout(showlegend=False, height=400)
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width='stretch')
             
             # LLM Explanation section (always visible when result exists)
             st.subheader(t('ai_explanation'))
@@ -933,7 +933,7 @@ Explain clearly and concisely why this text belongs to this category."""
                             names='Categoria' if current_lang == 'pt' else 'Category',
                             title=t('dist_by_category')
                         )
-                        st.plotly_chart(fig, use_container_width=True)
+                        st.plotly_chart(fig, width='stretch')
                 
                 with col2:
                     st.subheader(t('by_model'))
@@ -950,7 +950,7 @@ Explain clearly and concisely why this text belongs to this category."""
                             color='Quantidade' if current_lang == 'pt' else 'Count',
                             color_continuous_scale='Blues'
                         )
-                        st.plotly_chart(fig, use_container_width=True)
+                        st.plotly_chart(fig, width='stretch')
                 
                 # Temporal evolution
                 if 'timestamp' in logs_df.columns:
@@ -966,7 +966,7 @@ Explain clearly and concisely why this text belongs to this category."""
                         title=t('predictions_over_time'),
                         markers=True
                     )
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width='stretch')
             
             # Additional visualizations
             st.divider()
@@ -1016,7 +1016,7 @@ Explain clearly and concisely why this text belongs to this category."""
                         showlegend=True
                     )
                     
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width='stretch')
                     
                     # Improvement metrics
                     col1, col2 = st.columns(2)
@@ -1026,7 +1026,7 @@ Explain clearly and concisely why this text belongs to this category."""
                             'Modelo' if current_lang == 'pt' else 'Model': models_list,
                             'Melhoria (%)' if current_lang == 'pt' else 'Improvement (%)': [f"+{imp:.2f}%" for imp in improvements]
                         })
-                        st.dataframe(improvement_df, use_container_width=True, hide_index=True)
+                        st.dataframe(improvement_df, width='stretch', hide_index=True)
                     
                     with col2:
                         st.markdown("**Tabela Comparativa Completa**" if current_lang == 'pt' else "**Complete Comparison Table**")
@@ -1037,7 +1037,7 @@ Explain clearly and concisely why this text belongs to this category."""
                         display_df['Improvement %'] = display_df['Improvement %'].round(2)
                         if current_lang == 'pt':
                             display_df.columns = ['Modelo', 'F1-Otimizado', 'F1-Padrão', 'Melhoria', 'Melhoria (%)']
-                        st.dataframe(display_df, use_container_width=True, hide_index=True)
+                        st.dataframe(display_df, width='stretch', hide_index=True)
                     
                     # Key insights
                     st.info("""
@@ -1075,7 +1075,7 @@ Explain clearly and concisely why this text belongs to this category."""
                         title="Score Distribution" if current_lang == 'en' else "Distribuição de Scores",
                         labels={'embedding_usado': 'Embedding' if current_lang == 'en' else 'Embedding', 'score': 'Score'}
                     )
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width='stretch')
             
             with col2:
                 # Score distribution by model
@@ -1089,7 +1089,7 @@ Explain clearly and concisely why this text belongs to this category."""
                         title="Score Distribution" if current_lang == 'en' else "Distribuição de Scores",
                         labels={'modelo_usado': 'Model' if current_lang == 'en' else 'Modelo', 'score': 'Score'}
                     )
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width='stretch')
             
             # Performance vs Efficiency Trade-off (if we have model performance data)
             try:
@@ -1128,13 +1128,13 @@ Explain clearly and concisely why this text belongs to this category."""
                         showlegend=False
                     )
                     
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width='stretch')
                     
                     # Add efficiency comparison table
                     st.markdown("**Comparação de Eficiência**" if current_lang == 'pt' else "**Efficiency Comparison**")
                     display_eff = eff_df[['Setup', 'F1-Macro', 'Accuracy', 'Latency (ms/doc)', 'Cold Start (s)', 'Tamanho (MB)']].copy()
                     display_eff = display_eff.round(3)
-                    st.dataframe(display_eff, use_container_width=True, hide_index=True)
+                    st.dataframe(display_eff, width='stretch', hide_index=True)
             except Exception as e:
                 pass  # Silently fail if efficiency data not available
             
@@ -1146,7 +1146,7 @@ Explain clearly and concisely why this text belongs to this category."""
                     display_df = display_df.sort_values('timestamp', ascending=False)
                     # Format timestamp for better readability
                     display_df['timestamp'] = pd.to_datetime(display_df['timestamp']).dt.strftime('%Y-%m-%d %H:%M:%S')
-                    st.dataframe(display_df, use_container_width=True, hide_index=True)
+                    st.dataframe(display_df, width='stretch', hide_index=True)
                     st.caption("📊 **Histórico da sua sessão atual** - Os dados são privados e não são compartilhados com outros usuários." if current_lang == 'pt' else "📊 **Your current session history** - Data is private and not shared with other users.")
                 else:
                     st.info("Nenhuma predição recente na sua sessão." if current_lang == 'pt' else "No recent predictions in your session.")
@@ -1162,14 +1162,14 @@ Explain clearly and concisely why this text belongs to this category."""
                             data=csv_export,
                             file_name=f"predicoes_sessao_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
                             mime="text/csv",
-                            use_container_width=True
+                            width='stretch'
                         )
                 with col2:
                     if not logs_df.empty and 'timestamp' in logs_df.columns:
                         st.info(f"📊 {len(logs_df)} predições na sua sessão" if current_lang == 'pt' else f"📊 {len(logs_df)} predictions in your session")
                 with col3:
                     if st.session_state.get('session_predictions'):
-                        if st.button("🗑️ Limpar Histórico" if current_lang == 'pt' else "🗑️ Clear History", use_container_width=True):
+                        if st.button("🗑️ Limpar Histórico" if current_lang == 'pt' else "🗑️ Clear History", width='stretch'):
                             st.session_state.session_predictions = []
                             # Clear cookie
                             save_predictions_to_cookie([])
