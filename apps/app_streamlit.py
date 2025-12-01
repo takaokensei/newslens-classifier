@@ -543,8 +543,6 @@ Explain clearly and concisely why this text belongs to this category."""
             
             # Performance vs Efficiency Trade-off (if we have model performance data)
             try:
-                import pandas as pd
-                from pathlib import Path
                 efficiency_path = Path(__file__).parent.parent / 'models' / 'table_a_efficiency.csv'
                 if efficiency_path.exists():
                     st.divider()
