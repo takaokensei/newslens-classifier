@@ -649,19 +649,23 @@ def main():
         col_text, col_btn = st.columns([4, 1])
         
         with col_text:
-            # Get initial value from session state or sample_text
-            initial_value = st.session_state.get('text_input_area', '') or st.session_state.get('sample_text', '')
+            # Initialize text_input_area in session state if not exists
+            if 'text_input_area' not in st.session_state:
+                st.session_state.text_input_area = ''
+            
+            # If we have a new sample, update the text area
+            if 'sample_text' in st.session_state and st.session_state.sample_text:
+                st.session_state.text_input_area = st.session_state.sample_text
+                # Clear sample_text after using it
+                st.session_state.sample_text = ''
+            
+            # Use key to bind to session_state (don't use value parameter when using key)
             text_input = st.text_area(
                 t('enter_text'),
                 height=200,
                 placeholder=t('text_placeholder'),
-                key="text_input_area",
-                value=initial_value
+                key="text_input_area"
             )
-            
-            # Update session state when user types
-            if text_input != st.session_state.get('text_input_area', ''):
-                st.session_state.text_input_area = text_input
         
         with col_btn:
             st.write("")  # Spacing
