@@ -32,15 +32,21 @@ def main():
     
     # Load embeddings and labels
     print("Loading embeddings and labels...")
+    from src.data_loader import load_sparse_embedding, load_dense_embedding
+    
     embeddings_tfidf = {
-        'train': load_embedding('tfidf', 'train'),
-        'test': load_embedding('tfidf', 'test')
+        'train': load_sparse_embedding(PATHS['data_embeddings'] / 'tfidf_train.npz'),
+        'test': load_sparse_embedding(PATHS['data_embeddings'] / 'tfidf_test.npz')
     }
     embeddings_bert = {
-        'train': load_embedding('bert', 'train'),
-        'test': load_embedding('bert', 'test')
+        'train': load_dense_embedding(PATHS['data_embeddings'] / 'bert_train.npy'),
+        'test': load_dense_embedding(PATHS['data_embeddings'] / 'bert_test.npy')
     }
-    labels = load_labels()
+    from src.data_loader import load_labels
+    labels = {
+        'train': np.load(PATHS['data_processed'] / 'labels_train.npy'),
+        'test': np.load(PATHS['data_processed'] / 'labels_test.npy')
+    }
     
     # Create profiles
     profiles = profile_classes_hybrid(

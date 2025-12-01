@@ -4,6 +4,10 @@ Centralizes all project configurations.
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Project root directory
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -49,7 +53,7 @@ MODELS_CONFIG = {
 # 4. LLM API Configuration (Cost Control)
 LLM_CONFIG = {
     'provider': 'groq',
-    'model': 'llama-3.1-70b-versatile',
+    'model': 'llama-3.3-70b-versatile',  # Updated to available model
     'max_examples_differential': 10,  # Hard limit
     'api_key': os.getenv('GROQ_API_KEY')  # Environment variable
 }
