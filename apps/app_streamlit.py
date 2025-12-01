@@ -211,13 +211,13 @@ def save_predictions_to_cookie(predictions: list) -> None:
 
 def load_and_sync_cookie_predictions():
     """Load predictions from cookie and sync with session_state on page load."""
-    # Check if we've already loaded from cookie in this session
+    # Initialize cookie_loaded flag if not exists
     if 'cookie_loaded' not in st.session_state:
         st.session_state.cookie_loaded = False
     
-    # Only try to load once per session
-    if not st.session_state.cookie_loaded:
-        # Check query params first (set by JavaScript component)
+    # Only try to load if we don't have predictions in session_state and haven't loaded yet
+    if not st.session_state.session_predictions and not st.session_state.cookie_loaded:
+        # Check query params first (set by JavaScript component on first load)
         query_params = st.query_params
         cookie_data_param = query_params.get("cookie_data", None)
         
@@ -231,50 +231,58 @@ def load_and_sync_cookie_predictions():
                     st.session_state.cookie_loaded = True
                     # Clear query param to avoid reloading
                     st.query_params.clear()
+                    # Rerun to update UI with loaded data
+                    st.rerun()
             except Exception as e:
                 print(f"Error loading predictions from cookie: {e}")
-        
-        # JavaScript component to read cookie and update query params
-        # This triggers a rerun with the cookie data
-        js_code = """
-        <script>
-        (function() {
-            function getCookie(name) {
-                var nameEQ = name + "=";
-                var ca = document.cookie.split(';');
-                for(var i = 0; i < ca.length; i++) {
-                    var c = ca[i];
-                    while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-                    if (c.indexOf(nameEQ) == 0) {
-                        return decodeURIComponent(c.substring(nameEQ.length, c.length));
+                st.session_state.cookie_loaded = True  # Mark as loaded even on error to avoid retry loop
+        else:
+            # JavaScript component to read cookie and update query params (only if no data in session_state)
+            # This triggers a rerun with the cookie data
+            js_code = """
+            <script>
+            (function() {
+                function getCookie(name) {
+                    var nameEQ = name + "=";
+                    var ca = document.cookie.split(';');
+                    for(var i = 0; i < ca.length; i++) {
+                        var c = ca[i];
+                        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                        if (c.indexOf(nameEQ) == 0) {
+                            return decodeURIComponent(c.substring(nameEQ.length, c.length));
+                        }
                     }
+                    return null;
                 }
-                return null;
-            }
-            
-            // Check if we've already loaded (avoid infinite loop)
-            var alreadyLoaded = sessionStorage.getItem("newslens_cookie_loaded");
-            if (!alreadyLoaded) {
-                var cookieValue = getCookie("newslens_predictions");
-                if (cookieValue && cookieValue.length > 0) {
-                    // Check if query param already has data (avoid reload)
-                    var urlParams = new URLSearchParams(window.location.search);
-                    if (!urlParams.has("cookie_data")) {
-                        // Update URL with cookie data to trigger rerun
+                
+                // Only try to load if query param doesn't already have data
+                var urlParams = new URLSearchParams(window.location.search);
+                if (!urlParams.has("cookie_data")) {
+                    var cookieValue = getCookie("newslens_predictions");
+                    if (cookieValue && cookieValue.length > 0) {
+                        // Update URL with cookie data to trigger rerun (without full page reload)
                         var newUrl = new URL(window.location);
                         newUrl.searchParams.set("cookie_data", cookieValue);
-                        // Mark as loaded to avoid infinite loop
-                        sessionStorage.setItem("newslens_cookie_loaded", "true");
-                        window.location.href = newUrl.toString();
+                        // Use replaceState to avoid adding to history and causing issues
+                        window.history.replaceState({}, '', newUrl.toString());
+                        // Trigger Streamlit rerun by dispatching a custom event
+                        window.dispatchEvent(new Event('popstate'));
+                        // Fallback: if popstate doesn't work, use location.reload with query param
+                        setTimeout(function() {
+                            if (!urlParams.has("cookie_data")) {
+                                window.location.href = newUrl.toString();
+                            }
+                        }, 100);
                     }
-                } else {
-                    sessionStorage.setItem("newslens_cookie_loaded", "true");
                 }
-            }
-        })();
-        </script>
-        """
-        st.components.v1.html(js_code, height=0)
+            })();
+            </script>
+            """
+            st.components.v1.html(js_code, height=0)
+    else:
+        # If we already have predictions or have loaded, mark as loaded
+        if st.session_state.session_predictions:
+            st.session_state.cookie_loaded = True
 
 
 @st.cache_resource
