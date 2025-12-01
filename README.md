@@ -330,9 +330,9 @@ python scripts/processar_novos.py --model best
 | Model | F1-Macro | Accuracy |
 |-------|----------|----------|
 | **BERT + SVM** | **1.000** | **1.000** |
-| **BERT + XGBoost** | 0.984 | 0.984 |
+| **BERT + XGBoost** | 0.967 | 0.968 |
 | TF-IDF + SVM | 0.968 | 0.968 |
-| TF-IDF + XGBoost | 0.937 | 0.937 |
+| TF-IDF + XGBoost | 0.704 | 0.714 |
 
 <img src="https://img.shields.io/badge/Winner-BERT_+_SVM-00C853?style=flat-square"/>
 </td>
@@ -342,9 +342,9 @@ python scripts/processar_novos.py --model best
 | Model | Latency (ms/doc) | Cold Start (s) | Size (MB) |
 |-------|------------------|----------------|-----------|
 | **TF-IDF + SVM** | **0.14** | **0.08** | **0.18** |
-| TF-IDF + XGBoost | 0.18 | 0.10 | 0.24 |
+| TF-IDF + XGBoost | 0.42 | 0.11 | 0.49 |
 | BERT + SVM | 0.12 | 2.23 | 0.88 |
-| BERT + XGBoost | 0.15 | 2.35 | 1.05 |
+| BERT + XGBoost | 0.38 | 2.30 | 0.43 |
 
 <img src="https://img.shields.io/badge/Winner-TF--IDF_+_SVM-4A90E2?style=flat-square"/>
 </td>
