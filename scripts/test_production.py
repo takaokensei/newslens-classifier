@@ -23,11 +23,11 @@ def test_model_loading():
     print("="*60)
     try:
         models = load_trained_models()
-        print("✓ Models loaded successfully")
+        print("OK: Models loaded successfully")
         print(f"  Available models: {list(models.keys())}")
         return True
     except Exception as e:
-        print(f"✗ Error loading models: {e}")
+        print(f"ERROR: Error loading models: {e}")
         return False
 
 
@@ -38,13 +38,13 @@ def test_embeddings_loading():
     print("="*60)
     try:
         vectorizer = load_tfidf_vectorizer(PATHS['data_embeddings'] / 'tfidf_vectorizer.pkl')
-        print("✓ TF-IDF vectorizer loaded")
+        print("OK: TF-IDF vectorizer loaded")
         
         bert_model = load_bert_model()
-        print("✓ BERT model loaded")
+        print("OK: BERT model loaded")
         return True
     except Exception as e:
-        print(f"✗ Error loading embeddings: {e}")
+        print(f"ERROR: Error loading embeddings: {e}")
         return False
 
 
@@ -64,23 +64,23 @@ def test_classification():
         
         # Preprocess
         processed = preprocess_text(test_text)
-        print(f"✓ Text preprocessed: {processed[:50]}...")
+        print(f"OK: Text preprocessed: {processed[:50]}...")
         
         # TF-IDF + SVM
         tfidf_emb = vectorizer.transform([processed])
         pred_tfidf = models['tfidf_svm'].predict(tfidf_emb)[0]
         proba_tfidf = models['tfidf_svm'].predict_proba(tfidf_emb)[0]
-        print(f"✓ TF-IDF + SVM: {CLASS_TO_CATEGORY[pred_tfidf]} (score: {proba_tfidf[pred_tfidf]:.3f})")
+        print(f"OK: TF-IDF + SVM: {CLASS_TO_CATEGORY[pred_tfidf]} (score: {proba_tfidf[pred_tfidf]:.3f})")
         
         # BERT + SVM
         bert_emb = bert_model.encode([processed], convert_to_numpy=True, show_progress_bar=False)
         pred_bert = models['bert_svm'].predict(bert_emb)[0]
         proba_bert = models['bert_svm'].predict_proba(bert_emb)[0]
-        print(f"✓ BERT + SVM: {CLASS_TO_CATEGORY[pred_bert]} (score: {proba_bert[pred_bert]:.3f})")
+        print(f"OK: BERT + SVM: {CLASS_TO_CATEGORY[pred_bert]} (score: {proba_bert[pred_bert]:.3f})")
         
         return True
     except Exception as e:
-        print(f"✗ Error in classification: {e}")
+        print(f"ERROR: Error in classification: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -95,7 +95,7 @@ def test_logging():
     try:
         # Log a prediction
         log_prediction(
-            texto="Teste de log do sistema de produção",
+            texto="Teste de log do sistema de producao",
             classe_predita=0,
             score=0.95,
             embedding_usado="TF-IDF",
@@ -103,17 +103,17 @@ def test_logging():
             fonte="test_script",
             categoria_predita="Economia"
         )
-        print("✓ Prediction logged successfully")
+        print("OK: Prediction logged successfully")
         
         # Load logs
         logs = load_prediction_logs()
-        print(f"✓ Logs loaded: {len(logs)} total predictions")
+        print(f"OK: Logs loaded: {len(logs)} total predictions")
         
         # Get statistics
         stats = get_log_statistics()
-        print(f"✓ Statistics computed")
+        print(f"OK: Statistics computed")
         if stats:
-            print(f"  Total: {stats.get('total', len(logs))}")
+            print(f"  Total: {stats.get('total_predictions', len(logs))}")
             print(f"  Average score: {stats.get('avg_score', logs['score'].mean() if 'score' in logs.columns else 0):.3f}")
         else:
             print(f"  Total: {len(logs)}")
@@ -121,7 +121,7 @@ def test_logging():
         
         return True
     except Exception as e:
-        print(f"✗ Error in logging: {e}")
+        print(f"ERROR: Error in logging: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -139,7 +139,7 @@ def test_production_script():
         # Check if test file exists
         test_file = PATHS['data_novos'] / 'test_sample.txt'
         if test_file.exists():
-            print(f"✓ Test file found: {test_file}")
+            print(f"OK: Test file found: {test_file}")
             
             # Process texts
             results = process_new_texts(
@@ -149,17 +149,17 @@ def test_production_script():
             )
             
             if not results.empty:
-                print(f"✓ Processed {len(results)} texts")
+                print(f"OK: Processed {len(results)} texts")
                 print(f"  Results: {results['categoria_predita'].value_counts().to_dict()}")
                 return True
             else:
-                print("⚠ No results returned (directory might be empty)")
+                print("WARNING: No results returned (directory might be empty)")
                 return True
         else:
-            print("⚠ Test file not found, skipping production script test")
+            print("WARNING: Test file not found, skipping production script test")
             return True
     except Exception as e:
-        print(f"✗ Error in production script: {e}")
+        print(f"ERROR: Error in production script: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -197,10 +197,10 @@ def main():
     print(f"Passed: {passed}/{total}")
     
     if passed == total:
-        print("✓ All tests passed! Production environment is ready.")
+        print("SUCCESS: All tests passed! Production environment is ready.")
         return 0
     else:
-        print("✗ Some tests failed. Please review the errors above.")
+        print("FAILED: Some tests failed. Please review the errors above.")
         return 1
 
 
