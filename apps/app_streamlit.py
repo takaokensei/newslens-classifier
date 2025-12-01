@@ -48,7 +48,11 @@ def _lazy_imports():
 
 
 def get_validation_sample():
-    """Load a random text from validation set (not seen during training)."""
+    """Load a random text from validation set (not seen during training).
+    
+    Returns:
+        Tuple of (text, true_label) or None if error
+    """
     try:
         imports = _lazy_imports()
         
@@ -116,9 +120,10 @@ def get_validation_sample():
         
         random_idx = np.random.randint(0, len(X_val))
         sample_text = X_val[random_idx]
+        true_label = int(y_val[random_idx])  # Get the true label for this sample
         
-        print(f"✅ Selected sample at index {random_idx}, length: {len(sample_text)}")
-        return sample_text
+        print(f"✅ Selected sample at index {random_idx}, length: {len(sample_text)}, true_label: {true_label}")
+        return (sample_text, true_label)
     except Exception as e:
         print(f"❌ Error loading validation sample: {e}")
         import traceback
@@ -661,7 +666,17 @@ def main():
             
             # If we have a new sample, update the text area
             if 'sample_text' in st.session_state and st.session_state.sample_text:
-                st.session_state.text_input_area = st.session_state.sample_text
+                # sample_text can be either a string (old format) or tuple (text, true_label)
+                if isinstance(st.session_state.sample_text, tuple):
+                    sample_text, true_label = st.session_state.sample_text
+                    st.session_state.text_input_area = sample_text
+                    st.session_state.true_label = true_label
+                else:
+                    # Old format: just text
+                    st.session_state.text_input_area = st.session_state.sample_text
+                    # Clear true_label if it exists
+                    if 'true_label' in st.session_state:
+                        del st.session_state.true_label
                 # Clear sample_text after using it
                 st.session_state.sample_text = ''
             
@@ -672,6 +687,16 @@ def main():
                 placeholder=t('text_placeholder'),
                 key="text_input_area"
             )
+            
+            # Display true label if available (from validation sample)
+            if 'true_label' in st.session_state:
+                true_label = st.session_state.true_label
+                true_category = CLASS_TO_CATEGORY.get(int(true_label), f"Classe {true_label}")
+                st.info(
+                    f"🏷️ **Classe Real (Ground Truth):** {true_category}" if current_lang == 'pt' 
+                    else f"🏷️ **True Label (Ground Truth):** {true_category}",
+                    icon="ℹ️"
+                )
         
         with col_btn:
             st.write("")  # Spacing
@@ -689,10 +714,11 @@ def main():
                     help="Carrega um texto aleatório do conjunto de validação (não visto durante o treinamento)" if current_lang == 'pt' else "Load a random text from validation set (not seen during training)"
                 ):
                     with st.spinner("Carregando exemplo..." if current_lang == 'pt' else "Loading sample..."):
-                        sample = get_validation_sample()
-                        if sample:
+                        result = get_validation_sample()
+                        if result:
+                            # result is now a tuple (text, true_label)
                             # Store sample in session_state - will be applied on next rerun
-                            st.session_state.sample_text = sample
+                            st.session_state.sample_text = result
                             st.rerun()
                         else:
                             st.error("❌ Não foi possível carregar exemplo. Verifique os logs do console para mais detalhes." if current_lang == 'pt' else "❌ Could not load sample. Check console logs for details.")
@@ -707,8 +733,15 @@ def main():
         
         # Clear sample_text after use to avoid persistence
         if 'sample_text' in st.session_state and st.session_state.sample_text:
-            if text_input != st.session_state.sample_text:
+            # Check if text was modified (compare with text from sample)
+            sample_text_value = st.session_state.sample_text
+            if isinstance(sample_text_value, tuple):
+                sample_text_value = sample_text_value[0]
+            if text_input != sample_text_value:
                 st.session_state.sample_text = ''
+                # Also clear true_label if user modified the text
+                if 'true_label' in st.session_state:
+                    del st.session_state.true_label
         
         col1, col2 = st.columns([1, 4])
         with col1:
