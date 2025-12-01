@@ -802,6 +802,15 @@ def main():
                         st.warning("⚠️ TF-IDF vectorizer não encontrado. Apenas modelos BERT estarão disponíveis." if current_lang == 'pt' else "⚠️ TF-IDF vectorizer not found. Only BERT models will be available.")
                     if not bert_model:
                         st.warning("⚠️ Modelo BERT não encontrado. Apenas modelos TF-IDF estarão disponíveis." if current_lang == 'pt' else "⚠️ BERT model not found. Only TF-IDF models will be available.")
+                else:
+                    st.error(t('models_error'))
+                    st.info("💡 **Dica**: Os modelos precisam ser treinados primeiro. Execute `python scripts/auto_train_models.py` para treinar automaticamente." if current_lang == 'pt' else "💡 **Tip**: Models need to be trained first. Run `python scripts/auto_train_models.py` to train automatically.")
+                    st.stop()
+        else:
+            # Models already loaded, get from session state
+            models = st.session_state.models
+            vectorizer = st.session_state.vectorizer
+            bert_model = st.session_state.bert_model
         
         # Handle validation set testing
         if st.session_state.get('test_validation_set', False):
@@ -847,16 +856,6 @@ def main():
             else:
                 st.warning("⚠️ Modelos não carregados. Aguarde o carregamento dos modelos." if current_lang == 'pt' else "⚠️ Models not loaded. Please wait for models to load.")
                 st.session_state.test_validation_set = False
-        else:
-            # Continue with normal flow if not testing validation set
-            if not st.session_state.models_loaded:
-                st.error(t('models_error'))
-                st.info("💡 **Dica**: Os modelos precisam ser treinados primeiro. Execute `python scripts/auto_train_models.py` para treinar automaticamente." if current_lang == 'pt' else "💡 **Tip**: Models need to be trained first. Run `python scripts/auto_train_models.py` to train automatically.")
-                st.stop()
-            else:
-                models = st.session_state.models
-                vectorizer = st.session_state.vectorizer
-                bert_model = st.session_state.bert_model
         
         # Text input
         # Text input with sample button
