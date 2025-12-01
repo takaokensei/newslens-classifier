@@ -6,7 +6,7 @@
 
 **Autor:** Cauã Vitor Figueredo Silva | **Orientador:** Prof. Dr. José Alfredo F. Costa
 
-**UFRN - Engenharia Elétrica - ELE 606 | Dezembro 2025**
+**UFRN - Engenharia Elétrica - ELE 606 | Dezembro 2024**
 
 ---
 
@@ -191,9 +191,13 @@ Classes (distribuição estratificada):
     * Confusão entre classes semanticamente próximas
     * Ambiguidade lexical não capturada por tokens
 
-![Matrizes de Confusão - TF-IDF+SVM vs BERT+SVM](models/cm_tfidf_svm_optimized_test.png) | ![Matrizes de Confusão - TF-IDF+SVM vs BERT+SVM](models/cm_bert_svm_optimized_test.png)
+![Matriz de Confusão - TF-IDF+SVM](models/cm_tfidf_svm_optimized_test.png)
 
-*Esquerda: TF-IDF+SVM (2 erros). Direita: BERT+SVM (perfeito - 0 erros)*
+*TF-IDF+SVM: 2 erros (Accuracy 96.8%)*
+
+![Matriz de Confusão - BERT+SVM](models/cm_bert_svm_optimized_test.png)
+
+*BERT+SVM: Perfeito - 0 erros (Accuracy 100%)*
 
 ---
 
