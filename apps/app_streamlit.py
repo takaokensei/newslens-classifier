@@ -31,6 +31,7 @@ def _lazy_imports():
     from src.train import load_trained_models
     from src.logging_system import log_prediction, load_prediction_logs, get_log_statistics
     from src.llm_analysis import call_groq_llm, load_class_profiles
+    from src.prepare_data import load_raw_data, split_data
     return {
         'preprocess_text': preprocess_text,
         'load_tfidf_vectorizer': load_tfidf_vectorizer,
@@ -40,8 +41,61 @@ def _lazy_imports():
         'load_prediction_logs': load_prediction_logs,
         'get_log_statistics': get_log_statistics,
         'call_groq_llm': call_groq_llm,
-        'load_class_profiles': load_class_profiles
+        'load_class_profiles': load_class_profiles,
+        'load_raw_data': load_raw_data,
+        'split_data': split_data
     }
+
+
+@st.cache_data
+def get_validation_sample():
+    """Load a random text from validation set (not seen during training)."""
+    try:
+        imports = _lazy_imports()
+        
+        # Load raw data
+        df, labels = imports['load_raw_data']()
+        
+        # Get text column
+        text_cols = [col for col in df.columns if col.lower() in 
+                    ['texto expandido', 'texto original', 'text', 'texto', 'content', 'noticia', 'news', 'article']]
+        if not text_cols:
+            text_cols = [col for col in df.columns if 'texto' in col.lower() or 'text' in col.lower()]
+        if 'Texto Expandido' in text_cols:
+            text_col = 'Texto Expandido'
+        elif 'Texto Original' in text_cols:
+            text_col = 'Texto Original'
+        elif text_cols:
+            text_col = text_cols[0]
+        else:
+            text_col = df.columns[0]
+        
+        # Get texts and labels
+        texts = df[text_col].astype(str).values
+        labels_array = labels
+        
+        # Filter empty texts
+        texts_series = pd.Series(texts)
+        mask = (texts_series != '') & (texts_series != 'nan') & (~texts_series.isna())
+        texts = texts[mask.values]
+        labels_array = labels_array[mask.values]
+        
+        # Split data using same random_state as training
+        from src.config import DATA_CONFIG
+        X_train, X_val, X_test, y_train, y_val, y_test = imports['split_data'](
+            texts, labels_array,
+            random_state=DATA_CONFIG['random_state']
+        )
+        
+        # Select random sample from validation set
+        import numpy as np
+        random_idx = np.random.randint(0, len(X_val))
+        sample_text = X_val[random_idx]
+        
+        return sample_text
+    except Exception as e:
+        print(f"Error loading validation sample: {e}")
+        return None
 
 
 # Translations
