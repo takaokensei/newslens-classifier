@@ -6,16 +6,39 @@ import numpy as np
 from pathlib import Path
 from typing import List, Union
 from scipy import sparse
-from sklearn.feature_extraction.text import TfidfVectorizer
-import joblib
 
-# Lazy import for sentence-transformers (optional dependency)
-try:
-    from sentence_transformers import SentenceTransformer
-    SENTENCE_TRANSFORMERS_AVAILABLE = True
-except ImportError:
-    SENTENCE_TRANSFORMERS_AVAILABLE = False
-    SentenceTransformer = None
+# Lazy imports to avoid multiprocessing issues in Streamlit Cloud
+# These will be imported inside functions when needed
+TfidfVectorizer = None
+joblib = None
+SentenceTransformer = None
+SENTENCE_TRANSFORMERS_AVAILABLE = False
+
+def _lazy_import_sklearn():
+    """Lazy import sklearn to avoid atexit issues."""
+    global TfidfVectorizer
+    if TfidfVectorizer is None:
+        from sklearn.feature_extraction.text import TfidfVectorizer
+    return TfidfVectorizer
+
+def _lazy_import_joblib():
+    """Lazy import joblib to avoid atexit issues."""
+    global joblib
+    if joblib is None:
+        import joblib
+    return joblib
+
+def _lazy_import_sentence_transformers():
+    """Lazy import sentence-transformers."""
+    global SentenceTransformer, SENTENCE_TRANSFORMERS_AVAILABLE
+    if SentenceTransformer is None:
+        try:
+            from sentence_transformers import SentenceTransformer
+            SENTENCE_TRANSFORMERS_AVAILABLE = True
+        except ImportError:
+            SENTENCE_TRANSFORMERS_AVAILABLE = False
+            SentenceTransformer = None
+    return SentenceTransformer, SENTENCE_TRANSFORMERS_AVAILABLE
 
 from src.config import FEATURE_CONFIG, PATHS
 from src.preprocessing import preprocess_batch
@@ -25,8 +48,8 @@ def generate_tfidf_embeddings(
     texts: List[str],
     save_path: Union[str, Path] = None,
     fit: bool = True,
-    vectorizer: TfidfVectorizer = None
-) -> tuple[sparse.csr_matrix, TfidfVectorizer]:
+    vectorizer = None
+) -> tuple:
     """
     Generate TF-IDF sparse embeddings.
     
@@ -40,6 +63,9 @@ def generate_tfidf_embeddings(
         Tuple of (sparse matrix, vectorizer)
     """
     config = FEATURE_CONFIG['tfidf']
+    
+    # Lazy import TfidfVectorizer
+    TfidfVectorizer = _lazy_import_sklearn()
     
     if fit:
         if vectorizer is not None:
@@ -72,6 +98,7 @@ def generate_tfidf_embeddings(
         
         # Save vectorizer
         if fit and vectorizer is not None:
+            joblib = _lazy_import_joblib()
             vectorizer_path = save_path.with_suffix('.pkl')
             joblib.dump(vectorizer, vectorizer_path)
     
@@ -96,6 +123,9 @@ def generate_bert_embeddings(
     Returns:
         Tuple of (dense array, model)
     """
+    # Lazy import SentenceTransformer
+    SentenceTransformer, SENTENCE_TRANSFORMERS_AVAILABLE = _lazy_import_sentence_transformers()
+    
     if not SENTENCE_TRANSFORMERS_AVAILABLE:
         raise ImportError(
             "sentence-transformers is required for BERT embeddings. "
@@ -132,8 +162,9 @@ def generate_bert_embeddings(
     return embeddings, model
 
 
-def load_tfidf_vectorizer(vectorizer_path: Union[str, Path]) -> TfidfVectorizer:
+def load_tfidf_vectorizer(vectorizer_path: Union[str, Path]):
     """Load a saved TF-IDF vectorizer."""
+    joblib = _lazy_import_joblib()
     return joblib.load(vectorizer_path)
 
 
@@ -145,6 +176,7 @@ def load_bert_model(model_name: str = None):
             "Install it with: pip install sentence-transformers"
         )
     
+    SentenceTransformer, _ = _lazy_import_sentence_transformers()
     if model_name is None:
         model_name = FEATURE_CONFIG['bert']['model_name']
     return SentenceTransformer(model_name, device='cpu')

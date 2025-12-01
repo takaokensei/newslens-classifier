@@ -178,10 +178,31 @@ def load_all_models():
     try:
         imports = _lazy_imports()
         models = imports['load_trained_models']()
-        vectorizer = imports['load_tfidf_vectorizer'](PATHS['data_embeddings'] / 'tfidf_vectorizer.pkl')
-        bert_model = imports['load_bert_model']()
+        
+        # Check if models were loaded
+        if not models:
+            return None, None, None
+        
+        # Try to load vectorizer
+        vectorizer_path = PATHS['data_embeddings'] / 'tfidf_vectorizer.pkl'
+        vectorizer = None
+        if vectorizer_path.exists():
+            vectorizer = imports['load_tfidf_vectorizer'](vectorizer_path)
+        else:
+            print(f"⚠️  Vectorizer not found: {vectorizer_path}")
+        
+        # Try to load BERT model
+        bert_model = None
+        try:
+            bert_model = imports['load_bert_model']()
+        except Exception as e:
+            print(f"⚠️  Error loading BERT model: {e}")
+        
         return models, vectorizer, bert_model
     except Exception as e:
+        import traceback
+        print(f"❌ Error loading models: {e}")
+        traceback.print_exc()
         return None, None, None
 
 
@@ -307,14 +328,19 @@ def main():
         if not st.session_state.models_loaded:
             with st.spinner(t('loading_models')):
                 models, vectorizer, bert_model = load_all_models()
-                if models is not None:
+                if models and len(models) > 0:
                     st.session_state.models = models
                     st.session_state.vectorizer = vectorizer
                     st.session_state.bert_model = bert_model
                     st.session_state.models_loaded = True
                     st.success(t('models_loaded'))
+                    if not vectorizer:
+                        st.warning("⚠️ TF-IDF vectorizer não encontrado. Apenas modelos BERT estarão disponíveis." if current_lang == 'pt' else "⚠️ TF-IDF vectorizer not found. Only BERT models will be available.")
+                    if not bert_model:
+                        st.warning("⚠️ Modelo BERT não encontrado. Apenas modelos TF-IDF estarão disponíveis." if current_lang == 'pt' else "⚠️ BERT model not found. Only TF-IDF models will be available.")
                 else:
                     st.error(t('models_error'))
+                    st.info("💡 **Dica**: Os modelos precisam ser treinados primeiro. Execute `python scripts/run_phase1.py` e `python scripts/run_phase2.py` para gerar os modelos." if current_lang == 'pt' else "💡 **Tip**: Models need to be trained first. Run `python scripts/run_phase1.py` and `python scripts/run_phase2.py` to generate models.")
                     st.stop()
         else:
             models = st.session_state.models

@@ -162,21 +162,44 @@ def train_all_models(
 
 
 def load_trained_models() -> dict:
-    """Load all trained models from disk."""
+    """Load all trained models from disk. Tries optimized versions first."""
+    import joblib
     models = {}
+    # Try optimized models first, fallback to regular models
     model_files = {
-        'tfidf_svm': PATHS['models'] / 'tfidf_svm.pkl',
-        'tfidf_xgb': PATHS['models'] / 'tfidf_xgb.pkl',
-        'bert_svm': PATHS['models'] / 'bert_svm.pkl',
-        'bert_xgb': PATHS['models'] / 'bert_xgb.pkl'
+        'tfidf_svm': [
+            PATHS['models'] / 'tfidf_svm_optimized.pkl',
+            PATHS['models'] / 'tfidf_svm.pkl'
+        ],
+        'tfidf_xgb': [
+            PATHS['models'] / 'tfidf_xgb_optimized.pkl',
+            PATHS['models'] / 'tfidf_xgb.pkl'
+        ],
+        'bert_svm': [
+            PATHS['models'] / 'bert_svm_optimized.pkl',
+            PATHS['models'] / 'bert_svm.pkl'
+        ],
+        'bert_xgb': [
+            PATHS['models'] / 'bert_xgb_optimized.pkl',
+            PATHS['models'] / 'bert_xgb.pkl'
+        ]
     }
     
-    for name, path in model_files.items():
-        if path.exists():
-            models[name] = joblib.load(path)
-            print(f"✅ Loaded {name}")
-        else:
-            print(f"⚠️  Model not found: {path}")
+    for name, paths in model_files.items():
+        loaded = False
+        for path in paths:
+            if path.exists():
+                try:
+                    models[name] = joblib.load(path)
+                    print(f"✅ Loaded {name} from {path.name}")
+                    loaded = True
+                    break
+                except Exception as e:
+                    print(f"⚠️  Error loading {path}: {e}")
+                    continue
+        
+        if not loaded:
+            print(f"⚠️  Model not found for {name}. Tried: {[p.name for p in paths]}")
     
     return models
 
