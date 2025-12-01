@@ -211,9 +211,31 @@ def save_predictions_to_cookie(predictions: list) -> None:
 
 def load_and_sync_cookie_predictions():
     """Load predictions from cookie and sync with session_state on page load."""
+    # Check if we've already loaded from cookie in this session
     if 'cookie_loaded' not in st.session_state:
-        # JavaScript component to read cookie and update URL with data
-        # This allows us to read it back via query params
+        st.session_state.cookie_loaded = False
+    
+    # Only try to load once per session
+    if not st.session_state.cookie_loaded:
+        # Check query params first (set by JavaScript component)
+        query_params = st.query_params
+        cookie_data_param = query_params.get("cookie_data", None)
+        
+        if cookie_data_param:
+            # Decode from base64
+            try:
+                decoded = base64.b64decode(cookie_data_param).decode('utf-8')
+                predictions = json.loads(decoded)
+                if predictions and isinstance(predictions, list):
+                    st.session_state.session_predictions = predictions
+                    st.session_state.cookie_loaded = True
+                    # Clear query param to avoid reloading
+                    st.query_params.clear()
+            except Exception as e:
+                print(f"Error loading predictions from cookie: {e}")
+        
+        # JavaScript component to read cookie and update query params
+        # This triggers a rerun with the cookie data
         js_code = """
         <script>
         (function() {
@@ -229,20 +251,30 @@ def load_and_sync_cookie_predictions():
                 }
                 return null;
             }
-            var cookieValue = getCookie("newslens_predictions");
-            if (cookieValue && cookieValue.length > 0) {
-                // Store in sessionStorage for this session
-                try {
-                    sessionStorage.setItem("newslens_predictions_cookie", cookieValue);
-                } catch(e) {
-                    console.error("Error saving to sessionStorage:", e);
+            
+            // Check if we've already loaded (avoid infinite loop)
+            var alreadyLoaded = sessionStorage.getItem("newslens_cookie_loaded");
+            if (!alreadyLoaded) {
+                var cookieValue = getCookie("newslens_predictions");
+                if (cookieValue && cookieValue.length > 0) {
+                    // Check if query param already has data (avoid reload)
+                    var urlParams = new URLSearchParams(window.location.search);
+                    if (!urlParams.has("cookie_data")) {
+                        // Update URL with cookie data to trigger rerun
+                        var newUrl = new URL(window.location);
+                        newUrl.searchParams.set("cookie_data", cookieValue);
+                        // Mark as loaded to avoid infinite loop
+                        sessionStorage.setItem("newslens_cookie_loaded", "true");
+                        window.location.href = newUrl.toString();
+                    }
+                } else {
+                    sessionStorage.setItem("newslens_cookie_loaded", "true");
                 }
             }
         })();
         </script>
         """
         st.components.v1.html(js_code, height=0)
-        st.session_state.cookie_loaded = True
 
 
 @st.cache_resource
