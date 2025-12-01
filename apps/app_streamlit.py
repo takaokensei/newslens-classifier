@@ -47,7 +47,6 @@ def _lazy_imports():
     }
 
 
-@st.cache_data
 def get_validation_sample():
     """Load a random text from validation set (not seen during training)."""
     try:
@@ -650,13 +649,19 @@ def main():
         col_text, col_btn = st.columns([4, 1])
         
         with col_text:
+            # Get initial value from session state or sample_text
+            initial_value = st.session_state.get('text_input_area', '') or st.session_state.get('sample_text', '')
             text_input = st.text_area(
                 t('enter_text'),
                 height=200,
                 placeholder=t('text_placeholder'),
                 key="text_input_area",
-                value=st.session_state.get('sample_text', '')
+                value=initial_value
             )
+            
+            # Update session state when user types
+            if text_input != st.session_state.get('text_input_area', ''):
+                st.session_state.text_input_area = text_input
         
         with col_btn:
             st.write("")  # Spacing
