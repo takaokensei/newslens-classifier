@@ -644,18 +644,18 @@ Explain clearly and concisely why this text belongs to this category."""
                 
                 # Summary metrics
                 col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                st.metric(t('total_predictions'), stats['total_predictions'])
-            with col2:
-                st.metric(t('avg_score'), f"{stats['avg_score']:.2%}")
-            with col3:
-                most_common = max(stats['by_class'].items(), key=lambda x: x[1]) if stats['by_class'] else ("N/A", 0)
-                st.metric(t('most_common'), f"{most_common[0]} ({most_common[1]})")
-            with col4:
-                if stats['date_range']['start']:
-                    st.metric(t('date_range'), f"{stats['date_range']['start'][:10]} a {stats['date_range']['end'][:10]}" if current_lang == 'pt' else f"{stats['date_range']['start'][:10]} to {stats['date_range']['end'][:10]}")
-            
-            st.divider()
+                with col1:
+                    st.metric(t('total_predictions'), stats['total_predictions'])
+                with col2:
+                    st.metric(t('avg_score'), f"{stats['avg_score']:.2%}")
+                with col3:
+                    most_common = max(stats['by_class'].items(), key=lambda x: x[1]) if stats['by_class'] else ("N/A", 0)
+                    st.metric(t('most_common'), f"{most_common[0]} ({most_common[1]})")
+                with col4:
+                    if stats['date_range']['start']:
+                        st.metric(t('date_range'), f"{stats['date_range']['start'][:10]} a {stats['date_range']['end'][:10]}" if current_lang == 'pt' else f"{stats['date_range']['start'][:10]} to {stats['date_range']['end'][:10]}")
+                
+                st.divider()
             
             # Charts
             col1, col2 = st.columns(2)
@@ -878,20 +878,19 @@ Explain clearly and concisely why this text belongs to this category."""
             except Exception as e:
                 pass  # Silently fail if efficiency data not available
             
-            # Recent predictions table (only show locally, not in Streamlit Cloud)
-            # Check if running in Streamlit Cloud
-            is_streamlit_cloud = os.environ.get('STREAMLIT_SERVER_ENV', '').lower() == 'cloud' or \
-                                'streamlit.io' in os.environ.get('STREAMLIT_SERVER_HEADLESS', '') or \
-                                os.environ.get('STREAMLIT_SHARING', '').lower() == 'true'
-            
-            # Only show recent predictions locally (not in public deploy)
-            if not is_streamlit_cloud:
+                # Recent predictions table (session-based, private per user)
                 st.divider()
                 st.subheader(t('recent_predictions'))
-                display_df = logs_df[['timestamp', 'categoria_predita', 'score', 'embedding_usado', 'modelo_usado']].tail(20)
-                display_df = display_df.sort_values('timestamp', ascending=False)
-                st.dataframe(display_df, use_container_width=True, hide_index=True)
-            
+                if not logs_df.empty and 'timestamp' in logs_df.columns:
+                    display_df = logs_df[['timestamp', 'categoria_predita', 'score', 'embedding_usado', 'modelo_usado']].tail(20).copy()
+                    display_df = display_df.sort_values('timestamp', ascending=False)
+                    # Format timestamp for better readability
+                    display_df['timestamp'] = pd.to_datetime(display_df['timestamp']).dt.strftime('%Y-%m-%d %H:%M:%S')
+                    st.dataframe(display_df, use_container_width=True, hide_index=True)
+                    st.caption("📊 **Histórico da sua sessão atual** - Os dados são privados e não são compartilhados com outros usuários." if current_lang == 'pt' else "📊 **Your current session history** - Data is private and not shared with other users.")
+                else:
+                    st.info("Nenhuma predição recente na sua sessão." if current_lang == 'pt' else "No recent predictions in your session.")
+                
                 # Export data and clear session (bonus feature - Módulo 16)
                 st.divider()
                 col1, col2, col3 = st.columns(3)
