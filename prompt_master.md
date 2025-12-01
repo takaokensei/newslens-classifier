@@ -118,11 +118,11 @@ O relatório deve conter **duas** tabelas principais:
 
 **📍 FASE 3: AI Analysis & Dashboard (Dias 6-8)**
 
-  * [ ] **Task 3.1:** Pipeline de Protótipos (Chi-Squared + Centroides) para perfilamento de classes.
-  * [ ] **Task 3.2:** Pipeline LLM Diferencial (max 10 calls) para análise de erros.
-  * [ ] **Task 3.3:** Sistema de Logs: implementar `log_prediction()` e `logs/predicoes.csv`.
-  * [ ] **Task 3.4:** Script de Produção: `scripts/processar_novos.py` para classificar textos em `data/novos/`.
-  * [ ] **Task 3.5:** Streamlit com 2 páginas principais:
+  * [x] **Task 3.1:** Pipeline de Protótipos (Chi-Squared + Centroides) para perfilamento de classes.
+  * [x] **Task 3.2:** Pipeline LLM Diferencial (max 10 calls) para análise de erros.
+  * [x] **Task 3.3:** Sistema de Logs: implementar `log_prediction()` e `logs/predicoes.csv`.
+  * [x] **Task 3.4:** Script de Produção: `scripts/processar_novos.py` para classificar textos em `data/novos/`.
+  * [x] **Task 3.5:** Streamlit com 2 páginas principais:
       * **Tab 1 - "Classificação":** Entrada de texto → Classe predita, Score, Explicação (via LLM).
       * **Tab 2 - "Monitoramento":** Dashboard com gráficos de logs (contagem por classe, evolução temporal, estatísticas).
 

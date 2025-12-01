@@ -24,3 +24,6 @@ streamlit>=1.25.0
 python-dotenv>=1.0.0
 tqdm>=4.65.0
 
+# LLM Integration
+groq>=0.4.0
+
