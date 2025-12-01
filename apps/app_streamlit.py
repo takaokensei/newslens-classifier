@@ -61,11 +61,11 @@ def get_validation_sample():
         
         print(f"✅ Found CSV file: {csv_files[0]}")
         
-        # Load raw data
-        df, labels = imports['load_raw_data']()
-        print(f"✅ Loaded {len(df)} rows from CSV")
+        # Load raw data - this already filters empty texts and returns filtered labels
+        df, labels_filtered = imports['load_raw_data']()
+        print(f"✅ Loaded {len(df)} rows from CSV, {len(labels_filtered)} after filtering")
         
-        # Get text column
+        # Get text column (same logic as load_raw_data)
         text_cols = [col for col in df.columns if col.lower() in 
                     ['texto expandido', 'texto original', 'text', 'texto', 'content', 'noticia', 'news', 'article']]
         if not text_cols:
@@ -81,17 +81,23 @@ def get_validation_sample():
         
         print(f"✅ Using text column: {text_col}")
         
-        # Get texts and labels
-        texts = df[text_col].astype(str).values
-        labels_array = labels
-        
-        # Filter empty texts
-        texts_series = pd.Series(texts)
+        # Apply same filtering as load_raw_data to get texts
+        texts_all = df[text_col].astype(str).values
+        texts_series = pd.Series(texts_all)
         mask = (texts_series != '') & (texts_series != 'nan') & (~texts_series.isna())
-        texts = texts[mask.values]
-        labels_array = labels_array[mask.values]
+        texts = texts_all[mask.values]
         
-        print(f"✅ After filtering: {len(texts)} texts")
+        # labels_filtered is already filtered, so it should match texts length
+        if len(texts) != len(labels_filtered):
+            print(f"⚠️  Warning: texts ({len(texts)}) and labels ({len(labels_filtered)}) length mismatch, using labels length")
+            # Use the shorter length to ensure consistency
+            min_len = min(len(texts), len(labels_filtered))
+            texts = texts[:min_len]
+            labels_array = labels_filtered[:min_len]
+        else:
+            labels_array = labels_filtered
+        
+        print(f"✅ After filtering: {len(texts)} texts, {len(labels_array)} labels")
         
         # Split data using same random_state as training
         from src.config import DATA_CONFIG
@@ -679,7 +685,7 @@ def main():
             if data_available:
                 if st.button(
                     "📄 Exemplo do Conjunto de Validação" if current_lang == 'pt' else "📄 Validation Set Sample",
-                    use_container_width=True,
+                    width='stretch',
                     help="Carrega um texto aleatório do conjunto de validação (não visto durante o treinamento)" if current_lang == 'pt' else "Load a random text from validation set (not seen during training)"
                 ):
                     with st.spinner("Carregando exemplo..." if current_lang == 'pt' else "Loading sample..."):
@@ -696,7 +702,7 @@ def main():
                 # Disable button if data not available
                 st.button(
                     "📄 Exemplo do Conjunto de Validação" if current_lang == 'pt' else "📄 Validation Set Sample",
-                    use_container_width=True,
+                    width='stretch',
                     disabled=True,
                     help="Dados não disponíveis no deploy. Disponível apenas localmente." if current_lang == 'pt' else "Data not available in deployment. Only available locally."
                 )
