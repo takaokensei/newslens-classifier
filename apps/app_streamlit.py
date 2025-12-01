@@ -405,7 +405,7 @@ Confidence: {result['score']:.2%}
 Explain clearly and concisely why this text belongs to this category."""
                         
                         with st.spinner(t('generating')):
-                            explanation = call_groq_llm(prompt, max_tokens=200)
+                            explanation = call_groq_llm(prompt, max_tokens=600)
                             st.session_state.llm_explanation = explanation
                             st.session_state.explanation_generated = True
                             st.rerun()

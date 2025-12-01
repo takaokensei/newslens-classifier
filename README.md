@@ -4,15 +4,16 @@ Production-grade text classifier benchmarking **Sparse (TF-IDF)** vs. **Dense (B
 
 ## 🎯 Project Overview
 
-**NewsLens AI** is a comparative analysis system for text classification that evaluates the trade-off between semantic performance (BERT) and computational efficiency (TF-IDF) for news classification tasks.
+**NewsLens AI** is a comparative analysis system for text classification that evaluates the trade-off between semantic performance (BERT) and computational efficiency (TF-IDF) for news classification tasks in Portuguese.
 
 ### Key Features
 
-- **Dual Embedding Strategy**: TF-IDF (sparse) + BERT (dense) via sentence-transformers
-- **Multiple Classifiers**: SVM (linear) and XGBoost
-- **Production-Ready**: Logging, monitoring, and Streamlit interface
-- **LLM Integration**: Groq API for class profiling and error analysis
-- **Comprehensive Evaluation**: Accuracy, F1-macro, F1 per class, confusion matrices
+- **Dual Embedding Strategy**: TF-IDF (sparse, 20k features) + BERT (dense, 768 dims) via sentence-transformers
+- **Multiple Classifiers**: SVM (linear) and XGBoost with comprehensive evaluation
+- **Production-Ready**: Complete logging system, monitoring dashboard, and Streamlit interface
+- **LLM Integration**: Groq API (llama-3.3-70b-versatile) for class profiling and differential error analysis
+- **Comprehensive Evaluation**: Accuracy, F1-macro, F1 per class, confusion matrices, latency, cold start
+- **6 News Categories**: Economia, Esportes, Polícia e Direitos, Política, Turismo, Variedades e Sociedade
 
 ## 📋 Requirements
 
@@ -38,11 +39,24 @@ pip install -r requirements.txt
 
 ### Configuration
 
-Set up environment variables:
+Create a `.env` file in the project root with your Groq API key:
 
 ```bash
-export GROQ_API_KEY=your_api_key_here
+# .env
+GROQ_API_KEY=your_api_key_here
 ```
+
+Or set it as an environment variable:
+
+```bash
+# Linux/Mac
+export GROQ_API_KEY=your_api_key_here
+
+# Windows PowerShell
+$env:GROQ_API_KEY="your_api_key_here"
+```
+
+**Note:** A `.env.example` file is provided as a template. Copy it to `.env` and add your API key.
 
 ### Running the Streamlit App
 
@@ -73,25 +87,40 @@ This ensures that Streamlit uses the correct Python environment with all depende
 ```
 newslens-classifier/
 ├── data/
-│   ├── raw/              # Original news dataset (6 classes)
-│   ├── processed/        # Preprocessed data
+│   ├── raw/              # Original news dataset (6 classes, 315 samples)
+│   ├── processed/        # Preprocessed data and labels
 │   ├── embeddings/       # Saved embeddings (.npz for TF-IDF, .npy for BERT)
 │   └── novos/            # New texts for production simulation
 ├── logs/
-│   └── predicoes.csv     # Prediction logs
-├── models/               # Trained models (.pkl or .joblib)
+│   └── predicoes.csv     # Prediction logs (timestamp, text, class, score, model)
+├── models/               # Trained models (.pkl), metrics, confusion matrices
+│   ├── *.pkl             # Trained models (tfidf_svm, tfidf_xgb, bert_svm, bert_xgb)
+│   ├── table_*.csv        # Performance tables
+│   ├── cm_*.png          # Confusion matrices
+│   ├── class_profiles.json    # LLM-generated class archetypes
+│   └── differential_errors.json  # LLM analysis of model differences
+├── reports/
+│   ├── relatorio.tex     # LaTeX report (10-20 pages)
+│   └── prompt_gamma_ai.md # Presentation prompt for Gamma AI
 ├── src/
 │   ├── config.py         # Centralized configurations
 │   ├── preprocessing.py  # Unified preprocessing function
 │   ├── data_loader.py    # Polymorphic data loading
-│   ├── embeddings.py    # Embedding generation (TF-IDF and BERT)
+│   ├── embeddings.py     # Embedding generation (TF-IDF and BERT)
 │   ├── train.py          # Training scripts
 │   ├── evaluate.py       # Evaluation and metrics
-│   └── llm_analysis.py   # Groq API integration
+│   ├── llm_analysis.py   # Groq API integration
+│   ├── logging_system.py # Prediction logging system
+│   └── class_mapping.py  # Class to category mapping
 ├── scripts/
-│   └── processar_novos.py # Script to classify texts in data/novos/
+│   ├── run_phase2.py     # Phase 2: Training and evaluation
+│   ├── run_phase3.py     # Phase 3: LLM analysis and profiling
+│   ├── processar_novos.py # Production script for batch classification
+│   └── test_production.py # Production environment validation
 ├── apps/
-│   └── app_streamlit.py  # Main Streamlit application
+│   └── app_streamlit.py  # Main Streamlit application (classification + monitoring)
+├── .env                  # Environment variables (not in git)
+├── .env.example          # Environment variables template
 └── requirements.txt      # Project dependencies
 ```
 
@@ -112,15 +141,91 @@ newslens-classifier/
 - **Stratified split**: Train (60%) / Validation (20%) / Test (20%)
 - Random state: 42 for reproducibility
 
+## 📊 Results Summary
+
+### Best Performance
+- **BERT + SVM**: F1=1.0, Accuracy=1.0 (Perfect classification on test set)
+- **TF-IDF + SVM**: F1=0.968, Accuracy=0.968 (96.8% of BERT performance)
+
+### Efficiency Comparison
+- **TF-IDF + SVM**: 0.14ms/doc, Cold Start: 0.08s, Size: 0.18 MB
+- **BERT + SVM**: 0.12ms/doc, Cold Start: 2.23s, Size: 0.88 MB
+
+### Key Findings
+- BERT achieves perfect performance but has 28x longer cold start
+- TF-IDF offers excellent efficiency with competitive performance (96.8%)
+- SVM outperforms XGBoost in both embedding types
+- BERT is essential for semantically ambiguous cases
+
+## 🚀 Usage
+
+### Training Models
+
+```bash
+# Phase 2: Train and evaluate models
+python scripts/run_phase2.py
+
+# Phase 3: Generate class profiles and error analysis
+python scripts/run_phase3.py
+```
+
+### Production Classification
+
+```bash
+# Classify texts in data/novos/ directory
+python scripts/processar_novos.py --model best
+
+# Available models: best, tfidf_svm, tfidf_xgb, bert_svm, bert_xgb
+```
+
+### Streamlit Interface
+
+The Streamlit app provides:
+- **Classification Tab**: Real-time text classification with model selection
+- **Monitoring Tab**: Dashboard with statistics, charts, and prediction logs
+- **LLM Explanations**: AI-generated explanations for classifications (requires GROQ_API_KEY)
+
+### Production Validation
+
+```bash
+# Run production environment tests
+python scripts/test_production.py
+```
+
 ## 📊 Evaluation Metrics
 
-- Accuracy
-- F1-Macro
-- F1 per class
-- Confusion matrices (4 combinations)
-- Latency (ms/document)
-- Cold start time
-- Model size (MB)
+- **Accuracy**: Overall classification accuracy
+- **F1-Macro**: Macro-averaged F1 score across all classes
+- **F1 per class**: Individual F1 scores for each category
+- **Confusion matrices**: Visual representation for all 4 model combinations
+- **Latency**: Inference time per document (ms)
+- **Cold start**: Model loading time (s)
+- **Model size**: Disk space usage (MB)
+
+## 📚 Documentation
+
+- **Report**: LaTeX report available in `reports/relatorio.tex` (compile with pdflatex)
+- **Presentation**: Prompt for Gamma AI in `reports/prompt_gamma_ai.md`
+- **Project Plan**: See `prompt_master.md` for complete project roadmap
+
+## 🔧 Development
+
+### Project Phases
+
+- ✅ **Phase 1**: Data preprocessing and embedding generation
+- ✅ **Phase 2**: Model training and evaluation
+- ✅ **Phase 3**: LLM analysis (class profiling, error analysis)
+- ✅ **Phase 4**: Report writing, presentation, and final validation
+
+### Testing
+
+```bash
+# Validate production environment
+python scripts/test_production.py
+
+# Quick model loading test
+python -c "from src.train import load_trained_models; load_trained_models()"
+```
 
 ## 📝 License
 
@@ -128,10 +233,13 @@ MIT License
 
 ## 👤 Author
 
-**Cauã Vitor Figueredo Silva** - ELE 606 (UFRN) - Final Project
+**Cauã Vitor Figueredo Silva**  
+ELE 606 - Final Project  
+UFRN - Prof. José Alfredo F. Costa
 
 ## 🙏 Acknowledgments
 
-- Prof. José Alfredo F. Costa (UFRN)
-- NeuralMind for Portuguese BERT model
-- Groq for LLM API access
+- **Prof. José Alfredo F. Costa** (UFRN) - Project advisor
+- **NeuralMind** - Portuguese BERT model (`neuralmind/bert-base-portuguese-cased`)
+- **Groq** - LLM API access (llama-3.3-70b-versatile)
+- **Streamlit** - Web application framework
