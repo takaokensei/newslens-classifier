@@ -9,6 +9,7 @@ base = "dark"
 [server]
 headless = true
 port = 8501
-enableCORS = false
+# enableCORS must be true when enableXsrfProtection is true (CSRF protection requires CORS)
+enableCORS = true
 enableXsrfProtection = true
 
