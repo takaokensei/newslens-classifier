@@ -53,6 +53,12 @@ def get_validation_sample():
     try:
         imports = _lazy_imports()
         
+        # Check if raw data file exists
+        raw_dir = PATHS['data_raw']
+        csv_files = list(raw_dir.glob('*.csv'))
+        if not csv_files:
+            return None
+        
         # Load raw data
         df, labels = imports['load_raw_data']()
         
@@ -89,12 +95,16 @@ def get_validation_sample():
         
         # Select random sample from validation set
         import numpy as np
+        if len(X_val) == 0:
+            return None
         random_idx = np.random.randint(0, len(X_val))
         sample_text = X_val[random_idx]
         
         return sample_text
     except Exception as e:
         print(f"Error loading validation sample: {e}")
+        import traceback
+        traceback.print_exc()
         return None
 
 
@@ -638,18 +648,33 @@ def main():
         with col_btn:
             st.write("")  # Spacing
             st.write("")  # Spacing
-            if st.button(
-                "📄 Exemplo do Conjunto de Validação" if current_lang == 'pt' else "📄 Validation Set Sample",
-                use_container_width=True,
-                help="Carrega um texto aleatório do conjunto de validação (não visto durante o treinamento)" if current_lang == 'pt' else "Load a random text from validation set (not seen during training)"
-            ):
-                sample = get_validation_sample()
-                if sample:
-                    st.session_state.sample_text = sample
-                    st.session_state.text_input_area = sample  # Update text area
-                    st.rerun()
-                else:
-                    st.error("Não foi possível carregar exemplo. Verifique se os dados estão disponíveis." if current_lang == 'pt' else "Could not load sample. Please check if data is available.")
+            
+            # Check if data is available before showing button
+            raw_dir = PATHS['data_raw']
+            csv_files = list(raw_dir.glob('*.csv'))
+            data_available = len(csv_files) > 0
+            
+            if data_available:
+                if st.button(
+                    "📄 Exemplo do Conjunto de Validação" if current_lang == 'pt' else "📄 Validation Set Sample",
+                    use_container_width=True,
+                    help="Carrega um texto aleatório do conjunto de validação (não visto durante o treinamento)" if current_lang == 'pt' else "Load a random text from validation set (not seen during training)"
+                ):
+                    sample = get_validation_sample()
+                    if sample:
+                        st.session_state.sample_text = sample
+                        st.session_state.text_input_area = sample  # Update text area
+                        st.rerun()
+                    else:
+                        st.warning("⚠️ Não foi possível carregar exemplo. Os dados podem não estar disponíveis no deploy." if current_lang == 'pt' else "⚠️ Could not load sample. Data may not be available in deployment.")
+            else:
+                # Disable button if data not available
+                st.button(
+                    "📄 Exemplo do Conjunto de Validação" if current_lang == 'pt' else "📄 Validation Set Sample",
+                    use_container_width=True,
+                    disabled=True,
+                    help="Dados não disponíveis no deploy. Disponível apenas localmente." if current_lang == 'pt' else "Data not available in deployment. Only available locally."
+                )
         
         # Clear sample_text after use to avoid persistence
         if 'sample_text' in st.session_state and st.session_state.sample_text:
