@@ -4,6 +4,13 @@
 \documentclass[11pt,a4paper,twoside]{article}
 
 %----------------------------------------------------------------------------------------
+% SETUP DE IMAGENS
+%----------------------------------------------------------------------------------------
+\usepackage{graphicx} 
+% Define que o LaTeX deve procurar imagens na pasta 'models' ou na raiz
+\graphicspath{{./models/}{./}} 
+
+%----------------------------------------------------------------------------------------
 % ENCODING AND LANGUAGE
 %----------------------------------------------------------------------------------------
 \usepackage[utf8]{inputenc}
@@ -29,7 +36,6 @@
 %----------------------------------------------------------------------------------------
 \usepackage{amsmath, amsthm, mathtools, bm, amssymb}
 \usepackage{siunitx}
-\usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{float}
 \usepackage{eso-pic}
@@ -545,17 +551,18 @@ Variedades & 0.941 & 0.667 & 1.000 & 0.947 \\ \bottomrule
 
 As Figuras abaixo ilustram as matrizes de confusão e o trade-off de eficiência.
 
+% Aqui usei o caminho 'models/arquivo.png'
 \begin{figure}[H]
 \centering
 \begin{subfigure}{0.48\textwidth}
 \centering
-\includegraphics[width=\textwidth]{../models/cm_tfidf_svm_test.png} 
+\includegraphics[width=\textwidth]{models/cm_tfidf_svm_test.png} 
 \caption{TF-IDF + SVM}
 \end{subfigure}
 \hfill
 \begin{subfigure}{0.48\textwidth}
 \centering
-\includegraphics[width=\textwidth]{../models/cm_bert_svm_test.png}
+\includegraphics[width=\textwidth]{models/cm_bert_svm_test.png}
 \caption{BERT + SVM}
 \end{subfigure}
 \caption{Matrizes de Confusão no Conjunto de Teste}
@@ -564,7 +571,7 @@ As Figuras abaixo ilustram as matrizes de confusão e o trade-off de eficiência
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{../models/performance_efficiency_tradeoff.png}
+    \includegraphics[width=0.85\textwidth]{models/performance_efficiency_tradeoff.png}
     \caption{Trade-off: Performance (Eixo Y) vs Eficiência (Eixo X - Latência)}
     \label{fig:tradeoff}
 \end{figure}
@@ -686,20 +693,21 @@ Este trabalho entregou um sistema completo (\textit{NewsLens AI}) com interface 
 \appendix
 \section{Estrutura do Projeto}
 
+% Usei +-- e | no lugar dos caracteres especiais para garantir que o LaTeX compile
 \begin{lstlisting}
 newslens-classifier/
-├── data/
-│   ├── raw/              # Base original
-│   ├── processed/        # Dados pré-processados
-│   ├── embeddings/       # Embeddings salvos (.npy, .npz)
-│   └── novos/            # Novos textos para produção
-├── logs/
-│   └── predicoes.csv     # Log de predições
-├── models/               # Modelos treinados (.pkl)
-├── src/                  # Código fonte (preprocessing, training)
-├── scripts/              # Scripts de execução e otimização
-├── apps/                 # Interface Streamlit
-└── reports/              # Relatórios e análises
++-- data/
+|   +-- raw/              # Base original
+|   +-- processed/        # Dados pre-processados
+|   +-- embeddings/       # Embeddings salvos (.npy, .npz)
+|   +-- novos/            # Novos textos para producao
++-- logs/
+|   +-- predicoes.csv     # Log de predicoes
++-- models/               # Modelos treinados (.pkl)
++-- src/                  # Codigo fonte (preprocessing, training)
++-- scripts/              # Scripts de execucao e otimizacao
++-- apps/                 # Interface Streamlit
++-- reports/              # Relatorios e analises
 \end{lstlisting}
 
 \section{Fluxograma do Pipeline NewsLens}
