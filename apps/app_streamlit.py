@@ -47,6 +47,93 @@ def _lazy_imports():
     }
 
 
+def test_entire_validation_set(models, vectorizer, bert_model, embedding_type, model_type):
+    """Test all validation set samples and return metrics."""
+    try:
+        imports = _lazy_imports()
+        
+        # Load raw data
+        df, labels_filtered = imports['load_raw_data']()
+        
+        # Get text column
+        text_cols = [col for col in df.columns if col.lower() in 
+                    ['texto expandido', 'texto original', 'text', 'texto', 'content', 'noticia', 'news', 'article']]
+        if not text_cols:
+            text_cols = [col for col in df.columns if 'texto' in col.lower() or 'text' in col.lower()]
+        if 'Texto Expandido' in text_cols:
+            text_col = 'Texto Expandido'
+        elif 'Texto Original' in text_cols:
+            text_col = 'Texto Original'
+        elif text_cols:
+            text_col = text_cols[0]
+        else:
+            text_col = df.columns[0]
+        
+        # Apply same filtering as load_raw_data
+        texts_all = df[text_col].astype(str).values
+        texts_series = pd.Series(texts_all)
+        mask = (texts_series != '') & (texts_series != 'nan') & (~texts_series.isna())
+        texts = texts_all[mask.values]
+        
+        if len(texts) != len(labels_filtered):
+            min_len = min(len(texts), len(labels_filtered))
+            texts = texts[:min_len]
+            labels_array = labels_filtered[:min_len]
+        else:
+            labels_array = labels_filtered
+        
+        # Split data using same random_state as training
+        from src.config import DATA_CONFIG
+        X_train, X_val, X_test, y_train, y_val, y_test = imports['split_data'](
+            texts, labels_array,
+            random_state=DATA_CONFIG['random_state']
+        )
+        
+        # Classify all validation samples
+        correct = 0
+        total = len(X_val)
+        predictions = []
+        
+        for i, text in enumerate(X_val):
+            try:
+                result = classify_text_streamlit(
+                    text,
+                    embedding_type,
+                    model_type,
+                    models,
+                    vectorizer,
+                    bert_model
+                )
+                predicted_class = result['classe_predita']
+                true_label = int(y_val[i])
+                is_correct = (predicted_class == true_label)
+                if is_correct:
+                    correct += 1
+                predictions.append({
+                    'text': text[:100] + '...' if len(text) > 100 else text,
+                    'predicted': predicted_class,
+                    'true': true_label,
+                    'correct': is_correct
+                })
+            except Exception as e:
+                print(f"Error classifying sample {i}: {e}")
+                continue
+        
+        accuracy = correct / total if total > 0 else 0
+        
+        return {
+            'accuracy': accuracy,
+            'correct': correct,
+            'total': total,
+            'predictions': predictions
+        }
+    except Exception as e:
+        print(f"❌ Error testing validation set: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+
+
 def get_validation_sample():
     """Load a random text from validation set (not seen during training).
     
@@ -549,6 +636,75 @@ def main():
         
         st.divider()
         
+        # Test entire validation set button
+        st.markdown("### 🧪 Testes")
+        if st.button(
+            "🧪 Testar todo o conjunto de validação" if current_lang == 'pt' else "🧪 Test entire validation set",
+            width='stretch',
+            help="Testa todos os exemplos do conjunto de validação e mostra métricas de desempenho" if current_lang == 'pt' else "Tests all validation set examples and shows performance metrics"
+        ):
+            st.session_state.test_validation_set = True
+            st.rerun()
+        
+        st.divider()
+        
+        # Clear metrics button with confirmation
+        st.markdown("### 🗑️ Limpeza")
+        if st.button(
+            "🗑️ Apagar métricas de desempenho" if current_lang == 'pt' else "🗑️ Clear performance metrics",
+            width='stretch',
+            help="Remove todas as métricas de desempenho (cookies e dados locais)" if current_lang == 'pt' else "Removes all performance metrics (cookies and local data)"
+        ):
+            st.session_state.show_clear_confirmation = True
+            st.rerun()
+        
+        # Confirmation dialog
+        if st.session_state.get('show_clear_confirmation', False):
+            st.warning(
+                "⚠️ **Tem certeza que deseja apagar todas as métricas de desempenho?**\n\n"
+                "Esta ação irá remover:\n"
+                "- Todas as predições salvas nos cookies\n"
+                "- Todos os dados da sessão atual\n\n"
+                "Esta ação não pode ser desfeita." if current_lang == 'pt' else
+                "⚠️ **Are you sure you want to clear all performance metrics?**\n\n"
+                "This action will remove:\n"
+                "- All predictions saved in cookies\n"
+                "- All current session data\n\n"
+                "This action cannot be undone."
+            )
+            col_yes, col_no = st.columns(2)
+            with col_yes:
+                if st.button("✅ Sim, apagar tudo" if current_lang == 'pt' else "✅ Yes, clear all", type="primary", width='stretch'):
+                    # Clear session state predictions
+                    st.session_state.session_predictions = []
+                    # Clear cookies using JavaScript
+                    clear_cookies_js = """
+                    <script>
+                    (function() {
+                        // Clear the cookie
+                        document.cookie = "newslens_predictions=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                        // Also try to clear from parent window if in iframe
+                        try {
+                            if (window.parent && window.parent !== window) {
+                                window.parent.document.cookie = "newslens_predictions=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                            }
+                        } catch(e) {
+                            console.log("Cannot access parent window");
+                        }
+                    })();
+                    </script>
+                    """
+                    st.components.v1.html(clear_cookies_js, height=0)
+                    st.session_state.show_clear_confirmation = False
+                    st.success("✅ Métricas apagadas com sucesso!" if current_lang == 'pt' else "✅ Metrics cleared successfully!")
+                    st.rerun()
+            with col_no:
+                if st.button("❌ Cancelar" if current_lang == 'pt' else "❌ Cancel", width='stretch'):
+                    st.session_state.show_clear_confirmation = False
+                    st.rerun()
+        
+        st.divider()
+        
         st.markdown(f"### {t('about')}")
         st.caption("""
         NewsLens AI - Projeto Final ELE 606
@@ -646,6 +802,51 @@ def main():
                         st.warning("⚠️ TF-IDF vectorizer não encontrado. Apenas modelos BERT estarão disponíveis." if current_lang == 'pt' else "⚠️ TF-IDF vectorizer not found. Only BERT models will be available.")
                     if not bert_model:
                         st.warning("⚠️ Modelo BERT não encontrado. Apenas modelos TF-IDF estarão disponíveis." if current_lang == 'pt' else "⚠️ BERT model not found. Only TF-IDF models will be available.")
+        
+        # Handle validation set testing
+        if st.session_state.get('test_validation_set', False):
+            if st.session_state.models_loaded and models and vectorizer and bert_model:
+                st.divider()
+                st.subheader("🧪 Teste do Conjunto de Validação" if current_lang == 'pt' else "🧪 Validation Set Test")
+                
+                with st.spinner("Testando todos os exemplos do conjunto de validação..." if current_lang == 'pt' else "Testing all validation set examples..."):
+                    results = test_entire_validation_set(
+                        models, vectorizer, bert_model, embedding_type, model_type
+                    )
+                    
+                    if results:
+                        st.success(f"✅ Teste concluído!" if current_lang == 'pt' else "✅ Test completed!")
+                        
+                        # Display metrics
+                        col1, col2, col3 = st.columns(3)
+                        with col1:
+                            st.metric(
+                                "Precisão" if current_lang == 'pt' else "Accuracy",
+                                f"{results['accuracy']:.2%}"
+                            )
+                        with col2:
+                            st.metric(
+                                "Corretos" if current_lang == 'pt' else "Correct",
+                                f"{results['correct']}/{results['total']}"
+                            )
+                        with col3:
+                            st.metric(
+                                "Total" if current_lang == 'pt' else "Total",
+                                results['total']
+                            )
+                        
+                        # Show some example predictions
+                        if results['predictions']:
+                            st.subheader("📊 Exemplos de Predições" if current_lang == 'pt' else "📊 Prediction Examples")
+                            example_df = pd.DataFrame(results['predictions'][:10])
+                            st.dataframe(example_df, width='stretch', hide_index=True)
+                    else:
+                        st.error("❌ Erro ao testar conjunto de validação. Verifique os logs." if current_lang == 'pt' else "❌ Error testing validation set. Check logs.")
+                
+                st.session_state.test_validation_set = False
+            else:
+                st.warning("⚠️ Modelos não carregados. Aguarde o carregamento dos modelos." if current_lang == 'pt' else "⚠️ Models not loaded. Please wait for models to load.")
+                st.session_state.test_validation_set = False
                 else:
                     st.error(t('models_error'))
                     st.info("💡 **Dica**: Os modelos precisam ser treinados primeiro. Execute `python scripts/auto_train_models.py` para treinar automaticamente." if current_lang == 'pt' else "💡 **Tip**: Models need to be trained first. Run `python scripts/auto_train_models.py` to train automatically.")
