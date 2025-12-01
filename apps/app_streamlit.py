@@ -10,6 +10,7 @@ import sys
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
+import os
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -506,7 +507,91 @@ Explain clearly and concisely why this text belongs to this category."""
                 )
                 st.plotly_chart(fig, use_container_width=True)
             
+            # Additional visualizations
+            st.divider()
+            st.subheader("📊 Análise Comparativa Avançada" if current_lang == 'pt' else "📊 Advanced Comparative Analysis")
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                # Score distribution by embedding
+                if 'embedding_usado' in logs_df.columns and 'score' in logs_df.columns:
+                    st.markdown("**Distribuição de Scores por Embedding**" if current_lang == 'pt' else "**Score Distribution by Embedding**")
+                    fig = px.box(
+                        logs_df,
+                        x='embedding_usado',
+                        y='score',
+                        color='embedding_usado',
+                        title="Score Distribution" if current_lang == 'en' else "Distribuição de Scores",
+                        labels={'embedding_usado': 'Embedding' if current_lang == 'en' else 'Embedding', 'score': 'Score'}
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
+            
+            with col2:
+                # Score distribution by model
+                if 'modelo_usado' in logs_df.columns and 'score' in logs_df.columns:
+                    st.markdown("**Distribuição de Scores por Modelo**" if current_lang == 'pt' else "**Score Distribution by Model**")
+                    fig = px.box(
+                        logs_df,
+                        x='modelo_usado',
+                        y='score',
+                        color='modelo_usado',
+                        title="Score Distribution" if current_lang == 'en' else "Distribuição de Scores",
+                        labels={'modelo_usado': 'Model' if current_lang == 'en' else 'Modelo', 'score': 'Score'}
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
+            
+            # Performance vs Efficiency Trade-off (if we have model performance data)
+            try:
+                import pandas as pd
+                from pathlib import Path
+                efficiency_path = Path(__file__).parent.parent / 'models' / 'table_a_efficiency.csv'
+                if efficiency_path.exists():
+                    st.divider()
+                    st.subheader("⚖️ Trade-off: Performance vs Eficiência" if current_lang == 'pt' else "⚖️ Trade-off: Performance vs Efficiency")
+                    
+                    eff_df = pd.read_csv(efficiency_path)
+                    
+                    fig = go.Figure()
+                    
+                    for idx, row in eff_df.iterrows():
+                        fig.add_trace(go.Scatter(
+                            x=[row['Latency (ms/doc)']],
+                            y=[row['F1-Macro']],
+                            mode='markers+text',
+                            name=row['Setup'],
+                            text=[row['Setup']],
+                            textposition="top center",
+                            marker=dict(
+                                size=15,
+                                color=['#4A90E2', '#EE4C2C', '#00C853', '#FF6600'][idx % 4]
+                            ),
+                            hovertemplate=f"<b>{row['Setup']}</b><br>" +
+                                        f"F1-Macro: {row['F1-Macro']:.3f}<br>" +
+                                        f"Latency: {row['Latency (ms/doc)']:.3f} ms/doc<br>" +
+                                        f"Cold Start: {row['Cold Start (s)']:.3f} s<extra></extra>"
+                        ))
+                    
+                    fig.update_layout(
+                        title="Performance vs Latency Trade-off" if current_lang == 'en' else "Trade-off: Performance vs Latência",
+                        xaxis_title="Latência (ms/doc)" if current_lang == 'pt' else "Latency (ms/doc)",
+                        yaxis_title="F1-Macro",
+                        height=500,
+                        showlegend=False
+                    )
+                    
+                    st.plotly_chart(fig, use_container_width=True)
+                    
+                    # Add efficiency comparison table
+                    st.markdown("**Comparação de Eficiência**" if current_lang == 'pt' else "**Efficiency Comparison**")
+                    display_eff = eff_df[['Setup', 'F1-Macro', 'Accuracy', 'Latency (ms/doc)', 'Cold Start (s)', 'Tamanho (MB)']].copy()
+                    display_eff = display_eff.round(3)
+                    st.dataframe(display_eff, use_container_width=True, hide_index=True)
+            except Exception as e:
+                pass  # Silently fail if efficiency data not available
+            
             # Recent predictions table
+            st.divider()
             st.subheader(t('recent_predictions'))
             display_df = logs_df[['timestamp', 'categoria_predita', 'score', 'embedding_usado', 'modelo_usado']].tail(20)
             display_df = display_df.sort_values('timestamp', ascending=False)

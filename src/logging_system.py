@@ -1,6 +1,7 @@
 """
 Logging system for prediction tracking.
 Implements log_prediction() and manages logs/predicoes.csv
+Also supports SQLite database (bonus feature from Módulo 16).
 """
 import pandas as pd
 from pathlib import Path
@@ -9,6 +10,13 @@ from typing import Optional, Dict, Any
 import os
 
 from src.config import PATHS
+
+# Try to import database module (optional bonus feature)
+try:
+    from src.database import log_prediction_db, load_predictions_db, get_db_statistics
+    DB_AVAILABLE = True
+except ImportError:
+    DB_AVAILABLE = False
 
 
 def log_prediction(
@@ -19,10 +27,11 @@ def log_prediction(
     modelo_usado: str,
     fonte: str = "streamlit",
     categoria_predita: Optional[str] = None,
-    texto_hash: Optional[str] = None
+    texto_hash: Optional[str] = None,
+    use_db: bool = True  # Bonus: Use SQLite if available
 ) -> None:
     """
-    Log a prediction to logs/predicoes.csv.
+    Log a prediction to logs/predicoes.csv and optionally to SQLite database.
     
     Args:
         texto: Original text (or hash if very long)
@@ -33,6 +42,7 @@ def log_prediction(
         fonte: "streamlit" or "script_producao"
         categoria_predita: Optional category name
         texto_hash: Optional hash of text (if text is too long)
+        use_db: Whether to also log to SQLite database (bonus feature)
     """
     log_file = PATHS['logs'] / 'predicoes.csv'
     
@@ -48,7 +58,7 @@ def log_prediction(
         'fonte': fonte
     }
     
-    # Append to CSV
+    # Append to CSV (always, for compatibility)
     df_new = pd.DataFrame([entry])
     
     if log_file.exists():
@@ -57,8 +67,24 @@ def log_prediction(
     else:
         df_combined = df_new
     
-    # Save
+    # Save CSV
     df_combined.to_csv(log_file, index=False)
+    
+    # Bonus: Also log to SQLite database if available
+    if use_db and DB_AVAILABLE:
+        try:
+            log_prediction_db(
+                texto=texto,
+                classe_predita=classe_predita,
+                score=score,
+                embedding_usado=embedding_usado,
+                modelo_usado=modelo_usado,
+                fonte=fonte,
+                categoria_predita=categoria_predita
+            )
+        except Exception as e:
+            # Silently fail if DB logging fails (CSV is primary)
+            pass
 
 
 def load_prediction_logs(

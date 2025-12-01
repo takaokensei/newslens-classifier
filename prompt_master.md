@@ -412,10 +412,22 @@ PATHS = {
 3. **Screenshots do Streamlit**: Adicionar screenshots da interface no relatório e apresentação
 
 **🟡 Importantes (Diferenciais):**
-4. **SQLite Database (Bônus)**: Implementar banco SQLite para logs (mencionado no Módulo 16)
-5. **Mais Visualizações**: Adicionar gráficos comparativos adicionais (F1 por classe, trade-off performance/eficiência)
+4. ✅ **SQLite Database (Bônus)**: Implementado banco SQLite para logs (mencionado no Módulo 16)
+   - Módulo `src/database.py` criado com funções completas
+   - Integração automática com `log_prediction()` (opcional, não quebra compatibilidade)
+   - Funções: `init_database()`, `log_prediction_db()`, `load_predictions_db()`, `get_db_statistics()`
+   - Mantém CSV como padrão, SQLite como bônus
+5. ✅ **Mais Visualizações**: Gráficos comparativos adicionais implementados
+   - Gráfico de trade-off Performance vs Eficiência no Streamlit
+   - Distribuição de scores por embedding e modelo (box plots)
+   - Script `scripts/generate_comparison_plots.py` para gerar gráficos estáticos:
+     * F1 por classe (comparação entre todos os modelos)
+     * Trade-off Performance vs Latência
+     * Comparação de Cold Start
 6. **Análise de Erros Expandida**: Analisar mais casos além dos 2 encontrados (se houver)
+   - Nota: Apenas 2 casos encontrados no conjunto de teste (BERT perfeito)
 7. **Validação Cruzada (Opcional)**: Adicionar k-fold cross-validation para robustez estatística
+   - Opcional: não necessário já que temos split estratificado e resultados consistentes
 
 **🟢 Opcionais (Nice to Have):**
 8. **Deploy em Nuvem (Bônus)**: Deploy do Streamlit em Streamlit Cloud ou AWS
