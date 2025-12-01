@@ -57,10 +57,14 @@ def get_validation_sample():
         raw_dir = PATHS['data_raw']
         csv_files = list(raw_dir.glob('*.csv'))
         if not csv_files:
+            print(f"❌ No CSV files found in {raw_dir}")
             return None
+        
+        print(f"✅ Found CSV file: {csv_files[0]}")
         
         # Load raw data
         df, labels = imports['load_raw_data']()
+        print(f"✅ Loaded {len(df)} rows from CSV")
         
         # Get text column
         text_cols = [col for col in df.columns if col.lower() in 
@@ -76,6 +80,8 @@ def get_validation_sample():
         else:
             text_col = df.columns[0]
         
+        print(f"✅ Using text column: {text_col}")
+        
         # Get texts and labels
         texts = df[text_col].astype(str).values
         labels_array = labels
@@ -86,6 +92,8 @@ def get_validation_sample():
         texts = texts[mask.values]
         labels_array = labels_array[mask.values]
         
+        print(f"✅ After filtering: {len(texts)} texts")
+        
         # Split data using same random_state as training
         from src.config import DATA_CONFIG
         X_train, X_val, X_test, y_train, y_val, y_test = imports['split_data'](
@@ -93,16 +101,21 @@ def get_validation_sample():
             random_state=DATA_CONFIG['random_state']
         )
         
+        print(f"✅ Validation set size: {len(X_val)}")
+        
         # Select random sample from validation set
         import numpy as np
         if len(X_val) == 0:
+            print("❌ Validation set is empty")
             return None
+        
         random_idx = np.random.randint(0, len(X_val))
         sample_text = X_val[random_idx]
         
+        print(f"✅ Selected sample at index {random_idx}, length: {len(sample_text)}")
         return sample_text
     except Exception as e:
-        print(f"Error loading validation sample: {e}")
+        print(f"❌ Error loading validation sample: {e}")
         import traceback
         traceback.print_exc()
         return None
@@ -660,13 +673,16 @@ def main():
                     use_container_width=True,
                     help="Carrega um texto aleatório do conjunto de validação (não visto durante o treinamento)" if current_lang == 'pt' else "Load a random text from validation set (not seen during training)"
                 ):
-                    sample = get_validation_sample()
-                    if sample:
-                        st.session_state.sample_text = sample
-                        st.session_state.text_input_area = sample  # Update text area
-                        st.rerun()
-                    else:
-                        st.warning("⚠️ Não foi possível carregar exemplo. Os dados podem não estar disponíveis no deploy." if current_lang == 'pt' else "⚠️ Could not load sample. Data may not be available in deployment.")
+                    with st.spinner("Carregando exemplo..." if current_lang == 'pt' else "Loading sample..."):
+                        sample = get_validation_sample()
+                        if sample:
+                            st.session_state.sample_text = sample
+                            # Force update text area by using key
+                            st.session_state.text_input_area = sample
+                            st.success("✅ Exemplo carregado!" if current_lang == 'pt' else "✅ Sample loaded!")
+                            st.rerun()
+                        else:
+                            st.error("❌ Não foi possível carregar exemplo. Verifique os logs do console para mais detalhes." if current_lang == 'pt' else "❌ Could not load sample. Check console logs for details.")
             else:
                 # Disable button if data not available
                 st.button(
