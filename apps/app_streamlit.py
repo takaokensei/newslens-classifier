@@ -1146,11 +1146,14 @@ def main():
                 
                 if explain_button:
                     try:
+                        # Use text if available, otherwise use a generic message
+                        text_snippet = text_input_for_display[:500] if text_input_for_display else "Texto classificado anteriormente"
+                        
                         if current_lang == 'pt':
                             prompt = f"""Classifique o seguinte texto de notícia e explique por que ele foi categorizado como "{result['categoria_predita']}".
 
 Texto:
-{text_input_for_display[:500]}
+{text_snippet}
 
 Categoria predita: {result['categoria_predita']}
 Confiança: {result['score']:.2%}
@@ -1160,7 +1163,7 @@ Explique de forma clara e concisa por que este texto pertence a esta categoria."
                             prompt = f"""Classify the following news text and explain why it was categorized as "{result['categoria_predita']}".
 
 Text:
-{text_input_for_display[:500]}
+{text_snippet}
 
 Predicted category: {result['categoria_predita']}
 Confidence: {result['score']:.2%}
