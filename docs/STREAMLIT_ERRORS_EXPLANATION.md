@@ -2,7 +2,28 @@
 
 ## ✅ Erros Corrigidos
 
-### 1. **Invalid color passed for widgetBackgroundColor/widgetBorderColor/skeletonBackgroundColor**
+### 1. **Warning: CORS/XSRF Protection Compatibility**
+
+**Warning:**
+```
+Warning: the config option 'server.enableCORS=false' is not compatible with
+'server.enableXsrfProtection=true'.
+```
+
+**Causa:** O Streamlit requer que `enableCORS=true` quando `enableXsrfProtection=true` está ativado, pois a proteção CSRF envia cookies que precisam de CORS.
+
+**Solução:** Atualizado `.streamlit/config.toml`:
+```toml
+[server]
+enableCORS = true  # Deve ser true quando enableXsrfProtection=true
+enableXsrfProtection = true
+```
+
+**Status:** ✅ **CORRIGIDO** - Commit `9266aec`
+
+---
+
+### 2. **Invalid color passed for widgetBackgroundColor/widgetBorderColor/skeletonBackgroundColor**
 
 **Erro:**
 ```
@@ -11,17 +32,11 @@ Invalid color passed for widgetBorderColor in theme.sidebar: ""
 Invalid color passed for skeletonBackgroundColor in theme.sidebar: ""
 ```
 
-**Causa:** O Streamlit estava tentando usar cores vazias para os componentes da sidebar no modo dark.
+**Causa:** O Streamlit está tentando usar cores vazias para os componentes da sidebar no modo dark. Essas propriedades (`theme.sidebar.*`) **não são suportadas** pelo Streamlit atualmente - são valores internos que o Streamlit tenta definir automaticamente.
 
-**Solução:** Adicionadas as propriedades de cor da sidebar no `.streamlit/config.toml`:
-```toml
-[theme.sidebar]
-widgetBackgroundColor = "#262730"
-widgetBorderColor = "#3A3F4B"
-skeletonBackgroundColor = "#1E2229"
-```
+**Solução:** Não há configuração disponível para essas propriedades no `config.toml`. O Streamlit gerencia essas cores internamente baseado no `base = "dark"`. Esses erros são **avisos do navegador** e não afetam a funcionalidade.
 
-**Status:** ✅ **CORRIGIDO** - Commit `c51b5ff`
+**Status:** ⚠️ **AVISO DO NAVEGADOR** - Não afeta funcionalidade. O Streamlit não oferece controle sobre essas propriedades específicas da sidebar.
 
 ---
 
