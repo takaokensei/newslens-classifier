@@ -16,11 +16,11 @@ import os
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Lazy imports to avoid multiprocessing issues in Streamlit Cloud
-# Import config first (no heavy dependencies)
+# Import ONLY config and class mapping (no heavy dependencies)
 from src.config import PATHS
 from src.class_mapping import CLASS_TO_CATEGORY
 
-# Delay heavy imports until needed (inside functions)
+# Delay ALL other imports until needed (inside functions)
 # This prevents "can't register atexit after shutdown" errors
 def _lazy_imports():
     """Lazy import of heavy dependencies to avoid multiprocessing issues."""

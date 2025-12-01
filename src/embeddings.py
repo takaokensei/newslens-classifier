@@ -170,13 +170,15 @@ def load_tfidf_vectorizer(vectorizer_path: Union[str, Path]):
 
 def load_bert_model(model_name: str = None):
     """Load BERT model (sentence-transformer)."""
+    # Lazy import SentenceTransformer first
+    SentenceTransformer, SENTENCE_TRANSFORMERS_AVAILABLE = _lazy_import_sentence_transformers()
+    
     if not SENTENCE_TRANSFORMERS_AVAILABLE:
         raise ImportError(
             "sentence-transformers is required for BERT embeddings. "
             "Install it with: pip install sentence-transformers"
         )
     
-    SentenceTransformer, _ = _lazy_import_sentence_transformers()
     if model_name is None:
         model_name = FEATURE_CONFIG['bert']['model_name']
     return SentenceTransformer(model_name, device='cpu')
