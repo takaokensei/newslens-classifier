@@ -44,21 +44,22 @@ data/processed/*
 !data/processed/.gitkeep
 data/embeddings/*
 !data/embeddings/.gitkeep
+!data/embeddings/tfidf_vectorizer.pkl
 data/novos/*
 !data/novos/.gitkeep
 
 # Models
-# Allow trained models to be committed for Streamlit Cloud deployment
+# Allow trained models and results to be committed for Streamlit Cloud deployment
 models/*.png
 models/*.json
-models/*.csv
+!models/*.csv
 !models/*.pkl
 !models/.gitkeep
 
-# Logs
+# Logs (keep private - don't commit prediction logs)
 logs/*
 !logs/.gitkeep
-!logs/predicoes.csv
+# logs/predicoes.csv should NOT be committed (contains personal usage data)
 
 # Environment variables
 .env

@@ -855,12 +855,19 @@ Explain clearly and concisely why this text belongs to this category."""
             except Exception as e:
                 pass  # Silently fail if efficiency data not available
             
-            # Recent predictions table
-            st.divider()
-            st.subheader(t('recent_predictions'))
-            display_df = logs_df[['timestamp', 'categoria_predita', 'score', 'embedding_usado', 'modelo_usado']].tail(20)
-            display_df = display_df.sort_values('timestamp', ascending=False)
-            st.dataframe(display_df, use_container_width=True, hide_index=True)
+            # Recent predictions table (only show locally, not in Streamlit Cloud)
+            # Check if running in Streamlit Cloud
+            is_streamlit_cloud = os.environ.get('STREAMLIT_SERVER_ENV', '').lower() == 'cloud' or \
+                                'streamlit.io' in os.environ.get('STREAMLIT_SERVER_HEADLESS', '') or \
+                                os.environ.get('STREAMLIT_SHARING', '').lower() == 'true'
+            
+            # Only show recent predictions locally (not in public deploy)
+            if not is_streamlit_cloud:
+                st.divider()
+                st.subheader(t('recent_predictions'))
+                display_df = logs_df[['timestamp', 'categoria_predita', 'score', 'embedding_usado', 'modelo_usado']].tail(20)
+                display_df = display_df.sort_values('timestamp', ascending=False)
+                st.dataframe(display_df, use_container_width=True, hide_index=True)
             
             # Export data (bonus feature - Módulo 16)
             st.divider()
