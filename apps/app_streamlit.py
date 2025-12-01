@@ -254,24 +254,33 @@ def load_and_sync_cookie_predictions():
                     return null;
                 }
                 
-                // Only try to load if query param doesn't already have data
-                var urlParams = new URLSearchParams(window.location.search);
-                if (!urlParams.has("cookie_data")) {
+                // Access parent window (main Streamlit app window, not iframe)
+                try {
+                    var parentWindow = window.parent;
+                    var parentUrl = new URL(parentWindow.location.href);
+                    
+                    // Only try to load if query param doesn't already have data
+                    if (!parentUrl.searchParams.has("cookie_data")) {
+                        var cookieValue = getCookie("newslens_predictions");
+                        if (cookieValue && cookieValue.length > 0) {
+                            // Update parent window URL with cookie data to trigger rerun
+                            parentUrl.searchParams.set("cookie_data", cookieValue);
+                            // Use parent window's history.replaceState (works in main window)
+                            parentWindow.history.replaceState({}, '', parentUrl.toString());
+                            // Trigger Streamlit rerun by reloading parent window
+                            parentWindow.location.reload();
+                        }
+                    }
+                } catch(e) {
+                    // If we can't access parent (security restriction), try direct reload with query param
+                    console.log("Cannot access parent window, using direct reload");
                     var cookieValue = getCookie("newslens_predictions");
                     if (cookieValue && cookieValue.length > 0) {
-                        // Update URL with cookie data to trigger rerun (without full page reload)
-                        var newUrl = new URL(window.location);
-                        newUrl.searchParams.set("cookie_data", cookieValue);
-                        // Use replaceState to avoid adding to history and causing issues
-                        window.history.replaceState({}, '', newUrl.toString());
-                        // Trigger Streamlit rerun by dispatching a custom event
-                        window.dispatchEvent(new Event('popstate'));
-                        // Fallback: if popstate doesn't work, use location.reload with query param
-                        setTimeout(function() {
-                            if (!urlParams.has("cookie_data")) {
-                                window.location.href = newUrl.toString();
-                            }
-                        }, 100);
+                        var currentUrl = new URL(window.location.href);
+                        if (!currentUrl.searchParams.has("cookie_data")) {
+                            currentUrl.searchParams.set("cookie_data", cookieValue);
+                            window.location.href = currentUrl.toString();
+                        }
                     }
                 }
             })();
