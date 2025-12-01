@@ -641,9 +641,9 @@ Explain clearly and concisely why this text belongs to this category."""
                         'end': logs_df['timestamp'].max() if 'timestamp' in logs_df.columns and not logs_df.empty else None
                     }
                 }
-            
-            # Summary metrics
-            col1, col2, col3, col4 = st.columns(4)
+                
+                # Summary metrics
+                col1, col2, col3, col4 = st.columns(4)
             with col1:
                 st.metric(t('total_predictions'), stats['total_predictions'])
             with col2:
@@ -892,28 +892,28 @@ Explain clearly and concisely why this text belongs to this category."""
                 display_df = display_df.sort_values('timestamp', ascending=False)
                 st.dataframe(display_df, use_container_width=True, hide_index=True)
             
-            # Export data and clear session (bonus feature - Módulo 16)
-            st.divider()
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                if not logs_df.empty:
-                    csv_export = logs_df.to_csv(index=False).encode('utf-8')
-                    st.download_button(
-                        label="📥 Exportar CSV" if current_lang == 'pt' else "📥 Export CSV",
-                        data=csv_export,
-                        file_name=f"predicoes_sessao_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-                        mime="text/csv",
-                        use_container_width=True
-                    )
-            with col2:
-                if not logs_df.empty and 'timestamp' in logs_df.columns:
-                    st.info(f"📊 {len(logs_df)} predições na sua sessão" if current_lang == 'pt' else f"📊 {len(logs_df)} predictions in your session")
-            with col3:
-                if st.session_state.get('session_predictions'):
-                    if st.button("🗑️ Limpar Histórico da Sessão" if current_lang == 'pt' else "🗑️ Clear Session History", use_container_width=True):
-                        st.session_state.session_predictions = []
-                        st.success("Histórico limpo!" if current_lang == 'pt' else "History cleared!")
-                        st.rerun()
+                # Export data and clear session (bonus feature - Módulo 16)
+                st.divider()
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    if not logs_df.empty:
+                        csv_export = logs_df.to_csv(index=False).encode('utf-8')
+                        st.download_button(
+                            label="📥 Exportar CSV" if current_lang == 'pt' else "📥 Export CSV",
+                            data=csv_export,
+                            file_name=f"predicoes_sessao_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                            mime="text/csv",
+                            use_container_width=True
+                        )
+                with col2:
+                    if not logs_df.empty and 'timestamp' in logs_df.columns:
+                        st.info(f"📊 {len(logs_df)} predições na sua sessão" if current_lang == 'pt' else f"📊 {len(logs_df)} predictions in your session")
+                with col3:
+                    if st.session_state.get('session_predictions'):
+                        if st.button("🗑️ Limpar Histórico da Sessão" if current_lang == 'pt' else "🗑️ Clear Session History", use_container_width=True):
+                            st.session_state.session_predictions = []
+                            st.success("Histórico limpo!" if current_lang == 'pt' else "History cleared!")
+                            st.rerun()
 
 
 if __name__ == "__main__":
