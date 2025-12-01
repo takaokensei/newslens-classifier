@@ -1,0 +1,104 @@
+{
+  "experiment_info": {
+    "dataset": "Base_dados_textos_6_classes.csv",
+    "n_samples": 315,
+    "n_classes": 6,
+    "train_size": 189,
+    "val_size": 63,
+    "test_size": 63,
+    "split_ratio": "60/20/20",
+    "random_state": 42
+  },
+  "class_mapping": {
+    "0": "Economia",
+    "1": "Esportes",
+    "2": "Polícia e Direitos",
+    "3": "Política",
+    "4": "Turismo",
+    "5": "Variedades e Sociedade"
+  },
+  "table_a_efficiency": [
+    {
+      "Setup": "TF-IDF + SVM",
+      "F1-Macro": 0.96765639589169,
+      "Accuracy": 0.9682539682539684,
+      "Latency (ms/doc)": 0.1401290000649169,
+      "Cold Start (s)": 0.0790990000001329,
+      "Tamanho (MB)": 0.1823759078979492
+    },
+    {
+      "Setup": "TF-IDF + XGBoost",
+      "F1-Macro": 0.7040404040404041,
+      "Accuracy": 0.7142857142857143,
+      "Latency (ms/doc)": 0.4200180001134868,
+      "Cold Start (s)": 0.1070494600004167,
+      "Tamanho (MB)": 0.4886627197265625
+    },
+    {
+      "Setup": "BERT + SVM",
+      "F1-Macro": 1.0,
+      "Accuracy": 1.0,
+      "Latency (ms/doc)": 0.1200189999508438,
+      "Cold Start (s)": 2.2284819799991964,
+      "Tamanho (MB)": 0.8753232955932617
+    },
+    {
+      "Setup": "BERT + XGBoost",
+      "F1-Macro": 0.9666248955722642,
+      "Accuracy": 0.9682539682539684,
+      "Latency (ms/doc)": 0.3768610000042827,
+      "Cold Start (s)": 2.29598785999915,
+      "Tamanho (MB)": 0.4284296035766601
+    }
+  ],
+  "table_b_classes": [
+    {
+      "Class": 0,
+      "Category": "Economia",
+      "TFIDF+SVM": 0.9523809523809524,
+      "TFIDF+XGB": 0.5333333333333333,
+      "BERT+SVM": 1.0,
+      "BERT+XGB": 0.9523809523809524
+    },
+    {
+      "Class": 1,
+      "Category": "Esportes",
+      "TFIDF+SVM": 0.9523809523809524,
+      "TFIDF+XGB": 0.8,
+      "BERT+SVM": 1.0,
+      "BERT+XGB": 0.9
+    },
+    {
+      "Class": 2,
+      "Category": "Polícia e Direitos",
+      "TFIDF+SVM": 1.0,
+      "TFIDF+XGB": 0.8,
+      "BERT+SVM": 1.0,
+      "BERT+XGB": 1.0
+    },
+    {
+      "Class": 3,
+      "Category": "Política",
+      "TFIDF+SVM": 1.0,
+      "TFIDF+XGB": 0.9090909090909092,
+      "BERT+SVM": 1.0,
+      "BERT+XGB": 1.0
+    },
+    {
+      "Class": 4,
+      "Category": "Turismo",
+      "TFIDF+SVM": 0.96,
+      "TFIDF+XGB": 0.5454545454545454,
+      "BERT+SVM": 1.0,
+      "BERT+XGB": 1.0
+    },
+    {
+      "Class": 5,
+      "Category": "Variedades e Sociedade",
+      "TFIDF+SVM": 0.9411764705882352,
+      "TFIDF+XGB": 0.6363636363636364,
+      "BERT+SVM": 1.0,
+      "BERT+XGB": 0.9473684210526316
+    }
+  ]
+}

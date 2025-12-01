@@ -67,7 +67,8 @@ def load_raw_data(data_path: Optional[Path] = None) -> Tuple[pd.DataFrame, np.nd
         print(f"✅ Using text column: {text_col}")
     
     # Detect label column (common names: label, classe, category, etc.)
-    # Priority: "Classe" > "Categoria" > other label columns
+    # Priority: "Categoria" > "Classe" > other label columns
+    # Note: We prefer "Categoria" for interpretability, but will convert to numeric if needed
     label_cols = [col for col in df.columns if col.lower() in 
                   ['classe', 'categoria', 'label', 'class', 'category']]
     if not label_cols:
@@ -79,17 +80,38 @@ def load_raw_data(data_path: Optional[Path] = None) -> Tuple[pd.DataFrame, np.nd
         label_col = df.columns[-1]
         print(f"⚠️  No label column found, using last column: {label_col}")
     else:
-        # Prefer "Classe" if available
-        if 'Classe' in label_cols:
-            label_col = 'Classe'
-        elif 'Categoria' in label_cols:
+        # Prefer "Categoria" if available (more interpretable)
+        if 'Categoria' in label_cols:
             label_col = 'Categoria'
+            # Check if we also have "Classe" for numeric mapping
+            if 'Classe' in df.columns:
+                # Use Categoria but store mapping for later
+                print(f"✅ Using label column: {label_col} (with Classe mapping available)")
+            else:
+                print(f"✅ Using label column: {label_col}")
+        elif 'Classe' in label_cols:
+            label_col = 'Classe'
+            print(f"✅ Using label column: {label_col}")
         else:
             label_col = label_cols[0]
-        print(f"✅ Using label column: {label_col}")
+            print(f"✅ Using label column: {label_col}")
     
     texts = df[text_col].astype(str).values
-    labels = df[label_col].values
+    labels_raw = df[label_col].values
+    
+    # Convert categorical labels to numeric if needed
+    # If label_col is "Categoria", we need to map to numeric classes
+    if label_col == 'Categoria' and 'Classe' in df.columns:
+        # Use the numeric Classe column for training
+        labels = df['Classe'].values
+        print(f"📊 Using numeric 'Classe' for training (mapped from 'Categoria')")
+    elif label_col == 'Categoria':
+        # Need to create numeric mapping
+        from src.class_mapping import map_categories_to_classes
+        labels = map_categories_to_classes(labels_raw)
+        print(f"📊 Converted 'Categoria' to numeric classes for training")
+    else:
+        labels = labels_raw
     
     # Remove rows with empty texts or NaN
     texts_series = pd.Series(texts)
