@@ -818,6 +818,7 @@ def main():
             bert_model = st.session_state.bert_model
         
         # Handle validation set testing
+        # Check if we should run a new test or show existing results
         if st.session_state.get('test_validation_set', False):
             if st.session_state.models_loaded and models and vectorizer and bert_model:
                 st.divider()
@@ -829,6 +830,25 @@ def main():
                     )
                     
                     if results:
+                        # Save results to session_state for persistence
+                        st.session_state.validation_test_results = results
+                        st.session_state.validation_test_embedding = embedding_type
+                        st.session_state.validation_test_model = model_type
+                        # Don't clear test_validation_set yet - keep it to show results
+                    
+        # Show validation test results if available (either from new test or previous)
+        if st.session_state.get('validation_test_results'):
+            results = st.session_state.validation_test_results
+            embedding_type_display = st.session_state.get('validation_test_embedding', embedding_type)
+            model_type_display = st.session_state.get('validation_test_model', model_type)
+            
+            # Only show "Teste concluído" if this is a new test
+            if st.session_state.get('test_validation_set', False):
+                st.success(f"✅ Teste concluído!" if current_lang == 'pt' else "✅ Test completed!")
+                # Clear the flag after showing success message
+                st.session_state.test_validation_set = False
+            
+            if results:
                         st.success(f"✅ Teste concluído!" if current_lang == 'pt' else "✅ Test completed!")
                         
                         # Save predictions to dashboard
@@ -937,13 +957,16 @@ Analyze the error patterns and briefly explain (2-4 main reasons) why the classi
                                 'Correto': '✅' if p['correct'] else '❌'
                             } for p in (incorrect_preds + correct_preds)])  # Errors first
                             st.dataframe(all_preds_df, width='stretch', hide_index=True)
-                    else:
-                        st.error("❌ Erro ao testar conjunto de validação. Verifique os logs." if current_lang == 'pt' else "❌ Error testing validation set. Check logs.")
-                
-                st.session_state.test_validation_set = False
             else:
-                st.warning("⚠️ Modelos não carregados. Aguarde o carregamento dos modelos." if current_lang == 'pt' else "⚠️ Models not loaded. Please wait for models to load.")
+                # Error case - clear results
+                st.error("❌ Erro ao testar conjunto de validação. Verifique os logs." if current_lang == 'pt' else "❌ Error testing validation set. Check logs.")
+                if 'validation_test_results' in st.session_state:
+                    del st.session_state.validation_test_results
                 st.session_state.test_validation_set = False
+        elif st.session_state.get('test_validation_set', False):
+            # Test was requested but models not loaded
+            st.warning("⚠️ Modelos não carregados. Aguarde o carregamento dos modelos." if current_lang == 'pt' else "⚠️ Models not loaded. Please wait for models to load.")
+            st.session_state.test_validation_set = False
         
         # Text input
         # Text input with sample button
