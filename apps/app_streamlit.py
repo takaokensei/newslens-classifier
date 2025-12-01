@@ -671,12 +671,16 @@ def main():
                     sample_text, true_label = st.session_state.sample_text
                     st.session_state.text_input_area = sample_text
                     st.session_state.true_label = true_label
+                    # Store original text to detect modifications
+                    st.session_state.original_sample_text = sample_text
                 else:
                     # Old format: just text
                     st.session_state.text_input_area = st.session_state.sample_text
                     # Clear true_label if it exists
                     if 'true_label' in st.session_state:
                         del st.session_state.true_label
+                    if 'original_sample_text' in st.session_state:
+                        del st.session_state.original_sample_text
                 # Clear sample_text after using it
                 st.session_state.sample_text = ''
             
@@ -688,15 +692,53 @@ def main():
                 key="text_input_area"
             )
             
+            # Track original sample text to detect user modifications
+            if 'sample_text' in st.session_state and isinstance(st.session_state.sample_text, tuple):
+                original_sample_text = st.session_state.sample_text[0]
+            elif 'original_sample_text' in st.session_state:
+                original_sample_text = st.session_state.original_sample_text
+            else:
+                original_sample_text = None
+            
+            # Detect if user modified the text (and clear true_label if so)
+            if original_sample_text and text_input != original_sample_text:
+                # User modified the text - clear true_label with animation
+                if 'true_label' in st.session_state:
+                    # Store for fade-out animation
+                    st.session_state.fade_out_true_label = True
+                    # Clear after animation
+                    del st.session_state.true_label
+                    if 'original_sample_text' in st.session_state:
+                        del st.session_state.original_sample_text
+            
             # Display true label if available (from validation sample)
             if 'true_label' in st.session_state:
                 true_label = st.session_state.true_label
                 true_category = CLASS_TO_CATEGORY.get(int(true_label), f"Classe {true_label}")
-                st.info(
-                    f"🏷️ **Classe Real (Ground Truth):** {true_category}" if current_lang == 'pt' 
-                    else f"🏷️ **True Label (Ground Truth):** {true_category}",
-                    icon="ℹ️"
-                )
+                # Use a container with unique key for animation
+                true_label_container = st.container()
+                with true_label_container:
+                    st.info(
+                        f"🏷️ **Classe Real (Ground Truth):** {true_category}" if current_lang == 'pt' 
+                        else f"🏷️ **True Label (Ground Truth):** {true_category}",
+                        icon="ℹ️"
+                    )
+            elif st.session_state.get('fade_out_true_label', False):
+                # Show fade-out animation
+                fade_out_css = """
+                <style>
+                @keyframes fadeOut {
+                    from { opacity: 1; transform: translateY(0); }
+                    to { opacity: 0; transform: translateY(-10px); }
+                }
+                .fade-out {
+                    animation: fadeOut 0.5s ease-out forwards;
+                }
+                </style>
+                """
+                st.markdown(fade_out_css, unsafe_allow_html=True)
+                # Clear the flag after showing animation
+                del st.session_state.fade_out_true_label
         
         with col_btn:
             st.write("")  # Spacing
