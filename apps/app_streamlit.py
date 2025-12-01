@@ -143,6 +143,14 @@ if 'bert_model' not in st.session_state:
     st.session_state.bert_model = None
 if 'language' not in st.session_state:
     st.session_state.language = 'pt'  # Default: Portuguese
+if 'last_classification_result' not in st.session_state:
+    st.session_state.last_classification_result = None
+if 'last_text_input' not in st.session_state:
+    st.session_state.last_text_input = None
+if 'explanation_generated' not in st.session_state:
+    st.session_state.explanation_generated = False
+if 'llm_explanation' not in st.session_state:
+    st.session_state.llm_explanation = None
 
 
 @st.cache_resource
@@ -304,6 +312,7 @@ def main():
         with col2:
             save_prediction = st.checkbox(t('save_log'), value=True)
         
+        # Handle classification
         if classify_button and text_input:
             with st.spinner(t('classifying')):
                 result = classify_text_streamlit(
@@ -315,6 +324,20 @@ def main():
                     bert_model
                 )
             
+            # Store result in session state
+            st.session_state.last_classification_result = result
+            st.session_state.last_text_input = text_input
+            st.session_state.last_embedding_type = embedding_type
+            st.session_state.last_model_type = model_type
+            st.session_state.explanation_generated = False
+            st.session_state.llm_explanation = None
+            st.session_state.log_saved_for_current = False
+        
+        # Display results if available (from current classification or previous)
+        result = st.session_state.last_classification_result
+        text_input_for_display = st.session_state.get('last_text_input', '')
+        
+        if result is not None and text_input_for_display:
             # Display results
             st.divider()
             
@@ -330,57 +353,68 @@ def main():
             if result['all_probas']:
                 st.subheader(t('prob_dist'))
                 prob_df = pd.DataFrame({
-                    'Category' if current_lang == 'en' else 'Categoria': list(result['all_probas'].keys()),
-                    'Probability' if current_lang == 'en' else 'Probabilidade': list(result['all_probas'].values())
-                }).sort_values('Probability' if current_lang == 'en' else 'Probabilidade', ascending=False)
+                    'Categoria' if current_lang == 'pt' else 'Category': list(result['all_probas'].keys()),
+                    'Probabilidade' if current_lang == 'pt' else 'Probability': list(result['all_probas'].values())
+                }).sort_values('Probabilidade' if current_lang == 'pt' else 'Probability', ascending=False)
                 
                 fig = px.bar(
                     prob_df,
-                    x='Category' if current_lang == 'en' else 'Categoria',
-                    y='Probability' if current_lang == 'en' else 'Probabilidade',
-                    color='Probability' if current_lang == 'en' else 'Probabilidade',
+                    x='Categoria' if current_lang == 'pt' else 'Category',
+                    y='Probabilidade' if current_lang == 'pt' else 'Probability',
+                    color='Probabilidade' if current_lang == 'pt' else 'Probability',
                     color_continuous_scale='Blues',
                     title=t('prob_dist')
                 )
                 fig.update_layout(showlegend=False, height=400)
                 st.plotly_chart(fig, use_container_width=True)
             
-            # LLM Explanation
+            # LLM Explanation section (always visible when result exists)
             st.subheader(t('ai_explanation'))
-            explain_button = st.button(t('generate_explanation'), key="explain")
             
-            if explain_button:
-                try:
-                    if current_lang == 'pt':
-                        prompt = f"""Classifique o seguinte texto de notícia e explique por que ele foi categorizado como "{result['categoria_predita']}".
+            # Show explanation if already generated
+            if st.session_state.explanation_generated and st.session_state.llm_explanation:
+                st.info(st.session_state.llm_explanation)
+                if st.button("🔄 Gerar Nova Explicação" if current_lang == 'pt' else "🔄 Generate New Explanation", key="regenerate_explain"):
+                    st.session_state.explanation_generated = False
+                    st.session_state.llm_explanation = None
+                    st.rerun()
+            else:
+                explain_button = st.button(t('generate_explanation'), key="explain")
+                
+                if explain_button:
+                    try:
+                        if current_lang == 'pt':
+                            prompt = f"""Classifique o seguinte texto de notícia e explique por que ele foi categorizado como "{result['categoria_predita']}".
 
 Texto:
-{text_input[:500]}
+{text_input_for_display[:500]}
 
 Categoria predita: {result['categoria_predita']}
 Confiança: {result['score']:.2%}
 
 Explique de forma clara e concisa por que este texto pertence a esta categoria."""
-                    else:
-                        prompt = f"""Classify the following news text and explain why it was categorized as "{result['categoria_predita']}".
+                        else:
+                            prompt = f"""Classify the following news text and explain why it was categorized as "{result['categoria_predita']}".
 
 Text:
-{text_input[:500]}
+{text_input_for_display[:500]}
 
 Predicted category: {result['categoria_predita']}
 Confidence: {result['score']:.2%}
 
 Explain clearly and concisely why this text belongs to this category."""
-                    
+                        
                     with st.spinner(t('generating')):
                         explanation = call_groq_llm(prompt, max_tokens=200)
-                        st.info(explanation)
-                except Exception as e:
-                    st.warning(f"{t('explanation_error')} {e}")
-                    st.info(t('explanation_info'))
+                        st.session_state.llm_explanation = explanation
+                        st.session_state.explanation_generated = True
+                        st.rerun()
+                    except Exception as e:
+                        st.warning(f"{t('explanation_error')} {e}")
+                        st.info(t('explanation_info'))
             
-            # Save to log
-            if save_prediction:
+            # Save to log (only on new classification)
+            if classify_button and save_prediction and text_input:
                 log_prediction(
                     texto=text_input,
                     classe_predita=result['classe_predita'],
@@ -390,7 +424,9 @@ Explain clearly and concisely why this text belongs to this category."""
                     fonte="streamlit",
                     categoria_predita=result['categoria_predita']
                 )
-                st.success(t('saved_log'))
+                if not st.session_state.get('log_saved_for_current', False):
+                    st.success(t('saved_log'))
+                    st.session_state.log_saved_for_current = True
     
     # Tab 2: Monitoring
     with tab2:
