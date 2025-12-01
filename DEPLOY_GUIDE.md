@@ -15,8 +15,10 @@
 No Streamlit Cloud, adicione as seguintes secrets na seção "Secrets":
 
 ```toml
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "your_groq_api_key_here"
 ```
+
+**Nota**: Substitua `your_groq_api_key_here` pela sua chave real do Groq. Você pode obter uma chave gratuita em [console.groq.com](https://console.groq.com).
 
 **Como adicionar:**
 1. No dashboard do Streamlit Cloud, vá em "Settings" → "Secrets"
