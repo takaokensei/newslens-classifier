@@ -878,103 +878,103 @@ def main():
             if results:
                 # Display metrics
                 col1, col2, col3 = st.columns(3)
-                        with col1:
-                            st.metric(
-                                "Precisão" if current_lang == 'pt' else "Accuracy",
-                                f"{results['accuracy']:.2%}"
-                            )
-                        with col2:
-                            st.metric(
-                                "Corretos" if current_lang == 'pt' else "Correct",
-                                f"{results['correct']}/{results['total']}"
-                            )
-                        with col3:
-                            st.metric(
-                                "Total" if current_lang == 'pt' else "Total",
-                                results['total']
-                            )
+                with col1:
+                    st.metric(
+                        "Precisão" if current_lang == 'pt' else "Accuracy",
+                        f"{results['accuracy']:.2%}"
+                    )
+                with col2:
+                    st.metric(
+                        "Corretos" if current_lang == 'pt' else "Correct",
+                        f"{results['correct']}/{results['total']}"
+                    )
+                with col3:
+                    st.metric(
+                        "Total" if current_lang == 'pt' else "Total",
+                        results['total']
+                    )
+                
+                # Separate correct and incorrect predictions
+                correct_preds = [p for p in results['predictions'] if p['correct']]
+                incorrect_preds = [p for p in results['predictions'] if not p['correct']]
+                
+                # Show all predictions: errors first, then correct ones
+                if results['predictions']:
+                    st.subheader("📊 Todas as Predições do Conjunto de Validação" if current_lang == 'pt' else "📊 All Validation Set Predictions")
+                    
+                    # Show errors first if any
+                    if incorrect_preds:
+                        st.markdown("### ❌ Predições Incorretas" if current_lang == 'pt' else "### ❌ Incorrect Predictions")
+                        error_df = pd.DataFrame([{
+                            'Texto': p['text'][:150] + '...' if len(p['text']) > 150 else p['text'],
+                            'Classe Real': p['true_label'],
+                            'Classe Predita': p['predicted_label'],
+                            'Correto': '❌' if not p['correct'] else '✅'
+                        } for p in incorrect_preds])
+                        st.dataframe(error_df, width='stretch', hide_index=True)
                         
-                        # Separate correct and incorrect predictions
-                        correct_preds = [p for p in results['predictions'] if p['correct']]
-                        incorrect_preds = [p for p in results['predictions'] if not p['correct']]
+                        # AI Explanation for errors (generalized for multiple errors)
+                        st.markdown("### 🤖 Análise de Erros por IA" if current_lang == 'pt' else "### 🤖 AI Error Analysis")
                         
-                        # Show all predictions: errors first, then correct ones
-                        if results['predictions']:
-                            st.subheader("📊 Todas as Predições do Conjunto de Validação" if current_lang == 'pt' else "📊 All Validation Set Predictions")
-                            
-                            # Show errors first if any
-                            if incorrect_preds:
-                                st.markdown("### ❌ Predições Incorretas" if current_lang == 'pt' else "### ❌ Incorrect Predictions")
-                                error_df = pd.DataFrame([{
-                                    'Texto': p['text'][:150] + '...' if len(p['text']) > 150 else p['text'],
-                                    'Classe Real': p['true_label'],
-                                    'Classe Predita': p['predicted_label'],
-                                    'Correto': '❌' if not p['correct'] else '✅'
-                                } for p in incorrect_preds])
-                                st.dataframe(error_df, width='stretch', hide_index=True)
-                                
-                                # AI Explanation for errors (generalized for multiple errors)
-                                st.markdown("### 🤖 Análise de Erros por IA" if current_lang == 'pt' else "### 🤖 AI Error Analysis")
-                                
-                                # Check if error analysis already exists
-                                error_analysis_key = f'validation_error_analysis_{embedding_type_display}_{model_type_display}'
-                                if error_analysis_key in st.session_state and st.session_state[error_analysis_key]:
-                                    st.info(st.session_state[error_analysis_key])
-                                    if st.button("🔄 Gerar Nova Análise" if current_lang == 'pt' else "🔄 Generate New Analysis", key="regenerate_error_analysis"):
-                                        st.session_state[error_analysis_key] = None
-                                        st.rerun()
-                                else:
-                                    if st.button("🔍 Analisar Erros com IA" if current_lang == 'pt' else "🔍 Analyze Errors with AI", key="analyze_errors_ai"):
-                                        try:
-                                            # Create a generalized prompt for multiple errors
-                                            num_errors = len(incorrect_preds)
-                                            error_examples = incorrect_preds[:5]  # Use first 5 errors as examples
-                                            
-                                            examples_text = "\n\n".join([
-                                                f"Exemplo {i+1}:\n"
-                                                f"Texto: {p['text'][:200]}...\n"
-                                                f"Classe Real: {p['true_label']}\n"
-                                                f"Classe Predita: {p['predicted_label']}"
-                                                for i, p in enumerate(error_examples)
-                                            ])
-                                            
-                                            if current_lang == 'pt':
-                                                prompt = f"""O classificador de texto cometeu {num_errors} erros ao classificar um conjunto de {results['total']} notícias.
+                        # Check if error analysis already exists
+                        error_analysis_key = f'validation_error_analysis_{embedding_type_display}_{model_type_display}'
+                        if error_analysis_key in st.session_state and st.session_state[error_analysis_key]:
+                            st.info(st.session_state[error_analysis_key])
+                            if st.button("🔄 Gerar Nova Análise" if current_lang == 'pt' else "🔄 Generate New Analysis", key="regenerate_error_analysis"):
+                                st.session_state[error_analysis_key] = None
+                                st.rerun()
+                        else:
+                            if st.button("🔍 Analisar Erros com IA" if current_lang == 'pt' else "🔍 Analyze Errors with AI", key="analyze_errors_ai"):
+                                try:
+                                    # Create a generalized prompt for multiple errors
+                                    num_errors = len(incorrect_preds)
+                                    error_examples = incorrect_preds[:5]  # Use first 5 errors as examples
+                                    
+                                    examples_text = "\n\n".join([
+                                        f"Exemplo {i+1}:\n"
+                                        f"Texto: {p['text'][:200]}...\n"
+                                        f"Classe Real: {p['true_label']}\n"
+                                        f"Classe Predita: {p['predicted_label']}"
+                                        for i, p in enumerate(error_examples)
+                                    ])
+                                    
+                                    if current_lang == 'pt':
+                                        prompt = f"""O classificador de texto cometeu {num_errors} erros ao classificar um conjunto de {results['total']} notícias.
 
 Exemplos de erros:
 {examples_text}
 
 Analise os padrões de erro e explique brevemente (2-4 razões principais) por que o classificador pode estar errando. Seja conciso e focado nos motivos mais prováveis."""
-                                            else:
-                                                prompt = f"""The text classifier made {num_errors} errors when classifying a set of {results['total']} news articles.
+                                    else:
+                                        prompt = f"""The text classifier made {num_errors} errors when classifying a set of {results['total']} news articles.
 
 Error examples:
 {examples_text}
 
 Analyze the error patterns and briefly explain (2-4 main reasons) why the classifier may be making mistakes. Be concise and focus on the most likely reasons."""
-                                            
-                                            with st.spinner("Analisando erros com IA..." if current_lang == 'pt' else "Analyzing errors with AI..."):
-                                                imports = _lazy_imports()
-                                                error_analysis = imports['call_groq_llm'](prompt, max_tokens=600)
-                                                # Save to session_state for persistence
-                                                st.session_state[error_analysis_key] = error_analysis
-                                                st.info(error_analysis)
-                                        except Exception as e:
-                                            st.warning(f"❌ Erro ao analisar com IA: {e}" if current_lang == 'pt' else f"❌ Error analyzing with AI: {e}")
-                                            st.info(t('explanation_info'))
-                                
-                                st.divider()
-                            
-                            # Show all predictions in a table
-                            st.markdown("### 📋 Todas as Predições" if current_lang == 'pt' else "### 📋 All Predictions")
-                            all_preds_df = pd.DataFrame([{
-                                'Texto': p['text'][:150] + '...' if len(p['text']) > 150 else p['text'],
-                                'Classe Real': p['true_label'],
-                                'Classe Predita': p['predicted_label'],
-                                'Confiança': f"{p['score']:.2%}",
-                                'Correto': '✅' if p['correct'] else '❌'
-                            } for p in (incorrect_preds + correct_preds)])  # Errors first
-                            st.dataframe(all_preds_df, width='stretch', hide_index=True)
+                                    
+                                    with st.spinner("Analisando erros com IA..." if current_lang == 'pt' else "Analyzing errors with AI..."):
+                                        imports = _lazy_imports()
+                                        error_analysis = imports['call_groq_llm'](prompt, max_tokens=600)
+                                        # Save to session_state for persistence
+                                        st.session_state[error_analysis_key] = error_analysis
+                                        st.rerun()  # Rerun to show the analysis
+                                except Exception as e:
+                                    st.warning(f"❌ Erro ao analisar com IA: {e}" if current_lang == 'pt' else f"❌ Error analyzing with AI: {e}")
+                                    st.info(t('explanation_info'))
+                        
+                        st.divider()
+                    
+                    # Show all predictions in a table
+                    st.markdown("### 📋 Todas as Predições" if current_lang == 'pt' else "### 📋 All Predictions")
+                    all_preds_df = pd.DataFrame([{
+                        'Texto': p['text'][:150] + '...' if len(p['text']) > 150 else p['text'],
+                        'Classe Real': p['true_label'],
+                        'Classe Predita': p['predicted_label'],
+                        'Confiança': f"{p['score']:.2%}",
+                        'Correto': '✅' if p['correct'] else '❌'
+                    } for p in (incorrect_preds + correct_preds)])  # Errors first
+                    st.dataframe(all_preds_df, width='stretch', hide_index=True)
             else:
                 # Error case - clear results
                 st.error("❌ Erro ao testar conjunto de validação. Verifique os logs." if current_lang == 'pt' else "❌ Error testing validation set. Check logs.")
