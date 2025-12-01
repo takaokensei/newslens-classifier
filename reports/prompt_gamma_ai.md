@@ -6,7 +6,7 @@
 
 **Autor:** Cauã Vitor Figueredo Silva | **Orientador:** Prof. Dr. José Alfredo F. Costa
 
-**UFRN - Engenharia Elétrica - ELE 606 | Dezembro 2024**
+**UFRN - Engenharia Elétrica - ELE 606 | Dezembro 2025**
 
 ---
 
