@@ -302,8 +302,42 @@ As matrizes de confusão para cada combinação de modelo foram geradas e estão
 
 \subsection{Gráficos Comparativos}
 
-% Placeholder para gráficos F1 por classe, Accuracy comparativa, Latência vs Performance
-% Estes podem ser gerados usando os dados das tabelas
+Os gráficos comparativos foram gerados e estão disponíveis no dashboard Streamlit. As visualizações estáticas também foram criadas para inclusão no relatório:
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{../models/f1_by_class_comparison.png}
+\caption{Comparação de F1-Score por Classe entre todos os modelos}
+\label{fig:f1_by_class}
+\end{figure}
+
+A Figura \ref{fig:f1_by_class} mostra que BERT+SVM alcança F1=1.0 em todas as classes, enquanto TF-IDF+SVM mantém performance competitiva (F1 > 0.94) em todas as classes. TF-IDF+XGBoost apresenta dificuldades em algumas classes (Economia: 0.533, Turismo: 0.545).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{../models/performance_efficiency_tradeoff.png}
+\caption{Trade-off entre Performance (F1-Macro) e Eficiência (Latência)}
+\label{fig:tradeoff}
+\end{figure}
+
+A Figura \ref{fig:tradeoff} ilustra claramente o trade-off: BERT+SVM oferece máxima performance (F1=1.0) com latência similar ao TF-IDF (0.12ms vs 0.14ms), enquanto TF-IDF+SVM oferece 96.8\% da performance com melhor eficiência.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{../models/cold_start_comparison.png}
+\caption{Comparação de Tempo de Cold Start entre Modelos}
+\label{fig:cold_start}
+\end{figure}
+
+A Figura \ref{fig:cold_start} destaca a diferença crítica no cold start: BERT requer 2.23s (28x maior que TF-IDF com 0.08s), o que é um fator decisivo para aplicações que precisam inicializar frequentemente.
+
+\textbf{Principais observações:}
+\begin{itemize}
+    \item \textbf{F1 por Classe}: BERT+SVM mantém F1=1.0 em todas as classes, enquanto TF-IDF+SVM varia entre 0.941 e 1.0
+    \item \textbf{Accuracy Comparativa}: BERT+SVM (100\%) vs TF-IDF+SVM (96.8\%) - diferença de 3.2\%
+    \item \textbf{Latência vs Performance}: BERT tem latência de inferência similar (0.12ms vs 0.14ms), mas cold start muito maior (2.23s vs 0.08s)
+    \item \textbf{Trade-off}: O gráfico de trade-off mostra que TF-IDF+SVM oferece excelente equilíbrio para a maioria dos casos de uso
+\end{itemize}
 
 \subsection{Análise de Trade-offs}
 
@@ -420,6 +454,8 @@ Todas as predições são registradas em \texttt{logs/predicoes.csv} com as segu
     \item \texttt{modelo\_usado}: "SVM" ou "XGBoost"
     \item \texttt{fonte}: "streamlit" ou "script\_producao"
 \end{itemize}
+
+\textbf{Bônus - Banco SQLite:} Como melhoria adicional (inspirado no Módulo 16 do curso DSA), foi implementado também um banco de dados SQLite (\texttt{logs/predicoes.db}) que armazena as predições de forma estruturada, permitindo consultas mais eficientes e escaláveis. O sistema mantém compatibilidade total com o CSV, registrando em ambos os formatos quando o SQLite está disponível.
 
 \subsection{Exemplos de Uso em Produção}
 
