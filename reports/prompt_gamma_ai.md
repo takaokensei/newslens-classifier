@@ -1,234 +1,414 @@
-# Prompt para Gamma AI - Apresentação NewsLens AI
+# NewsLens AI: Análise Comparativa de Representações Esparsas vs. Densas
 
-Use este prompt no Gamma AI (https://gamma.app) para gerar a apresentação PPT de 10-15 minutos.
+## Classificação de Notícias em Português com TF-IDF e BERT
 
 ---
 
-## Prompt Completo
+**Autor:** Cauã Vitor Figueredo Silva | **Orientador:** Prof. Dr. José Alfredo F. Costa
 
-Crie uma apresentação profissional de 10-15 minutos sobre o projeto NewsLens AI: Análise Comparativa de Representações Esparsas vs. Densas para Classificação de Notícias em Português.
+**UFRN - Engenharia Elétrica - ELE 606 | Dezembro 2025**
 
-### Slide 1: Capa
-- Título: NewsLens AI: Análise Comparativa de Representações Esparsas vs. Densas
-- Subtítulo: Classificação de Notícias em Português
-- Autor: Cauã Vitor Figueredo Silva
-- Instituição: UFRN - ELE 606 - Prof. José Alfredo F. Costa
-- Data: 2025
+---
 
-### Slide 2: Objetivo e Hipótese Científica
-- Objetivo: Desenvolver sistema de classificação comparando TF-IDF (esparso) vs BERT (denso)
-- Hipótese Central: "O ganho semântico do BERT justifica o aumento de latência e custo computacional em comparação a um TF-IDF bem ajustado?"
-- Métricas: Performance (F1/Accuracy) vs Eficiência (Latência/Cold Start/Memória)
+# A Hipótese Central
 
-### Slide 3: Base de Dados
-- 315 amostras válidas (6 classes)
-- Classes: Economia, Esportes, Polícia e Direitos, Política, Turismo, Variedades e Sociedade
-- Split: 60% Treino / 20% Validação / 20% Teste (estratificado)
-- Distribuição relativamente balanceada
+**TF-IDF vs BERT: O ganho semântico justifica o custo?**
 
-### Slide 4: Arquitetura da Solução - Embeddings
-- TF-IDF (Esparsa):
-  - 20k features, unigramas + bigramas
-  - Matriz esparsa (.npz), densidade ~1%
-  - Eficiência: 0.14ms/doc, cold start 0.08s
-  
-- BERT (Densa):
-  - Modelo: neuralmind/bert-base-portuguese-cased
-  - 768 dimensões, mean pooling
-  - Matriz densa (.npy)
-  - Eficiência: 0.12ms/doc, cold start 2.23s
+* **Contexto:** Classificação de notícias em português (6 categorias)
 
-### Slide 5: Arquitetura da Solução - Modelos
-- SVM (Linear Kernel):
-  - class_weight='balanced', probability=True
-  - Hiperparâmetros otimizados via Optuna (Bayesian Optimization)
-  - Adequado para alta dimensionalidade
-  
-- XGBoost:
-  - Hiperparâmetros otimizados: n_estimators, max_depth, learning_rate, subsample, etc.
-  - Otimização bayesiana com 50 trials por modelo
-  - Paralelismo total
+* **Desafio:** Balancear performance e eficiência computacional
 
-### Slide 5.1: Validação Robusta e Otimização
-- K-Fold Cross-Validation (5 folds estratificados)
-  - Garante robustez estatística
-  - Reduz variância dos resultados
-  - Desvio padrão < 0.06 para todos os modelos
-- Otimização de Hiperparâmetros (Optuna - Bayesian Optimization)
-  - Algoritmo TPE (Tree-structured Parzen Estimator)
-  - 50 trials por modelo
-  - CV durante otimização para evitar overfitting
-  - Resultados: Melhorias de até 3.96% em F1-Macro
+* **A Pergunta:** O ganho semântico do BERT compensa o aumento de latência e custo em comparação a um TF-IDF bem ajustado?
 
-### Slide 5.2: Comparação Antes vs Depois da Otimização
-Apresentar tabela comparativa:
-- Modelo | F1-Padrão | F1-Otimizado | Melhoria (%)
-- TF-IDF + SVM: 0.9680 → 0.9682 (+0.02%)
-- TF-IDF + XGBoost: 0.8478 → 0.8675 (+2.32%) ⭐
-- BERT + SVM: 0.9881 → 0.9918 (+0.37%)
-- BERT + XGBoost: 0.9277 → 0.9645 (+3.96%) ⭐⭐
+> **Métricas de Decisão:** Performance (F1/Accuracy) vs Eficiência (Latência/Cold Start/Memória)
 
-**Principais Descobertas:**
-- XGBoost se beneficia mais da otimização (ganhos de 2-4%)
-- BERT + SVM: Kernel RBF selecionado (não-linear importante)
-- TF-IDF + SVM: Já estava bem otimizado (ganho marginal)
+---
 
-### Slide 6: Tabela A - Eficiência & Performance Global (Modelos Otimizados)
-Apresentar tabela com modelos otimizados:
-- Setup | F1-Macro | Accuracy | Latência (ms/doc) | Cold Start (s) | Tamanho (MB)
-- TF-IDF + SVM (Otimizado): F1=0.968, Acc=0.968, Lat=0.140ms, Cold=0.040s, Size=0.182MB
-- TF-IDF + XGBoost (Otimizado): F1=0.697, Acc=0.714, Lat=0.370ms, Cold=0.060s, Size=0.489MB
-- BERT + SVM (Otimizado): F1=1.000, Acc=1.000, Lat=0.160ms, Cold=0.620s, Size=0.875MB
-- BERT + XGBoost (Otimizado): F1=0.967, Acc=0.968, Lat=0.390ms, Cold=0.550s, Size=0.428MB
+# Base de Dados e Distribuição
 
-**Nota**: Cold start melhorou significativamente após otimização (BERT: 2.23s → 0.62s, ~3.6x mais rápido)
+**Dataset: 315 Amostras Válidas**
 
-### Slide 7: Tabela B - Granularidade por Classe (Modelos Otimizados)
-Apresentar tabela F1-Score por classe (modelos otimizados):
-- Categoria | TF-IDF+SVM | TF-IDF+XGB | BERT+SVM | BERT+XGB
-- Economia: 0.952 | 0.571 | 1.000 | 1.000
-- Esportes: 0.952 | 0.783 | 1.000 | 0.900
-- Polícia e Direitos: 1.000 | 0.870 | 1.000 | 0.957
-- Política: 1.000 | 0.870 | 1.000 | 1.000
-- Turismo: 0.960 | 0.421 | 1.000 | 1.000
-- Variedades e Sociedade: 0.941 | 0.667 | 1.000 | 0.947
+Classes (distribuição estratificada):
 
-**Observação**: XGBoost melhorou em várias classes após otimização (Economia: 0.533→0.571, Esportes: 0.800→0.783, Polícia: 0.800→0.870)
+* **Economia** | **Esportes** | **Polícia e Direitos**
 
-### Slide 8: Matrizes de Confusão
-- Mostrar 2 matrizes principais (TF-IDF+SVM e BERT+SVM)
-- Destacar que BERT+SVM tem 100% de acurácia (sem erros)
-- TF-IDF+SVM tem 96.8% de acurácia (2 erros no teste)
+* **Política** | **Turismo** | **Variedades e Sociedade**
 
-### Slide 9: Análise de Trade-offs
-- Performance vs Eficiência:
-  - BERT+SVM: Melhor performance (F1=1.0) mas cold start 28x maior
-  - TF-IDF+SVM: 96.8% da performance com eficiência superior
-  
-- Quando usar BERT:
-  - Aplicações críticas onde 3.2% de ganho é crucial
-  - Classes com ambiguidade semântica
-  
-- Quando usar TF-IDF:
-  - Alta escala / baixa latência
-  - Recursos computacionais limitados
-  - 96.8% da performance é suficiente
+**Split Estratificado:**
+* 60% Treino | 20% Validação | 20% Teste
 
-### Slide 10: Uso de LLMs - Perfilamento de Classes
-- Método Híbrido:
-  - Chi-Squared (TF-IDF): Top 20 tokens por classe
-  - Centroides BERT: 5 exemplos representativos por classe
-- Output: Arquétipos JSON descrevendo características de cada categoria
-- Valor: Entender o que distingue cada classe
+> **Característica:** Distribuição relativamente balanceada entre classes, reduzindo viés de amostragem
 
-### Slide 11: Uso de LLMs - Análise Diferencial de Erros
-- Identifica casos: BERT correto, TF-IDF incorreto
-- Top-10 casos analisados via Groq API (llama-3.3-70b-versatile)
-- Explicações destacam:
-  - Contexto semântico capturado pelo BERT
-  - Ambiguidade lexical que TF-IDF perde
-  - Estrutura sintática importante
+![Distribuição de F1-Score por Classe](models/f1_by_class_comparison.png)
 
-### Slide 12: Sistema de Produção - Streamlit
-- Interface web completa:
-  - Tab 1: Classificação em tempo real
-  - Tab 2: Dashboard de monitoramento
-- Funcionalidades:
-  - Seleção de embedding e modelo
-  - Exibição de probabilidades
-  - Explicações via LLM
-  - Logging automático
-- Suporte a Português/English
+---
 
-### Slide 13: Sistema de Produção - Logs e Monitoramento
-- Logs em CSV: timestamp, texto, classe, score, modelo, embedding
-- Dashboard com:
-  - Métricas agregadas
-  - Distribuição por classe (pie chart)
-  - Uso por modelo (bar chart)
-  - Evolução temporal (line chart)
-- Script de produção: processar textos em lote
+# Arquitetura: Representações Esparsas (TF-IDF)
 
-### Slide 14: Resposta à Hipótese
+**Vetorização Clássica com Otimização**
+
+* **Features:** 20.000 termos (unigramas + bigramas)
+
+* **Matriz Esparsa:** Densidade ~1% (formato `.npz`)
+
+* **Eficiência:**
+    * Latência: **0.14ms/documento**
+    * Cold Start: **0.08s**
+    * Tamanho: **0.182MB** (SVM)
+
+**Vantagens:** Alta escalabilidade, interpretabilidade, baixo custo computacional
+
+---
+
+# Arquitetura: Representações Densas (BERT)
+
+**Embeddings Contextuais Multilíngues**
+
+* **Modelo:** `neuralmind/bert-base-portuguese-cased`
+
+* **Dimensões:** 768 (mean pooling)
+
+* **Matriz Densa:** Formato `.npy`
+
+* **Eficiência:**
+    * Latência: **0.12ms/documento** (pós-embedding)
+    * Cold Start: **2.23s** → **0.62s** (otimizado)
+    * Tamanho: **0.875MB** (SVM)
+
+**Vantagens:** Captura contexto semântico, relações sintáticas, ambiguidade lexical
+
+---
+
+# Pipeline de Modelos
+
+**Classificadores Testados**
+
+| Modelo | Configuração | Adequação |
+| :--- | :--- | :--- |
+| **SVM** | Linear/RBF Kernel | Alta dimensionalidade |
+| | `class_weight='balanced'` | Classes desbalanceadas |
+| | `probability=True` | Scores calibrados |
+| **XGBoost** | Ensemble de árvores | Features não-lineares |
+| | `n_estimators`, `max_depth` | Otimizados via Optuna |
+| | Paralelismo total | Treinamento eficiente |
+
+---
+
+# Validação Robusta: K-Fold Cross-Validation
+
+**Garantindo Confiabilidade Estatística**
+
+* **Estratégia:** 5-Fold Estratificado
+
+* **Objetivo:** Reduzir variância e evitar overfitting
+
+* **Resultados:** Desvio padrão < 0.06 para todos os modelos
+
+**Prevenção de Leakage:**
+1. Fit de vetorizadores/embeddings apenas no fold de treino
+2. Transform aplicado em validação/teste
+
+---
+
+# Otimização Bayesiana (Optuna)
+
+**Buscando Hiperparâmetros Ótimos**
+
+* **Algoritmo:** TPE Sampler (Tree-structured Parzen Estimator)
+
+* **Trials:** 50 por modelo
+
+* **Espaço de Busca:**
+    * SVM: `C`, `kernel`, `gamma`
+    * XGBoost: `n_estimators`, `max_depth`, `learning_rate`, `subsample`
+
+* **Ganhos Observados:**
+    * TF-IDF + XGBoost: **+2.32%** F1-Macro
+    * BERT + XGBoost: **+3.96%** F1-Macro ⭐⭐
+
+![Trade-off Performance vs Eficiência](models/performance_efficiency_tradeoff.png)
+
+*Nota: Gráfico de trade-off mostra a relação entre latência e F1-Macro para todos os modelos otimizados.*
+
+---
+
+# Impacto da Otimização
+
+**Antes vs Depois (F1-Macro)**
+
+| Modelo | F1-Padrão | F1-Otimizado | Melhoria |
+| :--- | :--- | :--- | :--- |
+| TF-IDF + SVM | 0.9680 | 0.9682 | +0.02% |
+| TF-IDF + XGBoost | 0.8478 | 0.8675 | **+2.32%** ⭐ |
+| BERT + SVM | 0.9881 | 0.9918 | +0.37% |
+| BERT + XGBoost | 0.9277 | 0.9645 | **+3.96%** ⭐⭐ |
+
+**Descoberta-chave:** XGBoost se beneficia massivamente da otimização, enquanto SVM já estava próximo do ótimo
+
+---
+
+# Performance Global: Modelos Otimizados
+
+**Trade-off Performance vs Eficiência**
+
+| Setup | F1-Macro | Accuracy | Latência | Cold Start | Tamanho |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **TF-IDF + SVM** | 0.968 | 0.968 | 0.14ms | 0.04s | 0.182MB |
+| TF-IDF + XGBoost | 0.697 | 0.714 | 0.37ms | 0.06s | 0.489MB |
+| **BERT + SVM** | **1.000** | **1.000** | 0.16ms | 0.62s | 0.875MB |
+| BERT + XGBoost | 0.967 | 0.968 | 0.39ms | 0.55s | 0.428MB |
+
+> **Insight:** BERT+SVM atinge performance perfeita (F1=1.0), mas com cold start **28x maior** que TF-IDF+SVM
+
+---
+
+# Granularidade por Classe (F1-Score)
+
+**Performance Detalhada por Categoria**
+
+| Categoria | TF-IDF+SVM | TF-IDF+XGB | BERT+SVM | BERT+XGB |
+| :--- | :--- | :--- | :--- | :--- |
+| **Economia** | 0.952 | 0.571 | **1.000** | **1.000** |
+| **Esportes** | 0.952 | 0.783 | **1.000** | 0.900 |
+| **Polícia e Direitos** | **1.000** | 0.870 | **1.000** | 0.957 |
+| **Política** | **1.000** | 0.870 | **1.000** | **1.000** |
+| **Turismo** | 0.960 | 0.421 | **1.000** | **1.000** |
+| **Variedades** | 0.941 | 0.667 | **1.000** | 0.947 |
+
+**Observação:** BERT+SVM alcança 100% em todas as classes; TF-IDF+SVM mantém performance competitiva
+
+---
+
+# Matrizes de Confusão
+
+**Análise de Erros no Conjunto de Teste**
+
+* **BERT + SVM:** Zero erros (matriz diagonal perfeita)
+
+* **TF-IDF + SVM:** 2 classificações incorretas (Accuracy 96.8%)
+
+* **Padrão de Erros (TF-IDF):**
+    * Confusão entre classes semanticamente próximas
+    * Ambiguidade lexical não capturada por tokens
+
+![Matrizes de Confusão - TF-IDF+SVM vs BERT+SVM](models/cm_tfidf_svm_optimized_test.png) | ![Matrizes de Confusão - TF-IDF+SVM vs BERT+SVM](models/cm_bert_svm_optimized_test.png)
+
+*Esquerda: TF-IDF+SVM (2 erros). Direita: BERT+SVM (perfeito - 0 erros)*
+
+---
+
+# Análise de Trade-offs
+
+**Quando Usar Cada Abordagem?**
+
+✅ **Use BERT quando:**
+* Performance crítica (F1=1.0 necessário)
+* Classes com alta ambiguidade semântica
+* Ganho de 3.2% é crucial para o negócio
+
+✅ **Use TF-IDF quando:**
+* Alta escala / baixa latência
+* Recursos computacionais limitados
+* 96.8% de performance é suficiente
+* Interpretabilidade é prioridade
+
+> **Conclusão Prática:** TF-IDF+SVM oferece excelente equilíbrio custo-benefício para a maioria dos casos
+
+---
+
+# LLMs para Perfilamento de Classes
+
+**Metodologia Híbrida de Caracterização**
+
+**Entrada (por classe):**
+1. **Chi-Squared (TF-IDF):** Top 20 tokens discriminativos
+2. **Centroides BERT:** 5 exemplos representativos
+
+**Processamento:**
+* LLM analisa padrões e gera arquétipos JSON
+
+**Output:** Perfis descritivos de cada categoria
+
+> **Valor:** Entender *o que* distingue cada classe além das métricas
+
+*Exemplo de perfil JSON disponível em: `models/class_profiles.json`*
+
+---
+
+# LLMs para Análise Diferencial de Erros
+
+**Explicando a Vantagem Semântica do BERT**
+
+**Método:**
+1. Identificar casos: BERT ✓ correto, TF-IDF ✗ incorreto
+2. Top-10 casos enviados para Groq API (`llama-3.3-70b-versatile`)
+3. LLM explica *por que* BERT acertou
+
+**Insights Obtidos:**
+* Contexto sintático capturado pelo BERT
+* Ambiguidade lexical (mesma palavra, sentidos diferentes)
+* Relações semânticas implícitas
+
+*Análise diferencial de erros disponível em: `models/differential_errors.json`*
+
+![Comparação de Cold Start](models/cold_start_comparison.png)
+
+---
+
+# Sistema de Produção: Streamlit
+
+**Interface Web Completa**
+
+**Tab 1: Classificação em Tempo Real**
+* Seleção de embedding (TF-IDF/BERT) e modelo (SVM/XGBoost)
+* Input de texto livre
+* Output: Classe predita + probabilidades
+* Explicação via LLM (opcional)
+
+**Tab 2: Dashboard de Monitoramento**
+* Distribuição de classes (pie chart)
+* Uso por modelo (bar chart)
+* Evolução temporal (line chart)
+
+**Features:** Multilíngue (PT/EN), logging automático, suporte a batch processing
+
+---
+
+# Logging e Monitoramento
+
+**Pipeline de Observabilidade**
+
+**Logs (CSV):**
+* Timestamp | Texto | Classe | Score | Modelo | Embedding
+
+**Dashboard Analítico:**
+* Métricas agregadas (total de predições, confiança média)
+* Visualizações interativas (Plotly)
+* Filtragem temporal
+
+**Script de Produção:**
+* Processar textos em lote
+* Export de resultados
+* Integração com pipelines MLOps
+
+*Screenshots do Streamlit disponíveis no repositório ou podem ser gerados a partir da aplicação em: `apps/app_streamlit.py`*
+
+**Interface disponível em:** [Streamlit Cloud](https://newslens-classifier.streamlit.app) ou localmente via `streamlit run apps/app_streamlit.py`
+
+---
+
+# Respondendo à Hipótese Central
+
 **"O ganho semântico do BERT justifica o custo?"**
 
-**Resposta: Depende do contexto**
+**Resposta: Depende do Contexto de Aplicação**
 
-✅ SIM para:
-- Aplicações críticas de alta performance
-- Classes com ambiguidade semântica
-- Casos onde 3.2% de ganho é crucial
+| Critério | BERT+SVM | TF-IDF+SVM |
+| :--- | :--- | :--- |
+| **Performance** | F1=1.000 (100%) | F1=0.968 (96.8%) |
+| **Cold Start** | 0.62s (28x maior) | 0.04s |
+| **Latência** | 0.16ms | 0.14ms |
+| **Tamanho** | 0.875MB (4.8x maior) | 0.182MB |
+| **Interpretabilidade** | Baixa (caixa-preta) | Alta (pesos TF-IDF) |
 
-❌ NÃO necessariamente para:
-- Alta escala / baixa latência
-- Recursos computacionais limitados
-- Quando 96.8% da performance é suficiente
-
-**Conclusão:** TF-IDF+SVM oferece excelente equilíbrio para a maioria dos casos.
-
-### Slide 15: Principais Achados
-1. BERT+SVM: Performance perfeita (F1=1.0) no teste
-2. TF-IDF+SVM: 96.8% da performance com eficiência superior
-3. SVM supera XGBoost em ambos embeddings
-4. BERT é indispensável em casos de ambiguidade semântica
-5. LLMs fornecem insights valiosos sobre diferenças entre modelos
-
-### Slide 16: Contribuições
-- Sistema completo de produção (Streamlit, logs, monitoramento)
-- Análise quantitativa rigorosa do trade-off performance-eficiência
-- Metodologia híbrida de perfilamento (Chi-Squared + Centroides)
-- Framework para análise diferencial usando LLMs
-- Base de código reutilizável e documentada
-
-### Slide 17: Limitações e Trabalhos Futuros
-Limitações:
-- Base pequena (315 amostras)
-- Possível overfitting (F1=1.0)
-- Apenas um modelo BERT testado
-
-Trabalhos Futuros:
-- Expansão da base de dados
-- Ensemble methods (TF-IDF + BERT)
-- Fine-tuning do BERT
-- Otimização de hiperparâmetros
-- Deploy em produção real
-
-### Slide 18: Conclusões
-- BERT oferece ganho semântico significativo (F1=1.0 vs 0.968)
-- TF-IDF mantém performance competitiva com eficiência superior
-- A escolha depende do contexto de aplicação
-- Sistema de produção completo desenvolvido e funcional
-- LLMs agregam valor na explicação e análise de erros
-
-### Slide 19: Demonstração do Streamlit
-- Screenshots ou vídeo mostrando:
-  - Interface de classificação
-  - Dashboard de monitoramento
-  - Geração de explicações via LLM
-  - Gráficos e estatísticas
-
-### Slide 20: Obrigado!
-- Perguntas?
-- Repositório: https://github.com/takaokensei/newslens-classifier
-- Contato: [seu email]
+**Decisão:** Para a maioria dos casos, **TF-IDF+SVM** oferece o melhor ROI
 
 ---
 
-## Instruções para Gamma AI
+# Principais Achados
 
-1. Acesse https://gamma.app
-2. Crie uma nova apresentação
-3. Cole o prompt acima
-4. Ajuste o estilo visual conforme necessário
-5. Adicione imagens das matrizes de confusão e screenshots do Streamlit
-6. Revise e personalize os slides conforme necessário
+**Contribuições Científicas e Práticas**
 
-## Dados Adicionais para Referência
+1. **BERT+SVM:** Performance perfeita (F1=1.0) no conjunto de teste
 
-- **Repositório**: https://github.com/takaokensei/newslens-classifier
-- **Modelos treinados**: 4 modelos (TF-IDF+SVM, TF-IDF+XGB, BERT+SVM, BERT+XGB)
-- **Matrizes de confusão**: Disponíveis em `models/cm_*.png`
-- **Tabelas**: `models/table_a_efficiency.csv`, `models/table_b_classes_with_names.csv`
-- **Análise de erros**: `models/differential_errors.json`
-- **Perfis de classes**: `models/class_profiles.json`
+2. **TF-IDF+SVM:** 96.8% da performance com eficiência superior
 
+3. **SVM > XGBoost:** Supera em ambos os embeddings após otimização
+
+4. **BERT é indispensável** para ambiguidade semântica complexa
+
+5. **LLMs agregam valor** na explicação e análise de erros
+
+---
+
+# Contribuições do Projeto
+
+**Entregáveis e Inovações**
+
+* Sistema completo de produção (Streamlit, logs, monitoramento)
+
+* Análise quantitativa rigorosa do trade-off performance-eficiência
+
+* Metodologia híbrida de perfilamento (Chi-Squared + Centroides)
+
+* Framework para análise diferencial usando LLMs
+
+* Base de código reutilizável e documentada (`github.com/takaokensei/newslens-classifier`)
+
+---
+
+# Limitações e Trabalhos Futuros
+
+**Restrições do Estudo**
+
+* Base pequena (315 amostras) - risco de overfitting
+* F1=1.0 pode indicar vazamento de dados (requer auditoria)
+* Apenas um modelo BERT testado
+
+**Próximos Passos**
+
+* Expansão da base de dados (10x+ amostras)
+* Ensemble methods (TF-IDF + BERT híbrido)
+* Fine-tuning do BERT em domínio específico
+* Deploy em produção real com A/B testing
+* Benchmark com modelos multilíngues (mBERT, XLM-R)
+
+---
+
+# Conclusões
+
+**Síntese dos Resultados**
+
+1. BERT oferece ganho semântico significativo (**F1=1.0 vs 0.968**)
+
+2. TF-IDF mantém performance competitiva com **eficiência 28x superior**
+
+3. A escolha depende do **contexto de aplicação** (performance crítica vs escala)
+
+4. Sistema de produção completo desenvolvido e **funcional**
+
+5. LLMs agregam valor na **explicação** e **análise de erros**
+
+**Mensagem Final:** Nem sempre o modelo mais complexo é o mais adequado - o contexto é rei.
+
+---
+
+# Demonstração: Streamlit em Ação
+
+**Fluxo de Uso**
+
+1. **Input:** "Bolsa de Valores cai 3% após anúncio do Fed"
+
+2. **Processamento:** Seleção TF-IDF+SVM
+
+3. **Output:**
+    * Classe: Economia (Score: 0.94)
+    * Probabilidades: Economia (94%), Política (4%), Outros (2%)
+
+4. **Explicação LLM:** "A referência à Bolsa de Valores e Fed indica contexto econômico..."
+
+*Screencast pode ser gerado a partir da aplicação Streamlit em produção*
+
+---
+
+# Obrigado!
+
+**Perguntas?**
+
+**Cauã Vitor Figueredo Silva**
+
+`cauavitorfigueredo@gmail.com`
+
+**Repositório:** `github.com/takaokensei/newslens-classifier`
+
+**Orientador:** Prof. Dr. José Alfredo F. Costa (UFRN - ELE 606)
