@@ -766,7 +766,28 @@ def main():
             
             col1, col2, col3 = st.columns(3)
             with col1:
-                st.metric(t('predicted_class'), result['categoria_predita'])
+                # Check if prediction is correct (if we have true_label from validation sample)
+                is_correct = False
+                if 'true_label' in st.session_state:
+                    predicted_class = result['classe_predita']
+                    true_label = int(st.session_state.true_label)
+                    is_correct = (predicted_class == true_label)
+                
+                # Display predicted class with checkmark if correct
+                if is_correct:
+                    # Show success indicator
+                    st.markdown(f"### {t('predicted_class')}")
+                    st.markdown(f"**{result['categoria_predita']}**")
+                    # SVG checkmark
+                    checkmark_svg = """
+                    <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="30" cy="30" r="28" fill="#10b981" opacity="0.2"/>
+                        <path d="M 20 30 L 27 37 L 40 24" stroke="#10b981" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    """
+                    st.markdown(checkmark_svg, unsafe_allow_html=True)
+                else:
+                    st.metric(t('predicted_class'), result['categoria_predita'])
             with col2:
                 st.metric(t('confidence'), f"{result['score']:.2%}")
             with col3:
