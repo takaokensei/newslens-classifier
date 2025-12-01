@@ -844,15 +844,36 @@ def main():
             
             # Only show "Teste concluído" if this is a new test
             if st.session_state.get('test_validation_set', False):
+                st.divider()
+                st.subheader("🧪 Teste do Conjunto de Validação" if current_lang == 'pt' else "🧪 Validation Set Test")
                 st.success(f"✅ Teste concluído!" if current_lang == 'pt' else "✅ Test completed!")
                 # Clear the flag after showing success message
                 st.session_state.test_validation_set = False
+                
+                # Save predictions to dashboard (only once, when test is first completed)
+                if 'validation_test_saved' not in st.session_state or not st.session_state.validation_test_saved:
+                    for pred in results['predictions']:
+                        prediction_entry = {
+                            'timestamp': datetime.now().isoformat(),
+                            'texto': pred['text'][:200] + '...' if len(pred['text']) > 200 else pred['text'],
+                            'classe_predita': pred['predicted'],
+                            'categoria_predita': pred['predicted_label'],
+                            'score': pred['score'],
+                            'embedding_usado': pred['embedding_usado'],
+                            'modelo_usado': pred['modelo_usado'],
+                            'fonte': 'validation_test'
+                        }
+                        st.session_state.session_predictions.append(prediction_entry)
+                    
+                    # Save to cookie
+                    save_predictions_to_cookie(st.session_state.session_predictions)
+                    st.session_state.validation_test_saved = True
+            else:
+                # Show existing results (from previous test)
+                st.divider()
+                st.subheader("🧪 Teste do Conjunto de Validação" if current_lang == 'pt' else "🧪 Validation Set Test")
             
             if results:
-                        st.success(f"✅ Teste concluído!" if current_lang == 'pt' else "✅ Test completed!")
-                        
-                        # Save predictions to dashboard
-                        for pred in results['predictions']:
                             prediction_entry = {
                                 'timestamp': datetime.now().isoformat(),
                                 'texto': pred['text'][:200] + '...' if len(pred['text']) > 200 else pred['text'],
