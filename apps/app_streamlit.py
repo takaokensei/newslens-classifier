@@ -832,7 +832,6 @@ def main():
                         st.success(f"✅ Teste concluído!" if current_lang == 'pt' else "✅ Test completed!")
                         
                         # Save predictions to dashboard
-                        from datetime import datetime
                         for pred in results['predictions']:
                             prediction_entry = {
                                 'timestamp': datetime.now().isoformat(),
