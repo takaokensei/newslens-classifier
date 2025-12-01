@@ -4,6 +4,7 @@ Simulates production environment by processing all texts and logging predictions
 """
 import sys
 from pathlib import Path
+from typing import Optional
 import pandas as pd
 import numpy as np
 
