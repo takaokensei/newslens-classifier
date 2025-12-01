@@ -385,19 +385,26 @@ O sistema Streamlit foi desenvolvido com duas abas principais:
         \item Seleção de embedding (BERT ou TF-IDF)
         \item Seleção de modelo (SVM ou XGBoost)
         \item Exibição de classe predita, score e distribuição de probabilidades
-        \item Geração de explicações via LLM (opcional)
-        \item Salvamento automático em log
+        \item Geração de explicações via LLM (opcional, max\_tokens=600 para explicações completas)
+        \item Salvamento automático em log (CSV + SQLite)
     \end{itemize}
-    \item \textbf{Monitoramento}: Dashboard com estatísticas
+    \item \textbf{Monitoramento}: Dashboard com estatísticas avançadas
     \begin{itemize}
-        \item Métricas agregadas (total de predições, score médio)
-        \item Gráficos de distribuição por classe e modelo
-        \item Evolução temporal das predições
-        \item Tabela de predições recentes
+        \item Métricas agregadas (total de predições, score médio, classe mais comum)
+        \item Gráficos de distribuição por classe (pie chart) e modelo (bar chart)
+        \item Evolução temporal das predições (line chart)
+        \item \textbf{Visualizações avançadas:}
+        \begin{itemize}
+            \item Gráfico interativo de trade-off Performance vs Eficiência
+            \item Distribuição de scores por embedding (box plot)
+            \item Distribuição de scores por modelo (box plot)
+            \item Tabela comparativa de eficiência com todos os modelos
+        \end{itemize}
+        \item Tabela de predições recentes (últimas 20)
     \end{itemize}
 \end{enumerate}
 
-O sistema suporta seleção de idioma (Português/English) com português como padrão.
+O sistema suporta seleção de idioma (Português/English) com português como padrão. Todas as visualizações são interativas utilizando Plotly, permitindo zoom, pan e hover para análise detalhada dos dados.
 
 \subsection{Sistema de Logs Implementado}
 

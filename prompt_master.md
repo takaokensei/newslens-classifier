@@ -439,18 +439,14 @@ PATHS = {
 **Antes da Apresentação (10/12):**
 1. ✅ Compilar relatório LaTeX → PDF final
 2. ✅ Gerar apresentação no Gamma AI usando o prompt
-3. ✅ Capturar screenshots do Streamlit (pelo menos 3-4):
-   - Interface de classificação com exemplo
-   - Dashboard de monitoramento
-   - Geração de explicação LLM
-   - Gráficos e estatísticas
-4. ✅ Inserir screenshots no relatório e apresentação
-5. ✅ Revisar relatório final antes de compilar
+3. ✅ Demonstrar Streamlit ao vivo (não precisa de screenshots)
+4. ✅ Revisar relatório final antes de compilar
 
-**Melhorias Opcionais (Se houver tempo):**
-6. ⚠️ Implementar SQLite para logs (bônus do Módulo 16)
-7. ⚠️ Adicionar mais gráficos comparativos
-8. ⚠️ Expandir análise de erros se houver mais casos
+**Melhorias Implementadas:**
+5. ✅ SQLite Database implementado (bônus do Módulo 16)
+6. ✅ Gráficos comparativos adicionados (3 gráficos estáticos + visualizações interativas no Streamlit)
+7. ✅ Relatório LaTeX atualizado com referências aos gráficos
+8. ✅ Dashboard Streamlit aprimorado com visualizações avançadas
 
 ### Próximo Passo
 
