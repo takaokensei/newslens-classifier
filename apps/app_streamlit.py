@@ -1242,8 +1242,24 @@ def main():
                     with col_p2:
                         st.markdown("#### 👥 Vizinhos do Centróide")
                         st.write(f"Amostras mais representativas da classe **{profile['category']}**:")
-                        for idx in profile['neighbor_indices']:
-                            st.code(f"ID {idx}", language="text")
+                        
+                        # Show top 5 representative texts instead of just IDs
+                        imports = _lazy_imports()
+                        df, _ = imports['load_raw_data']()
+                        text_col = 'Texto Expandido' if 'Texto Expandido' in df.columns else 'Texto Original' if 'Texto Original' in df.columns else df.columns[0]
+                        
+                        for idx in profile['neighbor_indices'][:5]:  # Top 5
+                            if idx < len(df):
+                                sample_text = df.iloc[idx][text_col]
+                                # Truncate to 150 chars
+                                display_text = sample_text[:150] + '...' if len(str(sample_text)) > 150 else sample_text
+                                st.text_area(
+                                    f"ID {idx}",
+                                    display_text,
+                                    height=100,
+                                    disabled=True,
+                                    key=f"neighbor_{selected_class_idx}_{idx}"
+                                )
                             
                     # LLM Generation for Profile Description
                     st.markdown("#### 📝 Descrição do Perfil (Gerada por IA)")
@@ -1368,7 +1384,7 @@ def main():
                             'Classe Predita': p['predicted_label'],
                             'Correto': 'Não' if not p['correct'] else 'Sim'
                         } for p in incorrect_preds])
-                        st.dataframe(error_df, width='stretch', hide_index=True)
+                        st.dataframe(error_df, use_container_width=True, hide_index=True)
                         
                         # AI Explanation for errors (generalized for multiple errors)
                         st.markdown("### 🤖 Análise de Erros por IA" if current_lang == 'pt' else "### 🤖 AI Error Analysis")
@@ -1429,9 +1445,9 @@ Analyze the error patterns and briefly explain (2-4 main reasons) why the classi
                         'Classe Real': p['true_label'],
                         'Classe Predita': p['predicted_label'],
                         'Confiança': f"{p['score']:.2%}",
-                        'Correto': '✅' if p['correct'] else '❌'
+                        'Correto': 'Sim' if p['correct'] else 'Não'
                     } for p in (incorrect_preds + correct_preds)])  # Errors first
-                    st.dataframe(all_preds_df, width='stretch', hide_index=True)
+                    st.dataframe(all_preds_df, use_container_width=True, hide_index=True)
             else:
                 # Error case - clear results
                 st.error("❌ Erro ao testar conjunto de validação. Verifique os logs." if current_lang == 'pt' else "❌ Error testing validation set. Check logs.")
