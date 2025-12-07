@@ -586,22 +586,22 @@ def _apply_custom_css(theme='dark'):
         
         /* Hide keyboard arrow text in expanders - WORKING VERSION */
         .streamlit-expanderHeader p,
-        .streamlit-expanderHeader span {
+        .streamlit-expanderHeader span {{
             /* Hide the keyboard_arrow text completely */
             display: inline-block;
             overflow: hidden;
             width: 0;
             height: 0;
             opacity: 0;
-        }
+        }}
         
         /* Keep expander icons visible */
-        .streamlit-expanderHeader svg {
+        .streamlit-expanderHeader svg {{
             display: inline-block !important;
             width: 24px !important;
             height: 24px !important;
             opacity: 1 !important;
-        }
+        }}
         /* Tabs */
         .stTabs [data-baseweb="tab-list"] {{
             gap: 2rem;
