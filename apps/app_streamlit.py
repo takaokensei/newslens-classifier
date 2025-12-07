@@ -227,8 +227,11 @@ def get_validation_sample():
 TRANSLATIONS = {
     'pt': {
         'title': 'NewsLens AI Classifier',
-        'subtitle': 'Análise Comparativa de Representações Esparsas vs. Densas',
+        'subtitle': 'Projeto Final ELE 606 - UFRN',
+        'prof': 'Prof. José Alfredo F. Costa',
         'config': 'Configuração',
+        'data_cleanup': 'Limpeza de Dados',
+        'tests': 'Testes',
         'embedding_type': 'Tipo de Embedding',
         'embedding_help': 'Escolha entre BERT (denso) ou TF-IDF (esparso)',
         'model_type': 'Tipo de Modelo',
@@ -274,8 +277,11 @@ TRANSLATIONS = {
     },
     'en': {
         'title': 'NewsLens AI Classifier',
-        'subtitle': 'Comparative Analysis of Sparse vs. Dense Representations',
+        'subtitle': 'ELE 606 Final Project - UFRN',
+        'prof': 'Prof. José Alfredo F. Costa',
         'config': 'Configuration',
+        'data_cleanup': 'Data Cleanup',
+        'tests': 'Tests',
         'embedding_type': 'Embedding Type',
         'embedding_help': 'Choose between BERT (dense) or TF-IDF (sparse) embeddings',
         'model_type': 'Model Type',
@@ -640,10 +646,10 @@ def _apply_custom_css(theme='dark'):
 
 
 def update_chart_layout(fig):
-    """Apply Swiss Design theme to Plotly charts."""
+    """Apply Swiss Design theme to Plotly charts for DARK MODE."""
     fig.update_layout(
-        font=dict(family="Inter, sans-serif", size=12, color="#1a1a1a"),
-        title_font=dict(family="Inter, sans-serif", size=16, weight=700),
+        font=dict(family="Inter, sans-serif", size=12, color="#fafafa"),  # Light text for dark mode
+        title_font=dict(family="Inter, sans-serif", size=16, weight=700, color="#fafafa"),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         margin=dict(l=20, r=20, t=40, b=20),
@@ -651,21 +657,23 @@ def update_chart_layout(fig):
             showgrid=False,
             showline=True,
             linewidth=1,
-            linecolor="#e0e0e0",
-            tickfont=dict(family="Inter, sans-serif", size=10)
+            linecolor="#464b5f",  # Dark mode border
+            tickfont=dict(family="Inter, sans-serif", size=10, color="#fafafa")
         ),
         yaxis=dict(
             showgrid=True,
             gridwidth=1,
-            gridcolor="#f0f0f0",
+            gridcolor="#262730",  # Dark mode grid
             showline=False,
-            tickfont=dict(family="Inter, sans-serif", size=10)
+            tickfont=dict(family="Inter, sans-serif", size=10, color="#fafafa")
         ),
-        colorway=["#000000", "#FF3B30", "#007AFF", "#4CD964", "#5856D6", "#FF9500"], # Swiss-ish palette
+        colorway=["#FF3B30", "#007AFF", "#4CD964", "#5856D6", "#FF9500", "#FFCC00"], # Brighter colors for dark mode
         hoverlabel=dict(
-            bgcolor="white",
-            font_size=12,
-            font_family="Inter, sans-serif"
+            bgcolor="#1a1a1a",  # Dark background
+            font_size=13,
+            font_color="#ffffff",  # White text
+            font_family="Inter, sans-serif",
+            bordercolor="#ffffff"
         )
     )
     return fig
@@ -972,14 +980,14 @@ def main():
     # Determine current icon color based on theme
     icon_color = '#ffffff' if st.session_state.theme == 'dark' else '#000000'
     
-    # Header with Logo
-    col_logo, col_title = st.columns([1, 10])
+    # Header with Logo - Better spacing
+    col_logo, col_title = st.columns([1, 20])  # More space for title
     with col_logo:
         st.markdown(render_svg('logo', 48, icon_color), unsafe_allow_html=True)
     with col_title:
         st.title(t('title'))
-    
-    st.markdown(f"**{t('subtitle')}**")
+        st.markdown(f"**{t('subtitle')}**")
+        st.caption(t('prof'))
     
     # Sidebar Header
     with st.sidebar:
@@ -1023,7 +1031,7 @@ def main():
         st.divider()
         
         # Test entire validation set button
-        st.markdown(f"### {render_svg('check', 20)} Testes", unsafe_allow_html=True)
+        st.markdown(f"### {render_svg('check', 20)} {t('tests')}", unsafe_allow_html=True)
         if st.button(
             "Testar todo o conjunto de validação" if current_lang == 'pt' else "Test entire validation set",
             width='stretch',
@@ -1037,7 +1045,7 @@ def main():
         st.divider()
         
         # Clear metrics button with confirmation
-        st.markdown(f"### {render_svg('trash', 20)} Limpeza", unsafe_allow_html=True)
+        st.markdown(f"### {render_svg('trash', 20)} {t('data_cleanup')}", unsafe_allow_html=True)
         if st.button(
             "Apagar métricas de desempenho" if current_lang == 'pt' else "Clear performance metrics",
             width='stretch',
