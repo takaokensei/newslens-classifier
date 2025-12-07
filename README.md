@@ -33,7 +33,7 @@ class NewsLensClassifier:
         self.author = "Cauã Vitor Figueredo Silva"
         self.student_id = "20220014216"
         self.email = "cauavitorfigueredo@gmail.com"
-        self.date = "December 2024"
+        self.date = "December 2025"
         self.python_version = "3.8+"
     
     def embeddings(self):
@@ -673,11 +673,11 @@ Full bibliography available in LaTeX report (`reports/relatorio.tex`)
 ## `> citation`
 
 ```bibtex
-@misc{silva2024newslens,
+@misc{silva2025newslens,
   author       = {Silva, Cauã Vitor Figueredo},
   title        = {NewsLens AI Classifier: Sparse vs Dense Embeddings 
                   Trade-off Analysis for Portuguese Text Classification},
-  year         = {2024},
+  year         = {2025},
   institution  = {Federal University of Rio Grande do Norte},
   department   = {Electrical Engineering},
   course       = {ELE 606 - Final Project},
