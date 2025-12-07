@@ -398,11 +398,20 @@ def _apply_custom_css(theme='dark'):
         @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
         /* Global Typography & Theme */
-        html, body, [class*="css"], [data-testid="stAppViewContainer"] {{
+        /* Global Typography & Theme */
+        html, body, [data-testid="stAppViewContainer"] {{
             font-family: 'Inter', sans-serif;
             color: {c['text']};
             background-color: {c['bg']};
             transition: background-color 0.3s ease, color 0.3s ease;
+        }}
+        
+        /* Ensure Material Icons render correctly */
+        .material-icons, 
+        [data-testid="stSidebarNav"] button span,
+        [data-testid="stSidebar"] button span,
+        i {{
+            font-family: 'Material Icons' !important;
         }}
         
         /* Main Container */
@@ -436,8 +445,7 @@ def _apply_custom_css(theme='dark'):
         [data-testid="stSidebar"] .stMarkdown, 
         [data-testid="stSidebar"] p, 
         [data-testid="stSidebar"] span, 
-        [data-testid="stSidebar"] label,
-        [data-testid="stSidebar"] div {{
+        [data-testid="stSidebar"] label {{
             color: {c['sidebar_text']} !important;
             font-family: 'Inter', sans-serif;
         }}
