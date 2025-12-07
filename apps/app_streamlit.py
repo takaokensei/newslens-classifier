@@ -389,6 +389,7 @@ def _apply_custom_css(theme='dark'):
     st.markdown(f"""
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
         /* Global Typography & Theme */
         html, body, [class*="css"], [data-testid="stAppViewContainer"] {{
@@ -449,9 +450,9 @@ def _apply_custom_css(theme='dark'):
         .stButton > button {{
             border-radius: 0px;
             font-weight: 600;
-            border: 1px solid {c['accent']};
-            background-color: {c['bg']};
-            color: {c['accent']};
+            border: 1px solid {c['accent']} !important;
+            background-color: {c['bg']} !important;
+            color: {c['accent']} !important;
             transition: all 0.2s ease;
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -460,21 +461,21 @@ def _apply_custom_css(theme='dark'):
         }}
         
         .stButton > button:hover {{
-            background-color: {c['accent']};
-            color: {c['bg']};
-            border-color: {c['accent']};
+            background-color: {c['accent']} !important;
+            color: {c['bg']} !important;
+            border-color: {c['accent']} !important;
         }}
         
         /* Primary Button */
         .stButton > button[kind="primary"] {{
-            background-color: {c['accent']};
-            color: {c['bg']};
-            border: 1px solid {c['accent']};
+            background-color: {c['accent']} !important;
+            color: {c['bg']} !important;
+            border: 1px solid {c['accent']} !important;
         }}
         
         .stButton > button[kind="primary"]:hover {{
-            background-color: {c['secondary_text']};
-            border-color: {c['secondary_text']};
+            background-color: {c['secondary_text']} !important;
+            border-color: {c['secondary_text']} !important;
         }}
 
         /* Metrics */
@@ -506,10 +507,33 @@ def _apply_custom_css(theme='dark'):
         .streamlit-expanderHeader {{
             font-family: 'Inter', sans-serif;
             font-weight: 600;
-            background-color: {c['card_bg']};
-            border: 1px solid {c['border']};
+            background-color: {c['card_bg']} !important;
+            border: 1px solid {c['border']} !important;
             border-radius: 0px;
             color: {c['accent']} !important;
+        }}
+        
+        /* Fix for Material Icon text rendering */
+        .material-icons {{
+            font-family: 'Material Icons';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;  /* Preferred icon size */
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+            /* Support for all WebKit browsers. */
+            -webkit-font-smoothing: antialiased;
+            /* Support for Safari and Chrome. */
+            text-rendering: optimizeLegibility;
+            /* Support for Firefox. */
+            -moz-osx-font-smoothing: grayscale;
+            /* Support for IE. */
+            font-feature-settings: 'liga';
         }}
         
         /* Tabs */
@@ -1239,7 +1263,7 @@ def main():
             if st.session_state.get('test_validation_set', False):
                 st.divider()
                 st.subheader("🧪 Teste do Conjunto de Validação" if current_lang == 'pt' else "🧪 Validation Set Test")
-                st.success(f"✅ Teste concluído!" if current_lang == 'pt' else "✅ Test completed!")
+                st.markdown(f"### {render_svg('check', 24, icon_color)} {'Teste concluído!' if current_lang == 'pt' else 'Test completed!'}", unsafe_allow_html=True)
                 # Clear the flag after showing success message
                 st.session_state.test_validation_set = False
                 
@@ -1295,12 +1319,12 @@ def main():
                     
                     # Show errors first if any
                     if incorrect_preds:
-                        st.markdown("### ❌ Predições Incorretas" if current_lang == 'pt' else "### ❌ Incorrect Predictions")
+                        st.markdown(f"### {render_svg('alert', 24, icon_color)} {'Predições Incorretas' if current_lang == 'pt' else 'Incorrect Predictions'}", unsafe_allow_html=True)
                         error_df = pd.DataFrame([{
                             'Texto': p['text'][:150] + '...' if len(p['text']) > 150 else p['text'],
                             'Classe Real': p['true_label'],
                             'Classe Predita': p['predicted_label'],
-                            'Correto': '❌' if not p['correct'] else '✅'
+                            'Correto': 'Não' if not p['correct'] else 'Sim'
                         } for p in incorrect_preds])
                         st.dataframe(error_df, width='stretch', hide_index=True)
                         
