@@ -338,7 +338,9 @@ ICONS = {
     'alert': '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>''',
     'trash': '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>''',
     'info': '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 16V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>''',
-    'robot': '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 18V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.93 4.93L7.76 7.76" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.24 16.24L19.07 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 12H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.93 19.07L7.76 16.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.24 7.76L19.07 4.93" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'''
+    'robot': '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 18V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.93 4.93L7.76 7.76" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.24 16.24L19.07 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 12H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.93 19.07L7.76 16.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.24 7.76L19.07 4.93" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>''',
+    'sun': '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 1V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 21V23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.22 4.22L5.64 5.64" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.36 18.36L19.78 19.78" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 12H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12H23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.22 19.78L5.64 18.36" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.36 5.64L19.78 4.22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>''',
+    'moon': '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'''
 }
 
 def render_svg(icon_name, size=24, color="currentColor"):
@@ -393,11 +395,13 @@ def _apply_custom_css(theme='dark'):
             font-family: 'Inter', sans-serif;
             color: {c['text']};
             background-color: {c['bg']};
+            transition: background-color 0.3s ease, color 0.3s ease;
         }}
         
         /* Main Container */
         .stApp {{
             background-color: {c['bg']};
+            transition: background-color 0.3s ease;
         }}
 
         /* Headers */
@@ -406,6 +410,9 @@ def _apply_custom_css(theme='dark'):
             font-weight: 700;
             letter-spacing: -0.02em;
             color: {c['accent']};
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }}
         
         h1 {{ font-size: 2.5rem; margin-bottom: 2rem; }}
@@ -416,6 +423,7 @@ def _apply_custom_css(theme='dark'):
         [data-testid="stSidebar"] {{
             background-color: {c['sidebar_bg']};
             border-right: 1px solid {c['border']};
+            transition: background-color 0.3s ease;
         }}
         
         [data-testid="stSidebar"] .stMarkdown, 
@@ -424,6 +432,17 @@ def _apply_custom_css(theme='dark'):
         [data-testid="stSidebar"] label,
         [data-testid="stSidebar"] div {{
             color: {c['sidebar_text']} !important;
+            font-family: 'Inter', sans-serif;
+        }}
+        
+        /* Sidebar Headers */
+        [data-testid="stSidebar"] h1,
+        [data-testid="stSidebar"] h2,
+        [data-testid="stSidebar"] h3 {{
+            color: {c['sidebar_text']} !important;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 1rem;
         }}
 
         /* Buttons */
@@ -861,12 +880,14 @@ def main():
     with st.sidebar:
         col_theme, col_lang = st.columns([1, 1])
         with col_theme:
-            # Theme Toggle
+            # Theme Toggle Button
             is_dark = st.session_state.theme == 'dark'
-            if st.toggle('🌙 / ☀️', value=is_dark, key='theme_toggle'):
-                st.session_state.theme = 'dark'
-            else:
-                st.session_state.theme = 'light'
+            toggle_label = "Light Mode" if is_dark else "Dark Mode"
+            
+            # Use a primary button for the toggle to make it stand out
+            if st.button(toggle_label, key='theme_toggle_btn', use_container_width=True):
+                st.session_state.theme = 'light' if is_dark else 'dark'
+                st.rerun()
         
         with col_lang:
             # Language selector (simplified)
@@ -897,11 +918,8 @@ def main():
     # Sidebar Header
     with st.sidebar:
         st.divider()
-        col_icon, col_header = st.columns([1, 5])
-        with col_icon:
-            st.markdown(render_svg('settings', 24, icon_color), unsafe_allow_html=True)
-        with col_header:
-            st.header(t('config'))
+        # Use markdown for header to support SVG
+        st.markdown(f"### {render_svg('settings', 20, icon_color)} {t('config')}", unsafe_allow_html=True)
         
         # Model selection
         embedding_type = st.selectbox(
@@ -1121,7 +1139,10 @@ def main():
         
         # --- Class Profiles Analysis (Requirement C4) ---
         st.divider()
-        st.subheader(f"{render_svg('robot', 24, icon_color)} {t('class_profiles') if 'class_profiles' in locals() else 'Análise de Perfis de Classe (LLM)'}")
+        # --- Class Profiles Analysis (Requirement C4) ---
+        st.divider()
+        # Fix: Use st.markdown with unsafe_allow_html for SVG in header
+        st.markdown(f"### {render_svg('robot', 24, icon_color)} {t('class_profiles') if 'class_profiles' in locals() else 'Análise de Perfis de Classe (LLM)'}", unsafe_allow_html=True)
         
         with st.expander("🧠 Explorar Arquétipos das Classes", expanded=False):
             try:
