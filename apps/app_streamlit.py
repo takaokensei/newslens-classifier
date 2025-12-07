@@ -1251,12 +1251,12 @@ def main():
                         for idx in profile['neighbor_indices'][:5]:  # Top 5
                             if idx < len(df):
                                 sample_text = df.iloc[idx][text_col]
-                                # Truncate to 150 chars
-                                display_text = sample_text[:150] + '...' if len(str(sample_text)) > 150 else sample_text
+                                # Show more text - 300 chars
+                                display_text = str(sample_text)[:300] + '...' if len(str(sample_text)) > 300 else str(sample_text)
                                 st.text_area(
                                     f"ID {idx}",
                                     display_text,
-                                    height=100,
+                                    height=150,
                                     disabled=True,
                                     key=f"neighbor_{selected_class_idx}_{idx}"
                                 )
