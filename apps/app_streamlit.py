@@ -351,125 +351,156 @@ def render_svg(icon_name, size=24, color="currentColor"):
     return f'<div style="display: inline-flex; align-items: center; justify-content: center; width: {size}px; height: {size}px; color: {color};">{svg}</div>'
 
 
-def _apply_custom_css():
-    """Apply Swiss Design inspired CSS with High Contrast."""
-    st.markdown("""
+def _apply_custom_css(theme='dark'):
+    """Apply Swiss Design inspired CSS with Dynamic Theme."""
+    
+    # Theme Colors
+    colors = {
+        'light': {
+            'bg': '#ffffff',
+            'text': '#1a1a1a',
+            'sidebar_bg': '#f0f0f0',
+            'sidebar_text': '#000000',
+            'border': '#e0e0e0',
+            'accent': '#000000',
+            'secondary_text': '#666666',
+            'success_bg': '#f0fff4',
+            'success_border': '#4CD964',
+            'card_bg': '#ffffff'
+        },
+        'dark': {
+            'bg': '#0e1117',
+            'text': '#fafafa',
+            'sidebar_bg': '#262730',
+            'sidebar_text': '#ffffff',
+            'border': '#464b5f',
+            'accent': '#ffffff',
+            'secondary_text': '#b0b0b0',
+            'success_bg': 'rgba(76, 217, 100, 0.1)',
+            'success_border': '#4CD964',
+            'card_bg': '#1e2130'
+        }
+    }
+    
+    c = colors[theme]
+    
+    st.markdown(f"""
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
-        /* Global Typography & Light Theme Force */
-        html, body, [class*="css"], [data-testid="stAppViewContainer"] {
+        /* Global Typography & Theme */
+        html, body, [class*="css"], [data-testid="stAppViewContainer"] {{
             font-family: 'Inter', sans-serif;
-            color: #1a1a1a;
-            background-color: #ffffff; /* Force white background */
-        }
+            color: {c['text']};
+            background-color: {c['bg']};
+        }}
         
-        /* Force light background for main container */
-        .stApp {
-            background-color: #ffffff;
-        }
+        /* Main Container */
+        .stApp {{
+            background-color: {c['bg']};
+        }}
 
         /* Headers */
-        h1, h2, h3 {
+        h1, h2, h3 {{
             font-family: 'Inter', sans-serif;
             font-weight: 700;
             letter-spacing: -0.02em;
-            color: #000000;
-        }
+            color: {c['accent']};
+        }}
         
-        h1 { font-size: 2.5rem; margin-bottom: 2rem; }
-        h2 { font-size: 1.75rem; margin-top: 2.5rem; margin-bottom: 1.25rem; border-bottom: 1px solid #000; padding-bottom: 0.5rem; }
-        h3 { font-size: 1.25rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        h1 {{ font-size: 2.5rem; margin-bottom: 2rem; }}
+        h2 {{ font-size: 1.75rem; margin-top: 2.5rem; margin-bottom: 1.25rem; border-bottom: 1px solid {c['accent']}; padding-bottom: 0.5rem; }}
+        h3 {{ font-size: 1.25rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }}
 
-        /* Sidebar - High Contrast Fix */
-        [data-testid="stSidebar"] {
-            background-color: #f0f0f0; /* Slightly darker gray for better contrast with white content */
-            border-right: 1px solid #d0d0d0;
-        }
+        /* Sidebar */
+        [data-testid="stSidebar"] {{
+            background-color: {c['sidebar_bg']};
+            border-right: 1px solid {c['border']};
+        }}
         
         [data-testid="stSidebar"] .stMarkdown, 
         [data-testid="stSidebar"] p, 
         [data-testid="stSidebar"] span, 
         [data-testid="stSidebar"] label,
-        [data-testid="stSidebar"] div {
-            color: #000000 !important; /* Force black text */
-        }
+        [data-testid="stSidebar"] div {{
+            color: {c['sidebar_text']} !important;
+        }}
 
-        /* Buttons - Minimalist Swiss */
-        .stButton > button {
-            border-radius: 0px; /* Square corners for Swiss style */
+        /* Buttons */
+        .stButton > button {{
+            border-radius: 0px;
             font-weight: 600;
-            border: 1px solid #000000;
-            background-color: #ffffff;
-            color: #000000;
+            border: 1px solid {c['accent']};
+            background-color: {c['bg']};
+            color: {c['accent']};
             transition: all 0.2s ease;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             font-size: 0.85rem;
             padding: 0.5rem 1rem;
-        }
+        }}
         
-        .stButton > button:hover {
-            background-color: #000000;
-            color: #ffffff;
-            border-color: #000000;
-        }
+        .stButton > button:hover {{
+            background-color: {c['accent']};
+            color: {c['bg']};
+            border-color: {c['accent']};
+        }}
         
         /* Primary Button */
-        .stButton > button[kind="primary"] {
-            background-color: #000000;
-            color: #ffffff;
-            border: 1px solid #000000;
-        }
+        .stButton > button[kind="primary"] {{
+            background-color: {c['accent']};
+            color: {c['bg']};
+            border: 1px solid {c['accent']};
+        }}
         
-        .stButton > button[kind="primary"]:hover {
-            background-color: #333333;
-            border-color: #333333;
-        }
+        .stButton > button[kind="primary"]:hover {{
+            background-color: {c['secondary_text']};
+            border-color: {c['secondary_text']};
+        }}
 
         /* Metrics */
-        [data-testid="stMetricValue"] {
+        [data-testid="stMetricValue"] {{
             font-family: 'Inter', sans-serif;
             font-weight: 700;
             font-size: 2rem;
-            color: #000000;
-        }
+            color: {c['accent']};
+        }}
         
-        [data-testid="stMetricLabel"] {
+        [data-testid="stMetricLabel"] {{
             font-family: 'Inter', sans-serif;
             font-weight: 500;
             font-size: 0.9rem;
-            color: #444444;
+            color: {c['secondary_text']};
             text-transform: uppercase;
             letter-spacing: 0.05em;
-        }
+        }}
 
         /* Dividers */
-        hr {
+        hr {{
             margin-top: 3rem;
             margin-bottom: 3rem;
-            border-top: 1px solid #000000;
+            border-top: 1px solid {c['accent']};
             opacity: 0.1;
-        }
+        }}
         
         /* Expander */
-        .streamlit-expanderHeader {
+        .streamlit-expanderHeader {{
             font-family: 'Inter', sans-serif;
             font-weight: 600;
-            background-color: #ffffff;
-            border: 1px solid #e0e0e0;
+            background-color: {c['card_bg']};
+            border: 1px solid {c['border']};
             border-radius: 0px;
-            color: #000000 !important;
-        }
+            color: {c['accent']} !important;
+        }}
         
-        /* Tabs - High Contrast Fix */
-        .stTabs [data-baseweb="tab-list"] {
+        /* Tabs */
+        .stTabs [data-baseweb="tab-list"] {{
             gap: 2rem;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid {c['border']};
             padding-bottom: 0px;
-        }
+        }}
         
-        .stTabs [data-baseweb="tab"] {
+        .stTabs [data-baseweb="tab"] {{
             height: 50px;
             white-space: pre-wrap;
             background-color: transparent;
@@ -479,32 +510,44 @@ def _apply_custom_css():
             padding-bottom: 10px;
             font-family: 'Inter', sans-serif;
             font-weight: 500;
-            color: #666666; /* Inactive tab color */
+            color: {c['secondary_text']};
             border-bottom: 3px solid transparent;
-        }
+        }}
         
-        .stTabs [aria-selected="true"] {
-            background-color: transparent;
-            border-bottom: 3px solid #000000; /* Active tab indicator */
-            color: #000000 !important;
+        .stTabs [aria-selected="true"] {{
+            border-bottom: 3px solid {c['accent']};
+            color: {c['accent']} !important;
             font-weight: 700;
-        }
+        }}
         
         /* Inputs */
         .stTextInput > div > div > input,
         .stSelectbox > div > div > div,
-        .stTextArea > div > div > textarea {
+        .stTextArea > div > div > textarea {{
             border-radius: 0px;
-            border: 1px solid #e0e0e0;
-            color: #000000;
-        }
+            border: 1px solid {c['border']};
+            color: {c['text']};
+            background-color: {c['bg']};
+        }}
         
         .stTextInput > div > div > input:focus,
         .stSelectbox > div > div > div:focus,
-        .stTextArea > div > div > textarea:focus {
-            border-color: #000000;
+        .stTextArea > div > div > textarea:focus {{
+            border-color: {c['accent']};
             box-shadow: none;
-        }
+        }}
+        
+        /* Custom Success Box */
+        .custom-success {{
+            padding: 1rem;
+            border: 1px solid {c['success_border']};
+            background-color: {c['success_bg']};
+            color: {c['text']};
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }}
 
         </style>
     """, unsafe_allow_html=True)
@@ -804,38 +847,59 @@ def classify_text_streamlit(
 
 def main():
     """Aplicação principal do Streamlit."""
-    # Apply Swiss Design CSS
-    _apply_custom_css()
+    # Initialize theme
+    if 'theme' not in st.session_state:
+        st.session_state.theme = 'dark'
+
+    # Apply Swiss Design CSS with current theme
+    _apply_custom_css(st.session_state.theme)
 
     # Load predictions from cookie on page load (survives F5)
     load_and_sync_cookie_predictions()
     
-    # Language selector
-    lang = st.sidebar.selectbox(
-        "Idioma / Language",
-        ["Português", "English"],
-        index=0,
-        key="lang_selector"
-    )
+    # Sidebar - Theme Toggle & Language
+    with st.sidebar:
+        col_theme, col_lang = st.columns([1, 1])
+        with col_theme:
+            # Theme Toggle
+            is_dark = st.session_state.theme == 'dark'
+            if st.toggle('🌙 / ☀️', value=is_dark, key='theme_toggle'):
+                st.session_state.theme = 'dark'
+            else:
+                st.session_state.theme = 'light'
+        
+        with col_lang:
+            # Language selector (simplified)
+            lang = st.selectbox(
+                "Idioma / Language",
+                ["Português", "English"],
+                index=0,
+                key="lang_selector",
+                label_visibility="collapsed"
+            )
     current_lang = 'pt' if lang == "Português" else 'en'
     st.session_state.language = current_lang
     
     t = lambda key: get_text(key, current_lang)
     
+    # Determine current icon color based on theme
+    icon_color = '#ffffff' if st.session_state.theme == 'dark' else '#000000'
+    
     # Header with Logo
     col_logo, col_title = st.columns([1, 10])
     with col_logo:
-        st.markdown(render_svg('logo', 48), unsafe_allow_html=True)
+        st.markdown(render_svg('logo', 48, icon_color), unsafe_allow_html=True)
     with col_title:
         st.title(t('title'))
     
     st.markdown(f"**{t('subtitle')}**")
     
-    # Sidebar
+    # Sidebar Header
     with st.sidebar:
+        st.divider()
         col_icon, col_header = st.columns([1, 5])
         with col_icon:
-            st.markdown(render_svg('settings', 24), unsafe_allow_html=True)
+            st.markdown(render_svg('settings', 24, icon_color), unsafe_allow_html=True)
         with col_header:
             st.header(t('config'))
         
@@ -1054,6 +1118,75 @@ def main():
             vectorizer = st.session_state.vectorizer
             bert_model = st.session_state.bert_model
         
+        
+        # --- Class Profiles Analysis (Requirement C4) ---
+        st.divider()
+        st.subheader(f"{render_svg('robot', 24, icon_color)} {t('class_profiles') if 'class_profiles' in locals() else 'Análise de Perfis de Classe (LLM)'}")
+        
+        with st.expander("🧠 Explorar Arquétipos das Classes", expanded=False):
+            try:
+                # Load profiles
+                imports = _lazy_imports()
+                profiles = imports['load_class_profiles']()
+                
+                # Select class to analyze
+                class_options = {int(k): v['category'] for k, v in profiles.items()}
+                selected_class_idx = st.selectbox(
+                    "Selecione uma Classe para Analisar",
+                    options=list(class_options.keys()),
+                    format_func=lambda x: f"{x}: {class_options[x]}"
+                )
+                
+                if selected_class_idx is not None:
+                    profile = profiles[str(selected_class_idx)]
+                    
+                    col_p1, col_p2 = st.columns(2)
+                    
+                    with col_p1:
+                        st.markdown("#### 🔑 Top Tokens (TF-IDF)")
+                        # Create a nice dataframe for tokens
+                        tokens_df = pd.DataFrame(profile['top_tokens_tfidf'])
+                        st.dataframe(
+                            tokens_df[['token', 'chi2_score']].head(10).style.format({'chi2_score': '{:.2f}'}),
+                            use_container_width=True,
+                            hide_index=True
+                        )
+                        
+                    with col_p2:
+                        st.markdown("#### 👥 Vizinhos do Centróide")
+                        st.write(f"Amostras mais representativas da classe **{profile['category']}**:")
+                        for idx in profile['neighbor_indices']:
+                            st.code(f"ID {idx}", language="text")
+                            
+                    # LLM Generation for Profile Description
+                    st.markdown("#### 📝 Descrição do Perfil (Gerada por IA)")
+                    
+                    profile_key = f"profile_desc_{selected_class_idx}"
+                    if profile_key in st.session_state:
+                        st.info(st.session_state[profile_key])
+                    
+                    if st.button(f"✨ Gerar Perfil Típico para '{profile['category']}'"):
+                        with st.spinner("Analisando perfil com LLM..."):
+                            # Construct prompt
+                            top_tokens_str = ", ".join([t['token'] for t in profile['top_tokens_tfidf'][:15]])
+                            prompt = f"""Atue como um linguista computacional. Analise os dados abaixo referentes à classe de notícias "{profile['category']}".
+                            
+                            Top Tokens (mais distintivos): {top_tokens_str}
+                            
+                            Com base nesses tokens, descreva em um parágrafo o "Perfil Típico" desta categoria. O que caracteriza as notícias desta classe? Que tipo de vocabulário é predominante?"""
+                            
+                            try:
+                                description = imports['call_groq_llm'](prompt)
+                                st.session_state[profile_key] = description
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"Erro ao chamar LLM: {e}")
+            
+            except FileNotFoundError:
+                st.warning("⚠️ Perfis de classe não encontrados. Execute o treinamento/análise primeiro.")
+            except Exception as e:
+                st.error(f"Erro ao carregar perfis: {e}")
+
         # Handle validation set testing
         # Check if we should run a new test or show existing results
         if st.session_state.get('test_validation_set', False):
@@ -1553,8 +1686,12 @@ Explain clearly and concisely why this text belongs to this category."""
                 save_predictions_to_cookie(st.session_state.session_predictions)
                 
                 if not st.session_state.get('log_saved_for_current', False):
+                    # Success message with dynamic styling
+                    success_bg = 'rgba(76, 217, 100, 0.1)' if st.session_state.theme == 'dark' else '#f0fff4'
+                    success_text = '#fafafa' if st.session_state.theme == 'dark' else '#1a1a1a'
+                    
                     st.markdown(f'''
-                        <div style="padding: 1rem; border: 1px solid #4CD964; background-color: #f0fff4; color: #1a1a1a; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <div style="padding: 1rem; border: 1px solid #4CD964; background-color: {success_bg}; color: {success_text}; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
                             {render_svg('check', 20, '#4CD964')}
                             <span style="font-weight: 500;">{t('saved_log')}</span>
                         </div>
