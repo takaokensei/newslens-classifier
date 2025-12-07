@@ -584,6 +584,16 @@ def _apply_custom_css(theme='dark'):
             color: {c['text']} !important;
         }}
         
+        /* Hide keyboard arrow text in expanders */
+        [data-testid="stExpander"] [data-testid="stMarkdownContainer"] p {{
+            /* Hide the keyboard_arrow text */
+            font-size: 0 !important;
+        }}
+        
+        /* But keep the SVG icons visible */
+        [data-testid="stExpander"] svg {{
+            font-size: 24px !important;
+        }}
         /* Tabs */
         .stTabs [data-baseweb="tab-list"] {{
             gap: 2rem;
@@ -950,35 +960,22 @@ def main():
     # Load predictions from cookie on page load (survives F5)
     load_and_sync_cookie_predictions()
     
-    # Sidebar - Theme Toggle & Language
+    # Sidebar - Language Selector Only
     with st.sidebar:
-        col_theme, col_lang = st.columns([1, 1])
-        with col_theme:
-            # Theme Toggle Button
-            is_dark = st.session_state.theme == 'dark'
-            toggle_label = "Light Mode" if is_dark else "Dark Mode"
-            
-            # Use a primary button for the toggle to make it stand out
-            if st.button(toggle_label, key='theme_toggle_btn', use_container_width=True):
-                st.session_state.theme = 'light' if is_dark else 'dark'
-                st.rerun()
-        
-        with col_lang:
-            # Language selector (simplified)
-            lang = st.selectbox(
-                "Idioma / Language",
-                ["Português", "English"],
-                index=0,
-                key="lang_selector",
-                label_visibility="collapsed"
-            )
+        # Language selector (full width)
+        lang = st.selectbox(
+            "🌐 Idioma / Language",
+            ["Português", "English"],
+            index=0,
+            key="lang_selector"
+        )
     current_lang = 'pt' if lang == "Português" else 'en'
     st.session_state.language = current_lang
     
     t = lambda key: get_text(key, current_lang)
     
-    # Determine current icon color based on theme
-    icon_color = '#ffffff' if st.session_state.theme == 'dark' else '#000000'
+    # Use dark theme icon color (always dark mode now)
+    icon_color = '#ffffff'
     
     # Header with Logo - Better spacing
     col_logo, col_title = st.columns([1, 20])  # More space for title
