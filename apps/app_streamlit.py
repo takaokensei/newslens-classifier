@@ -585,23 +585,23 @@ def _apply_custom_css(theme='dark'):
         }}
         
         /* Fix expander icon text by enforcing Material Icons font */
-        .streamlit-expanderHeader {
+        .streamlit-expanderHeader {{
             font-family: 'Material Icons', 'Inter', sans-serif !important;
-        }
+        }}
         
         /* Protect the title text to ensure it uses Inter */
-        .streamlit-expanderHeader p {
+        .streamlit-expanderHeader p {{
             font-family: 'Inter', sans-serif !important;
             display: block !important; /* Ensure title is visible */
-        }
+        }}
         
         /* Keep expander icons visible */
-        .streamlit-expanderHeader svg {
+        .streamlit-expanderHeader svg {{
             display: inline-block !important;
             width: 24px !important;
             height: 24px !important;
             opacity: 1 !important;
-        }
+        }}
         /* Tabs */
         .stTabs [data-baseweb="tab-list"] {{
             gap: 2rem;
