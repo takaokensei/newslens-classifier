@@ -1,15 +1,7 @@
 [theme]
-primaryColor = "#FF4B4B"
-backgroundColor = "#0E1117"
-secondaryBackgroundColor = "#262730"
-textColor = "#FAFAFA"
-font = "sans serif"
-base = "dark"
-
-[server]
-headless = true
-port = 8501
-# enableCORS must be true when enableXsrfProtection is true (CSRF protection requires CORS)
-enableCORS = true
-enableXsrfProtection = true
-
+base="light"
+primaryColor="#000000"
+backgroundColor="#ffffff"
+secondaryBackgroundColor="#f0f0f0"
+textColor="#000000"
+font="sans serif"

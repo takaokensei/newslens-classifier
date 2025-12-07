@@ -226,23 +226,23 @@ def get_validation_sample():
 # Translations
 TRANSLATIONS = {
     'pt': {
-        'title': '📰 NewsLens AI Classifier',
+        'title': 'NewsLens AI Classifier',
         'subtitle': 'Análise Comparativa de Representações Esparsas vs. Densas',
-        'config': '⚙️ Configuração',
+        'config': 'Configuração',
         'embedding_type': 'Tipo de Embedding',
         'embedding_help': 'Escolha entre BERT (denso) ou TF-IDF (esparso)',
         'model_type': 'Tipo de Modelo',
         'model_help': 'Escolha entre SVM ou XGBoost',
-        'performance': '📊 Desempenho dos Modelos',
+        'performance': 'Desempenho dos Modelos',
         'best_perf': 'Melhor Performance:',
         'best_eff': 'Melhor Eficiência:',
-        'about': 'ℹ️ Sobre',
-        'classification': '🔍 Classificação',
-        'monitoring': '📊 Monitoramento',
+        'about': 'Sobre',
+        'classification': 'Classificação',
+        'monitoring': 'Monitoramento',
         'text_classification': 'Classificação de Texto',
         'enter_text': 'Digite o texto para classificar:',
         'text_placeholder': 'Cole ou digite uma notícia aqui...',
-        'classify': '🔍 Classificar',
+        'classify': 'Classificar',
         'save_log': 'Salvar predição no log',
         'loading_models': 'Carregando modelos...',
         'models_loaded': 'Modelos carregados com sucesso!',
@@ -252,12 +252,12 @@ TRANSLATIONS = {
         'confidence': 'Confiança',
         'model': 'Modelo',
         'prob_dist': 'Distribuição de Probabilidades',
-        'ai_explanation': '🤖 Explicação por IA',
+        'ai_explanation': 'Explicação por IA',
         'generate_explanation': 'Gerar Explicação',
         'generating': 'Gerando explicação...',
         'explanation_error': 'Não foi possível gerar explicação:',
         'explanation_info': 'A explicação por LLM requer a variável de ambiente GROQ_API_KEY.',
-        'saved_log': '✅ Predição salva no log!',
+        'saved_log': 'Predição salva no log!',
         'monitoring_dashboard': 'Dashboard de Monitoramento',
         'no_predictions': 'Nenhuma predição registrada ainda. Comece a classificar textos para ver estatísticas aqui.',
         'total_predictions': 'Total de Predições',
@@ -273,23 +273,23 @@ TRANSLATIONS = {
         'predictions_over_time': 'Predições ao Longo do Tempo'
     },
     'en': {
-        'title': '📰 NewsLens AI Classifier',
+        'title': 'NewsLens AI Classifier',
         'subtitle': 'Comparative Analysis of Sparse vs. Dense Representations',
-        'config': '⚙️ Configuration',
+        'config': 'Configuration',
         'embedding_type': 'Embedding Type',
         'embedding_help': 'Choose between BERT (dense) or TF-IDF (sparse) embeddings',
         'model_type': 'Model Type',
         'model_help': 'Choose between SVM or XGBoost classifier',
-        'performance': '📊 Model Performance',
+        'performance': 'Model Performance',
         'best_perf': 'Best Performance:',
         'best_eff': 'Best Efficiency:',
-        'about': 'ℹ️ About',
-        'classification': '🔍 Classification',
-        'monitoring': '📊 Monitoring',
+        'about': 'About',
+        'classification': 'Classification',
+        'monitoring': 'Monitoring',
         'text_classification': 'Text Classification',
         'enter_text': 'Enter text to classify:',
         'text_placeholder': 'Paste or type a news article here...',
-        'classify': '🔍 Classify',
+        'classify': 'Classify',
         'save_log': 'Save prediction to log',
         'loading_models': 'Loading models...',
         'models_loaded': 'Models loaded successfully!',
@@ -299,12 +299,12 @@ TRANSLATIONS = {
         'confidence': 'Confidence',
         'model': 'Model',
         'prob_dist': 'Probability Distribution',
-        'ai_explanation': '🤖 AI Explanation',
+        'ai_explanation': 'AI Explanation',
         'generate_explanation': 'Generate Explanation',
         'generating': 'Generating explanation...',
         'explanation_error': 'Could not generate explanation:',
         'explanation_info': 'LLM explanation requires GROQ_API_KEY environment variable.',
-        'saved_log': '✅ Prediction saved to log!',
+        'saved_log': 'Prediction saved to log!',
         'monitoring_dashboard': 'Monitoring Dashboard',
         'no_predictions': 'No predictions logged yet. Start classifying texts to see statistics here.',
         'total_predictions': 'Total Predictions',
@@ -319,6 +319,7 @@ TRANSLATIONS = {
         'usage_by_model': 'Usage by Model',
         'predictions_over_time': 'Predictions Over Time'
     }
+
 }
 
 
@@ -327,11 +328,228 @@ def get_text(key: str, lang: str = 'pt') -> str:
     return TRANSLATIONS.get(lang, TRANSLATIONS['pt']).get(key, key)
 
 
+# SVG Icons
+ICONS = {
+    'logo': '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>''',
+    'settings': '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.4 15C20.0627 14.3373 20.0627 13.2627 19.4 12.6L18 11.2C17.3373 10.5373 17.3373 9.46274 18 8.8L19.4 7.4C20.0627 6.73726 20.0627 5.66274 19.4 5C18.7373 4.33726 17.6627 4.33726 17 5L15.6 6.4C14.9373 7.06274 13.8627 7.06274 13.2 6.4L11.8 5C11.1373 4.33726 10.0627 4.33726 9.4 5L8 6.4C7.33726 7.06274 6.26274 7.06274 5.6 6.4L4.2 5C3.53726 4.33726 2.46274 4.33726 1.8 5C1.13726 5.66274 1.13726 6.73726 1.8 7.4L3.2 8.8C3.86274 9.46274 3.86274 10.5373 3.2 11.2L1.8 12.6C1.13726 13.2627 1.13726 14.3373 1.8 15C2.46274 15.6627 3.53726 15.6627 4.2 15L5.6 13.6C6.26274 12.9373 7.33726 12.9373 8 13.6L9.4 15C10.0627 15.6627 11.1373 15.6627 11.8 15L13.2 13.6C13.8627 12.9373 14.9373 12.9373 15.6 13.6L17 15C17.6627 15.6627 18.7373 15.6627 19.4 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>''',
+    'search': '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>''',
+    'chart': '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 20V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 20V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 20V14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>''',
+    'check': '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>''',
+    'alert': '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>''',
+    'trash': '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>''',
+    'info': '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 16V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>''',
+    'robot': '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 18V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.93 4.93L7.76 7.76" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.24 16.24L19.07 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 12H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.93 19.07L7.76 16.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.24 7.76L19.07 4.93" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'''
+}
+
+def render_svg(icon_name, size=24, color="currentColor"):
+    """Render SVG icon with specified size and color."""
+    if icon_name not in ICONS:
+        return ""
+    svg = ICONS[icon_name]
+    # Replace width/height/stroke if needed, but simple string replacement is risky.
+    # Instead, we wrap it in a div that controls size and color.
+    return f'<div style="display: inline-flex; align-items: center; justify-content: center; width: {size}px; height: {size}px; color: {color};">{svg}</div>'
+
+
+def _apply_custom_css():
+    """Apply Swiss Design inspired CSS with High Contrast."""
+    st.markdown("""
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        /* Global Typography & Light Theme Force */
+        html, body, [class*="css"], [data-testid="stAppViewContainer"] {
+            font-family: 'Inter', sans-serif;
+            color: #1a1a1a;
+            background-color: #ffffff; /* Force white background */
+        }
+        
+        /* Force light background for main container */
+        .stApp {
+            background-color: #ffffff;
+        }
+
+        /* Headers */
+        h1, h2, h3 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #000000;
+        }
+        
+        h1 { font-size: 2.5rem; margin-bottom: 2rem; }
+        h2 { font-size: 1.75rem; margin-top: 2.5rem; margin-bottom: 1.25rem; border-bottom: 1px solid #000; padding-bottom: 0.5rem; }
+        h3 { font-size: 1.25rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+
+        /* Sidebar - High Contrast Fix */
+        [data-testid="stSidebar"] {
+            background-color: #f0f0f0; /* Slightly darker gray for better contrast with white content */
+            border-right: 1px solid #d0d0d0;
+        }
+        
+        [data-testid="stSidebar"] .stMarkdown, 
+        [data-testid="stSidebar"] p, 
+        [data-testid="stSidebar"] span, 
+        [data-testid="stSidebar"] label,
+        [data-testid="stSidebar"] div {
+            color: #000000 !important; /* Force black text */
+        }
+
+        /* Buttons - Minimalist Swiss */
+        .stButton > button {
+            border-radius: 0px; /* Square corners for Swiss style */
+            font-weight: 600;
+            border: 1px solid #000000;
+            background-color: #ffffff;
+            color: #000000;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+        }
+        
+        .stButton > button:hover {
+            background-color: #000000;
+            color: #ffffff;
+            border-color: #000000;
+        }
+        
+        /* Primary Button */
+        .stButton > button[kind="primary"] {
+            background-color: #000000;
+            color: #ffffff;
+            border: 1px solid #000000;
+        }
+        
+        .stButton > button[kind="primary"]:hover {
+            background-color: #333333;
+            border-color: #333333;
+        }
+
+        /* Metrics */
+        [data-testid="stMetricValue"] {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 2rem;
+            color: #000000;
+        }
+        
+        [data-testid="stMetricLabel"] {
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #444444;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Dividers */
+        hr {
+            margin-top: 3rem;
+            margin-bottom: 3rem;
+            border-top: 1px solid #000000;
+            opacity: 0.1;
+        }
+        
+        /* Expander */
+        .streamlit-expanderHeader {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 0px;
+            color: #000000 !important;
+        }
+        
+        /* Tabs - High Contrast Fix */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 2rem;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0px;
+        }
+        
+        .stTabs [data-baseweb="tab"] {
+            height: 50px;
+            white-space: pre-wrap;
+            background-color: transparent;
+            border-radius: 0px;
+            gap: 1px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            color: #666666; /* Inactive tab color */
+            border-bottom: 3px solid transparent;
+        }
+        
+        .stTabs [aria-selected="true"] {
+            background-color: transparent;
+            border-bottom: 3px solid #000000; /* Active tab indicator */
+            color: #000000 !important;
+            font-weight: 700;
+        }
+        
+        /* Inputs */
+        .stTextInput > div > div > input,
+        .stSelectbox > div > div > div,
+        .stTextArea > div > div > textarea {
+            border-radius: 0px;
+            border: 1px solid #e0e0e0;
+            color: #000000;
+        }
+        
+        .stTextInput > div > div > input:focus,
+        .stSelectbox > div > div > div:focus,
+        .stTextArea > div > div > textarea:focus {
+            border-color: #000000;
+            box-shadow: none;
+        }
+
+        </style>
+    """, unsafe_allow_html=True)
+
+
+
+def update_chart_layout(fig):
+    """Apply Swiss Design theme to Plotly charts."""
+    fig.update_layout(
+        font=dict(family="Inter, sans-serif", size=12, color="#1a1a1a"),
+        title_font=dict(family="Inter, sans-serif", size=16, weight=700),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        margin=dict(l=20, r=20, t=40, b=20),
+        xaxis=dict(
+            showgrid=False,
+            showline=True,
+            linewidth=1,
+            linecolor="#e0e0e0",
+            tickfont=dict(family="Inter, sans-serif", size=10)
+        ),
+        yaxis=dict(
+            showgrid=True,
+            gridwidth=1,
+            gridcolor="#f0f0f0",
+            showline=False,
+            tickfont=dict(family="Inter, sans-serif", size=10)
+        ),
+        colorway=["#000000", "#FF3B30", "#007AFF", "#4CD964", "#5856D6", "#FF9500"], # Swiss-ish palette
+        hoverlabel=dict(
+            bgcolor="white",
+            font_size=12,
+            font_family="Inter, sans-serif"
+        )
+    )
+    return fig
+
+
+
 # Page configuration
 st.set_page_config(
     page_title="NewsLens AI Classifier",
     page_icon="📰",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 # Initialize session state
@@ -586,12 +804,15 @@ def classify_text_streamlit(
 
 def main():
     """Aplicação principal do Streamlit."""
+    # Apply Swiss Design CSS
+    _apply_custom_css()
+
     # Load predictions from cookie on page load (survives F5)
     load_and_sync_cookie_predictions()
     
     # Language selector
     lang = st.sidebar.selectbox(
-        "🌐 Idioma / Language",
+        "Idioma / Language",
         ["Português", "English"],
         index=0,
         key="lang_selector"
@@ -601,12 +822,22 @@ def main():
     
     t = lambda key: get_text(key, current_lang)
     
-    st.title(t('title'))
+    # Header with Logo
+    col_logo, col_title = st.columns([1, 10])
+    with col_logo:
+        st.markdown(render_svg('logo', 48), unsafe_allow_html=True)
+    with col_title:
+        st.title(t('title'))
+    
     st.markdown(f"**{t('subtitle')}**")
     
     # Sidebar
     with st.sidebar:
-        st.header(t('config'))
+        col_icon, col_header = st.columns([1, 5])
+        with col_icon:
+            st.markdown(render_svg('settings', 24), unsafe_allow_html=True)
+        with col_header:
+            st.header(t('config'))
         
         # Model selection
         embedding_type = st.selectbox(
@@ -641,10 +872,12 @@ def main():
         
         st.divider()
         
+        st.divider()
+        
         # Test entire validation set button
-        st.markdown("### 🧪 Testes")
+        st.markdown(f"### {render_svg('check', 20)} Testes", unsafe_allow_html=True)
         if st.button(
-            "🧪 Testar todo o conjunto de validação" if current_lang == 'pt' else "🧪 Test entire validation set",
+            "Testar todo o conjunto de validação" if current_lang == 'pt' else "Test entire validation set",
             width='stretch',
             help="Testa todos os exemplos do conjunto de validação e mostra métricas de desempenho" if current_lang == 'pt' else "Tests all validation set examples and shows performance metrics"
         ):
@@ -653,10 +886,12 @@ def main():
         
         st.divider()
         
+        st.divider()
+        
         # Clear metrics button with confirmation
-        st.markdown("### 🗑️ Limpeza")
+        st.markdown(f"### {render_svg('trash', 20)} Limpeza", unsafe_allow_html=True)
         if st.button(
-            "🗑️ Apagar métricas de desempenho" if current_lang == 'pt' else "🗑️ Clear performance metrics",
+            "Apagar métricas de desempenho" if current_lang == 'pt' else "Clear performance metrics",
             width='stretch',
             help="Remove todas as métricas de desempenho (cookies e dados locais)" if current_lang == 'pt' else "Removes all performance metrics (cookies and local data)"
         ):
@@ -671,7 +906,7 @@ def main():
                 "- Todas as predições salvas nos cookies\n"
                 "- Todos os dados da sessão atual\n\n"
                 "Esta ação não pode ser desfeita." if current_lang == 'pt' else
-                "⚠️ **Are you sure you want to clear all performance metrics?**\n\n"
+                "**Are you sure you want to clear all performance metrics?**\n\n"
                 "This action will remove:\n"
                 "- All predictions saved in cookies\n"
                 "- All current session data\n\n"
@@ -679,7 +914,7 @@ def main():
             )
             col_yes, col_no = st.columns(2)
             with col_yes:
-                if st.button("✅ Sim, apagar tudo" if current_lang == 'pt' else "✅ Yes, clear all", type="primary", width='stretch'):
+                if st.button("Sim, apagar tudo" if current_lang == 'pt' else "Yes, clear all", type="primary", width='stretch'):
                     # Clear session state predictions
                     st.session_state.session_predictions = []
                     # Clear cookies using JavaScript
@@ -701,16 +936,18 @@ def main():
                     """
                     st.components.v1.html(clear_cookies_js, height=0)
                     st.session_state.show_clear_confirmation = False
-                    st.success("✅ Métricas apagadas com sucesso!" if current_lang == 'pt' else "✅ Metrics cleared successfully!")
+                    st.success("Métricas apagadas com sucesso!" if current_lang == 'pt' else "Metrics cleared successfully!")
                     st.rerun()
             with col_no:
-                if st.button("❌ Cancelar" if current_lang == 'pt' else "❌ Cancel", width='stretch'):
+                if st.button("Cancelar" if current_lang == 'pt' else "Cancel", width='stretch'):
                     st.session_state.show_clear_confirmation = False
                     st.rerun()
         
         st.divider()
         
-        st.markdown(f"### {t('about')}")
+        st.divider()
+        
+        st.markdown(f"### {render_svg('info', 20)} {t('about')}", unsafe_allow_html=True)
         st.caption("""
         NewsLens AI - Projeto Final ELE 606
         
@@ -779,23 +1016,23 @@ def main():
                                 else:
                                     progress_bar.empty()
                                     status_text.empty()
-                                    st.error("❌ Erro ao carregar modelos após treinamento." if current_lang == 'pt' else "❌ Error loading models after training.")
+                                    st.error("Erro ao carregar modelos após treinamento." if current_lang == 'pt' else "Error loading models after training.")
                                     st.stop()
                             else:
                                 progress_bar.empty()
                                 status_text.empty()
-                                st.warning(f"⚠️ {result.get('message', 'Training failed')}")
-                                st.info("💡 Tente recarregar a página ou execute `python scripts/auto_train_models.py` manualmente." if current_lang == 'pt' else "💡 Try reloading the page or run `python scripts/auto_train_models.py` manually.")
+                                st.warning(f"{result.get('message', 'Training failed')}")
+                                st.info("Tente recarregar a página ou execute `python scripts/auto_train_models.py` manualmente." if current_lang == 'pt' else "Try reloading the page or run `python scripts/auto_train_models.py` manually.")
                                 st.stop()
                         except Exception as e:
-                            st.error(f"❌ Erro durante treinamento: {str(e)}" if current_lang == 'pt' else f"❌ Error during training: {str(e)}")
+                            st.error(f"Erro durante treinamento: {str(e)}" if current_lang == 'pt' else f"Error during training: {str(e)}")
                             import traceback
                             st.code(traceback.format_exc())
-                            st.info("💡 Execute `python scripts/auto_train_models.py` manualmente para treinar os modelos." if current_lang == 'pt' else "💡 Run `python scripts/auto_train_models.py` manually to train models.")
+                            st.info("Execute `python scripts/auto_train_models.py` manualmente para treinar os modelos." if current_lang == 'pt' else "Run `python scripts/auto_train_models.py` manually to train models.")
                             st.stop()
                     else:
                         st.error(t('models_error'))
-                        st.info("💡 **Dica**: Adicione um arquivo CSV em `data/raw/` com colunas: 'Texto', 'Classe', 'Categoria'. Os modelos serão treinados automaticamente." if current_lang == 'pt' else "💡 **Tip**: Add a CSV file in `data/raw/` with columns: 'Texto', 'Classe', 'Categoria'. Models will be trained automatically.")
+                        st.info("**Dica**: Adicione um arquivo CSV em `data/raw/` com colunas: 'Texto', 'Classe', 'Categoria'. Os modelos serão treinados automaticamente." if current_lang == 'pt' else "**Tip**: Add a CSV file in `data/raw/` with columns: 'Texto', 'Classe', 'Categoria'. Models will be trained automatically.")
                         st.stop()
                 elif models and len(models) > 0:
                     st.session_state.models = models
@@ -804,12 +1041,12 @@ def main():
                     st.session_state.models_loaded = True
                     st.success(t('models_loaded'))
                     if not vectorizer:
-                        st.warning("⚠️ TF-IDF vectorizer não encontrado. Apenas modelos BERT estarão disponíveis." if current_lang == 'pt' else "⚠️ TF-IDF vectorizer not found. Only BERT models will be available.")
+                        st.warning("TF-IDF vectorizer não encontrado. Apenas modelos BERT estarão disponíveis." if current_lang == 'pt' else "TF-IDF vectorizer not found. Only BERT models will be available.")
                     if not bert_model:
-                        st.warning("⚠️ Modelo BERT não encontrado. Apenas modelos TF-IDF estarão disponíveis." if current_lang == 'pt' else "⚠️ BERT model not found. Only TF-IDF models will be available.")
+                        st.warning("Modelo BERT não encontrado. Apenas modelos TF-IDF estarão disponíveis." if current_lang == 'pt' else "BERT model not found. Only TF-IDF models will be available.")
                 else:
                     st.error(t('models_error'))
-                    st.info("💡 **Dica**: Os modelos precisam ser treinados primeiro. Execute `python scripts/auto_train_models.py` para treinar automaticamente." if current_lang == 'pt' else "💡 **Tip**: Models need to be trained first. Run `python scripts/auto_train_models.py` to train automatically.")
+                    st.info("**Dica**: Os modelos precisam ser treinados primeiro. Execute `python scripts/auto_train_models.py` para treinar automaticamente." if current_lang == 'pt' else "**Tip**: Models need to be trained first. Run `python scripts/auto_train_models.py` to train automatically.")
                     st.stop()
         else:
             # Models already loaded, get from session state
@@ -1092,9 +1329,9 @@ Analyze the error patterns and briefly explain (2-4 main reasons) why the classi
                     del st.session_state.true_label
                 
                 st.info(
-                    f"🏷️ **Classe Real (Ground Truth):** {true_category}" if current_lang == 'pt' 
-                    else f"🏷️ **True Label (Ground Truth):** {true_category}",
-                    icon="ℹ️"
+                    f"**Classe Real (Ground Truth):** {true_category}" if current_lang == 'pt' 
+                    else f"**True Label (Ground Truth):** {true_category}",
+                    icon=None
                 )
         
         with col_btn:
@@ -1102,7 +1339,7 @@ Analyze the error patterns and briefly explain (2-4 main reasons) why the classi
             st.write("")  # Spacing
             
             if st.button(
-                "📄 Exemplo do Conjunto de Validação" if current_lang == 'pt' else "📄 Validation Set Sample",
+                "Exemplo do Conjunto de Validação" if current_lang == 'pt' else "Validation Set Sample",
                 width='stretch',
                 help="Carrega um texto aleatório do conjunto de validação (não visto durante o treinamento)" if current_lang == 'pt' else "Load a random text from validation set (not seen during training)"
             ):
@@ -1114,7 +1351,7 @@ Analyze the error patterns and briefly explain (2-4 main reasons) why the classi
                         st.session_state.sample_text = result
                         st.rerun()
                     else:
-                        st.error("❌ Não foi possível carregar exemplo. Verifique os logs do console para mais detalhes." if current_lang == 'pt' else "❌ Could not load sample. Check console logs for details.")
+                        st.error("Não foi possível carregar exemplo. Verifique os logs do console para mais detalhes." if current_lang == 'pt' else "Could not load sample. Check console logs for details.")
         
         # Clear sample_text after use to avoid persistence
         if 'sample_text' in st.session_state and st.session_state.sample_text:
@@ -1210,10 +1447,11 @@ Analyze the error patterns and briefly explain (2-4 main reasons) why the classi
                     title=t('prob_dist')
                 )
                 fig.update_layout(showlegend=False, height=400)
+                fig = update_chart_layout(fig)
                 st.plotly_chart(fig, width='stretch')
             
             # LLM Explanation section (always visible when result exists)
-            st.subheader(t('ai_explanation'))
+            st.markdown(f"### {render_svg('robot', 24)} {t('ai_explanation')}", unsafe_allow_html=True)
             
             # Check if prediction is incorrect (if we have true_label)
             is_incorrect = False
@@ -1315,7 +1553,12 @@ Explain clearly and concisely why this text belongs to this category."""
                 save_predictions_to_cookie(st.session_state.session_predictions)
                 
                 if not st.session_state.get('log_saved_for_current', False):
-                    st.success(t('saved_log'))
+                    st.markdown(f'''
+                        <div style="padding: 1rem; border: 1px solid #4CD964; background-color: #f0fff4; color: #1a1a1a; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                            {render_svg('check', 20, '#4CD964')}
+                            <span style="font-weight: 500;">{t('saved_log')}</span>
+                        </div>
+                    ''', unsafe_allow_html=True)
                     st.session_state.log_saved_for_current = True
     
     # Tab 2: Monitoring
@@ -1323,7 +1566,7 @@ Explain clearly and concisely why this text belongs to this category."""
         st.header(t('monitoring_dashboard'))
         
         # Advanced filters (bonus feature inspired by Módulo 16)
-        with st.expander("🔍 Filtros Avançados" if current_lang == 'pt' else "🔍 Advanced Filters"):
+        with st.expander("Filtros Avançados" if current_lang == 'pt' else "Advanced Filters"):
             col1, col2, col3 = st.columns(3)
             with col1:
                 filter_category = st.multiselect(
@@ -1350,7 +1593,7 @@ Explain clearly and concisely why this text belongs to this category."""
         
         if not session_predictions:
             st.info(t('no_predictions'))
-            st.caption("💡 **Dica**: As predições são salvas em cookies e persistem mesmo após atualizar a página (F5). Cada navegador/computador tem seu próprio histórico." if current_lang == 'pt' else "💡 **Tip**: Predictions are saved in cookies and persist even after refreshing the page (F5). Each browser/computer has its own history.")
+            st.caption("**Dica**: As predições são salvas em cookies e persistem mesmo após atualizar a página (F5). Cada navegador/computador tem seu próprio histórico." if current_lang == 'pt' else "**Tip**: Predictions are saved in cookies and persist even after refreshing the page (F5). Each browser/computer has its own history.")
         else:
             # Convert to DataFrame for easier manipulation
             logs_df = pd.DataFrame(session_predictions)
@@ -1410,6 +1653,7 @@ Explain clearly and concisely why this text belongs to this category."""
                             names='Categoria' if current_lang == 'pt' else 'Category',
                             title=t('dist_by_category')
                         )
+                        fig = update_chart_layout(fig)
                         st.plotly_chart(fig, width='stretch')
                 
                 with col2:
@@ -1427,6 +1671,7 @@ Explain clearly and concisely why this text belongs to this category."""
                             color='Quantidade' if current_lang == 'pt' else 'Count',
                             color_continuous_scale='Blues'
                         )
+                        fig = update_chart_layout(fig)
                         st.plotly_chart(fig, width='stretch')
                 
                 # Temporal evolution
@@ -1443,6 +1688,7 @@ Explain clearly and concisely why this text belongs to this category."""
                         title=t('predictions_over_time'),
                         markers=True
                     )
+                    fig = update_chart_layout(fig)
                     st.plotly_chart(fig, width='stretch')
             
             # Additional visualizations
@@ -1492,6 +1738,7 @@ Explain clearly and concisely why this text belongs to this category."""
                         height=500,
                         showlegend=True
                     )
+                    fig = update_chart_layout(fig)
                     
                     st.plotly_chart(fig, width='stretch')
                     
@@ -1552,6 +1799,7 @@ Explain clearly and concisely why this text belongs to this category."""
                         title="Score Distribution" if current_lang == 'en' else "Distribuição de Scores",
                         labels={'embedding_usado': 'Embedding' if current_lang == 'en' else 'Embedding', 'score': 'Score'}
                     )
+                    fig = update_chart_layout(fig)
                     st.plotly_chart(fig, width='stretch')
             
             with col2:
@@ -1566,6 +1814,7 @@ Explain clearly and concisely why this text belongs to this category."""
                         title="Score Distribution" if current_lang == 'en' else "Distribuição de Scores",
                         labels={'modelo_usado': 'Model' if current_lang == 'en' else 'Modelo', 'score': 'Score'}
                     )
+                    fig = update_chart_layout(fig)
                     st.plotly_chart(fig, width='stretch')
             
             # Performance vs Efficiency Trade-off (if we have model performance data)
@@ -1604,6 +1853,7 @@ Explain clearly and concisely why this text belongs to this category."""
                         height=500,
                         showlegend=False
                     )
+                    fig = update_chart_layout(fig)
                     
                     st.plotly_chart(fig, width='stretch')
                     
