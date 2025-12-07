@@ -14,6 +14,10 @@ import os
 import json
 import base64
 
+# [NEW] Design System Imports
+from apps.design_system import DESIGN_TOKENS, get_css_variables
+from apps.components import status_badge, info_card, result_card, empty_state
+
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -360,304 +364,146 @@ def render_svg(icon_name, size=24, color="currentColor"):
 
 
 def _apply_custom_css(theme='dark'):
-    """Apply Swiss Design inspired CSS with Dynamic Theme."""
+    """Apply Swiss Design inspired CSS with Dynamic Theme using Design Tokens."""
     
-    # Theme Colors
-    colors = {
-        'light': {
-            'bg': '#ffffff',
-            'text': '#1a1a1a',
-            'sidebar_bg': '#f0f0f0',
-            'sidebar_text': '#000000',
-            'border': '#e0e0e0',
-            'accent': '#000000',
-            'secondary_text': '#666666',
-            'success_bg': '#f0fff4',
-            'success_border': '#4CD964',
-            'card_bg': '#ffffff'
-        },
-        'dark': {
-            'bg': '#0e1117',
-            'text': '#fafafa',
-            'sidebar_bg': '#262730',
-            'sidebar_text': '#ffffff',
-            'border': '#464b5f',
-            'accent': '#ffffff',
-            'secondary_text': '#b0b0b0',
-            'success_bg': 'rgba(76, 217, 100, 0.1)',
-            'success_border': '#4CD964',
-            'card_bg': '#1e2130'
-        }
-    }
+    # Get CSS variables from Design System
+    css_variables = get_css_variables()
     
-    c = colors[theme]
-    
+    # Main CSS injection
     st.markdown(f"""
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+        
+        {css_variables}
 
         /* Global Typography & Theme */
         html, body, [class*="css"], [data-testid="stAppViewContainer"] {{
-            font-family: 'Inter', sans-serif;
-            color: {c['text']};
-            background-color: {c['bg']};
-            transition: background-color 0.3s ease, color 0.3s ease;
+            font-family: var(--font-sans);
+            color: var(--color-text);
+            background-color: var(--color-bg);
         }}
         
         /* Main Container */
         .stApp {{
-            background-color: {c['bg']};
-            transition: background-color 0.3s ease;
+            background-color: var(--color-bg);
         }}
 
         /* Headers */
         h1, h2, h3 {{
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-sans);
             font-weight: 700;
             letter-spacing: -0.02em;
-            color: {c['accent']};
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            color: var(--color-text);
         }}
         
-        h1 {{ font-size: 2.5rem; margin-bottom: 2rem; }}
-        h2 {{ font-size: 1.75rem; margin-top: 2.5rem; margin-bottom: 1.25rem; border-bottom: 1px solid {c['accent']}; padding-bottom: 0.5rem; }}
-        h3 {{ font-size: 1.25rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }}
-
         /* Sidebar */
         [data-testid="stSidebar"] {{
-            background-color: {c['sidebar_bg']};
-            border-right: 1px solid {c['border']};
-            transition: background-color 0.3s ease;
+            background-color: {DESIGN_TOKENS['colors']['dark_mode']['sidebar_bg']};
+            border-right: 1px solid var(--color-border);
         }}
         
-        [data-testid="stSidebar"] .stMarkdown, 
-        [data-testid="stSidebar"] p, 
-        [data-testid="stSidebar"] span, 
-        [data-testid="stSidebar"] label,
-        [data-testid="stSidebar"] div {{
-            color: {c['sidebar_text']} !important;
-            font-family: 'Inter', sans-serif;
-        }}
-        
-        /* Sidebar Headers */
-        [data-testid="stSidebar"] h1,
-        [data-testid="stSidebar"] h2,
-        [data-testid="stSidebar"] h3 {{
-            color: {c['sidebar_text']} !important;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-size: 1rem;
-        }}
-
         /* Buttons */
         .stButton > button {{
-            border-radius: 0px;
+            border-radius: 0.375rem;
             font-weight: 600;
-            border: 1px solid {c['accent']} !important;
-            background-color: {c['bg']} !important;
-            color: {c['accent']} !important;
+            border: 1px solid var(--color-border) !important;
+            background-color: var(--color-card-bg) !important;
+            color: var(--color-text) !important;
             transition: all 0.2s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-size: 0.85rem;
-            padding: 0.5rem 1rem;
         }}
         
         .stButton > button:hover {{
-            background-color: {c['accent']} !important;
-            color: {c['bg']} !important;
-            border-color: {c['accent']} !important;
+            border-color: var(--color-primary) !important;
+            color: var(--color-primary) !important;
+            background-color: var(--color-bg) !important;
         }}
         
         /* Primary Button */
         .stButton > button[kind="primary"] {{
-            background-color: {c['accent']} !important;
-            color: {c['bg']} !important;
-            border: 1px solid {c['accent']} !important;
+            background-color: var(--color-primary) !important;
+            color: white !important;
+            border: 1px solid var(--color-primary) !important;
         }}
         
         .stButton > button[kind="primary"]:hover {{
-            background-color: {c['secondary_text']} !important;
-            border-color: {c['secondary_text']} !important;
+            background-color: {DESIGN_TOKENS['colors']['secondary']} !important;
+            border-color: {DESIGN_TOKENS['colors']['secondary']} !important;
+            box-shadow: 0 4px 12px {DESIGN_TOKENS['colors']['primary']}40;
         }}
 
-        /* Metrics */
-        [data-testid="stMetricValue"] {{
-            font-family: 'Inter', sans-serif;
-            font-weight: 700;
-            font-size: 2rem;
-            color: {c['accent']};
-        }}
-        
-        [data-testid="stMetricLabel"] {{
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            font-size: 0.9rem;
-            color: {c['secondary_text']};
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }}
-
-        /* Dividers */
-        hr {{
-            margin-top: 3rem;
-            margin-bottom: 3rem;
-            border-top: 1px solid {c['accent']};
-            opacity: 0.1;
-        }}
-        
         /* Expander */
         .streamlit-expanderHeader {{
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            background-color: {c['card_bg']} !important;
-            border: 1px solid {c['border']} !important;
-            border-radius: 0px;
-            color: {c['accent']} !important;
-        }}
-        
-        /* Fix for Material Icon text rendering */
-        .material-icons {{
-            font-family: 'Material Icons';
-            font-weight: normal;
-            font-style: normal;
-            font-size: 24px;
-            display: inline-block;
-            line-height: 1;
-            text-transform: none;
-            letter-spacing: normal;
-            word-wrap: normal;
-            white-space: nowrap;
-            direction: ltr;
-            -webkit-font-smoothing: antialiased;
-            text-rendering: optimizeLegibility;
-            -moz-osx-font-smoothing: grayscale;
-            font-feature-settings: 'liga';
-        }}
-        
-        /* Dataframes and Tables */
-        .stDataFrame,
-        [data-testid="stDataFrame"],
-        .dataframe {{
-            background-color: {c['card_bg']} !important;
-            border: 1px solid {c['border']} !important;
-        }}
-        
-        .stDataFrame table,
-        [data-testid="stDataFrame"] table,
-        .dataframe table {{
-            background-color: {c['card_bg']}  !important;
-            color: {c['text']} !important;
-        }}
-        
-        .stDataFrame th,
-        [data-testid="stDataFrame"] th,
-        .dataframe th {{
-            background-color: {c['sidebar_bg']} !important;
-            color: {c['text']} !important;
-            border-bottom: 2px solid {c['accent']} !important;
-            font-weight: 600 !important;
-        }}
-        
-        .stDataFrame td,
-        [data-testid="stDataFrame"] td,
-        .dataframe td {{
-            background-color: {c['card_bg']} !important;
-            color: {c['text']} !important;
-            border-bottom: 1px solid {c['border']} !important;
-        }}
-        
-        /* Markdown in cards */
-        .stMarkdown {{
-            color: {c['text']} !important;
-        }}
-        
-        /* Checkboxes */
-        .stCheckbox {{
-            color: {c['text']} !important;
-        }}
-        
-        .stCheckbox label {{
-            color: {c['text']} !important;
-        }}
-        
-        /* Fix expander icon text by enforcing Material Icons font */
-        .streamlit-expanderHeader {{
             font-family: 'Material Icons', 'Inter', sans-serif !important;
+            background-color: var(--color-card-bg) !important;
+            border: 1px solid var(--color-border) !important;
+            border-radius: 0.375rem;
+            color: var(--color-text) !important;
         }}
         
-        /* Protect the title text to ensure it uses Inter */
         .streamlit-expanderHeader p {{
             font-family: 'Inter', sans-serif !important;
-            display: block !important; /* Ensure title is visible */
-        }}
-        
-        /* Keep expander icons visible */
-        .streamlit-expanderHeader svg {{
-            display: inline-block !important;
-            width: 24px !important;
-            height: 24px !important;
-            opacity: 1 !important;
-        }}
-        /* Tabs */
-        .stTabs [data-baseweb="tab-list"] {{
-            gap: 2rem;
-            border-bottom: 1px solid {c['border']};
-            padding-bottom: 0px;
-        }}
-        
-        .stTabs [data-baseweb="tab"] {{
-            height: 50px;
-            white-space: pre-wrap;
-            background-color: transparent;
-            border-radius: 0px;
-            gap: 1px;
-            padding-top: 10px;
-            padding-bottom: 10px;
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            color: {c['secondary_text']};
-            border-bottom: 3px solid transparent;
-        }}
-        
-        .stTabs [aria-selected="true"] {{
-            border-bottom: 3px solid {c['accent']};
-            color: {c['accent']} !important;
-            font-weight: 700;
+            display: block !important;
         }}
         
         /* Inputs */
         .stTextInput > div > div > input,
         .stSelectbox > div > div > div,
         .stTextArea > div > div > textarea {{
-            border-radius: 0px;
-            border: 1px solid {c['border']};
-            color: {c['text']};
-            background-color: {c['bg']};
+            border-radius: 0.375rem;
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            background-color: var(--color-bg);
         }}
         
         .stTextInput > div > div > input:focus,
         .stSelectbox > div > div > div:focus,
         .stTextArea > div > div > textarea:focus {{
-            border-color: {c['accent']};
-            box-shadow: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 1px var(--color-primary);
         }}
         
-        /* Custom Success Box */
-        .custom-success {{
-            padding: 1rem;
-            border: 1px solid {c['success_border']};
-            background-color: {c['success_bg']};
-            color: {c['text']};
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
+        /* Tabs */
+        .stTabs [data-baseweb="tab-list"] {{
+            gap: 2rem;
+            border-bottom: 1px solid var(--color-border);
         }}
-
+        
+        .stTabs [data-baseweb="tab"] {{
+            height: 50px;
+            font-family: var(--font-sans);
+            font-weight: 500;
+            color: var(--color-text-secondary);
+            border-bottom: 2px solid transparent;
+        }}
+        
+        .stTabs [aria-selected="true"] {{
+            border-bottom: 2px solid var(--color-primary);
+            color: var(--color-primary) !important;
+            font-weight: 600;
+        }}
+        
+        /* Custom Classes for Grid Layout */
+        .hero-container {{
+            padding: 3rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+        }}
+        
+        .hero-title {{
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }}
+        
+        .hero-subtitle {{
+            font-size: 1.25rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 2rem;
+        }}
         </style>
     """, unsafe_allow_html=True)
 
@@ -985,15 +831,26 @@ def main():
     # Use dark theme icon color (always dark mode now)
     icon_color = '#ffffff'
     
-    # Header with Logo - Better spacing and LARGER logo
-    col_logo, col_title = st.columns([1, 15])  # Adjusted ratio
-    with col_logo:
-        # Larger logo: 80px instead of 48px
-        st.markdown(render_svg('logo', 80, icon_color), unsafe_allow_html=True)
-    with col_title:
-        st.title(t('title'))
-        st.markdown(f"**{t('subtitle')}**")
-        st.caption(t('prof'))
+    # [NEW] Hero Section
+    st.markdown(f"""
+        <div class="hero-container">
+            <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
+                {render_svg('logo', 80, DESIGN_TOKENS['colors']['primary'])}
+            </div>
+            <h1 class="hero-title">{t('title')}</h1>
+            <p class="hero-subtitle">{t('subtitle')} • {t('prof')}</p>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # [NEW] Main Tabs
+    tab_classify, tab_monitor, tab_analysis = st.tabs([
+        f"📍 {t('classification')}", 
+        f"📊 {t('monitoring')}", 
+        f"🧪 {t('tests')}"
+    ])
+    
+    # --- TAB 1: CLASSIFICATION ---
+    with tab_classify:
     
     # Sidebar Header
     with st.sidebar:
