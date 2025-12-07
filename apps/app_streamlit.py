@@ -584,16 +584,24 @@ def _apply_custom_css(theme='dark'):
             color: {c['text']} !important;
         }}
         
-        /* Hide keyboard arrow text in expanders */
-        [data-testid="stExpander"] [data-testid="stMarkdownContainer"] p {{
-            /* Hide the keyboard_arrow text */
-            font-size: 0 !important;
-        }}
+        /* Hide keyboard arrow text in expanders - WORKING VERSION */
+        .streamlit-expanderHeader p,
+        .streamlit-expanderHeader span {
+            /* Hide the keyboard_arrow text completely */
+            display: inline-block;
+            overflow: hidden;
+            width: 0;
+            height: 0;
+            opacity: 0;
+        }
         
-        /* But keep the SVG icons visible */
-        [data-testid="stExpander"] svg {{
-            font-size: 24px !important;
-        }}
+        /* Keep expander icons visible */
+        .streamlit-expanderHeader svg {
+            display: inline-block !important;
+            width: 24px !important;
+            height: 24px !important;
+            opacity: 1 !important;
+        }
         /* Tabs */
         .stTabs [data-baseweb="tab-list"] {{
             gap: 2rem;
@@ -977,10 +985,11 @@ def main():
     # Use dark theme icon color (always dark mode now)
     icon_color = '#ffffff'
     
-    # Header with Logo - Better spacing
-    col_logo, col_title = st.columns([1, 20])  # More space for title
+    # Header with Logo - Better spacing and LARGER logo
+    col_logo, col_title = st.columns([1, 15])  # Adjusted ratio
     with col_logo:
-        st.markdown(render_svg('logo', 48, icon_color), unsafe_allow_html=True)
+        # Larger logo: 80px instead of 48px
+        st.markdown(render_svg('logo', 80, icon_color), unsafe_allow_html=True)
     with col_title:
         st.title(t('title'))
         st.markdown(f"**{t('subtitle')}**")
