@@ -1330,7 +1330,8 @@ Analyze the error patterns and briefly explain (2-4 main reasons) why the classi
             st.warning("⚠️ Modelos não carregados. Aguarde o carregamento dos modelos." if current_lang == 'pt' else "⚠️ Models not loaded. Please wait for models to load.")
             st.session_state.test_validation_set = False
         
-        # Text input
+        # --- TAB 1: CLASSIFICATION ---
+    with tab_classify:
         # Text input with sample button
         col_text, col_btn = st.columns([4, 1])
         
@@ -1400,136 +1401,36 @@ Analyze the error patterns and briefly explain (2-4 main reasons) why the classi
                     to { 
                         opacity: 0; 
                         transform: translateY(-10px);
+                        display: none;
                     }
                 }
-                .ground-truth-fade-out {
+                .fade-out {
                     animation: fadeOut 0.5s ease-out forwards;
                 }
                 </style>
-                <script>
-                (function() {
-                    // Check if we should trigger fade-out
-                    var shouldFadeOut = """ + str(st.session_state.get('remove_true_label', False)).lower() + """;
-                    if (shouldFadeOut) {
-                        // Find the ground truth label element
-                        var elements = window.parent.document.querySelectorAll('[data-testid="stInfo"]');
-                        if (elements.length > 0) {
-                            var lastElement = elements[elements.length - 1];
-                            // Check if it contains ground truth text
-                            if (lastElement.textContent.includes('Classe Real') || lastElement.textContent.includes('True Label')) {
-                                lastElement.classList.add('ground-truth-fade-out');
-                                // Remove after animation completes
-                                setTimeout(function() {
-                                    lastElement.style.display = 'none';
-                                }, 500);
-                            }
-                        }
-                    }
-                })();
-                </script>
                 """
-                st.components.v1.html(animation_code, height=0)
+                st.markdown(animation_code, unsafe_allow_html=True)
                 
-                # Clear the flag after applying animation
+                # Check if we should remove it (fade out)
                 if st.session_state.get('remove_true_label', False):
-                    del st.session_state.remove_true_label
+                    st.markdown(f'<div class="custom-success fade-out">{render_svg("check", 24, DESIGN_TOKENS["colors"]["success"])} <strong>Classe Real (Amostra de Validação):</strong> {true_category} (Classe {true_label})</div>', unsafe_allow_html=True)
+                    # Clear state after animation (needs a rerun or callback, but for now just clear it)
                     del st.session_state.true_label
-                
-                st.info(
-                    f"**Classe Real (Ground Truth):** {true_category}" if current_lang == 'pt' 
-                    else f"**True Label (Ground Truth):** {true_category}",
-                    icon=None
-                )
-        
+                    del st.session_state.remove_true_label
+                else:
+                    st.markdown(f'<div class="custom-success">{render_svg("check", 24, DESIGN_TOKENS["colors"]["success"])} <strong>Classe Real (Amostra de Validação):</strong> {true_category} (Classe {true_label})</div>', unsafe_allow_html=True)
+
         with col_btn:
-            st.write("")  # Spacing
-            st.write("")  # Spacing
-            
-            if st.button(
-                "Exemplo do Conjunto de Validação" if current_lang == 'pt' else "Validation Set Sample",
-                width='stretch',
-                help="Carrega um texto aleatório do conjunto de validação (não visto durante o treinamento)" if current_lang == 'pt' else "Load a random text from validation set (not seen during training)"
-            ):
-                with st.spinner("Carregando exemplo..." if current_lang == 'pt' else "Loading sample..."):
+            st.write("") # Spacer
+            st.write("") # Spacer
+            if st.button("🎲 Exemplo", use_container_width=True):
+                # Load a random sample from validation set
+                with st.spinner("Carregando amostra..."):
                     result = get_validation_sample()
                     if result:
-                        # result is now a tuple (text, true_label)
-                        # Store sample in session_state - will be applied on next rerun
                         st.session_state.sample_text = result
                         st.rerun()
                     else:
-                        st.error("Não foi possível carregar exemplo. Verifique os logs do console para mais detalhes." if current_lang == 'pt' else "Could not load sample. Check console logs for details.")
-        
-        # Clear sample_text after use to avoid persistence
-        if 'sample_text' in st.session_state and st.session_state.sample_text:
-            # Check if text was modified (compare with text from sample)
-            sample_text_value = st.session_state.sample_text
-            if isinstance(sample_text_value, tuple):
-                sample_text_value = sample_text_value[0]
-            if text_input != sample_text_value:
-                st.session_state.sample_text = ''
-                # Also clear true_label if user modified the text
-                if 'true_label' in st.session_state:
-                    del st.session_state.true_label
-        
-        col1, col2 = st.columns([1, 4])
-        with col1:
-            classify_button = st.button(t('classify'), type="primary", width='stretch')
-        with col2:
-            save_prediction = st.checkbox(t('save_log'), value=True)
-        
-        # Handle classification
-        if classify_button and text_input:
-            with st.spinner(t('classifying')):
-                result = classify_text_streamlit(
-                    text_input,
-                    embedding_type,
-                    model_type,
-                    models,
-                    vectorizer,
-                    bert_model
-                )
-            
-            # Store result in session state
-            st.session_state.last_classification_result = result
-            st.session_state.last_text_input = text_input
-            st.session_state.last_embedding_type = embedding_type
-            st.session_state.last_model_type = model_type
-            st.session_state.explanation_generated = False
-            st.session_state.llm_explanation = None
-            st.session_state.log_saved_for_current = False
-        
-        # Display results if available (from current classification or previous)
-        result = st.session_state.last_classification_result
-        text_input_for_display = st.session_state.get('last_text_input', '')
-        
-        # Show results if we have a result (even if text_input_for_display is empty, we can still show explanation)
-        if result is not None:
-            # Display results
-            st.divider()
-            
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                # Check if prediction is correct (if we have true_label from validation sample)
-                is_correct = False
-                if 'true_label' in st.session_state:
-                    predicted_class = result['classe_predita']
-                    true_label = int(st.session_state.true_label)
-                    is_correct = (predicted_class == true_label)
-                
-                # Display predicted class with checkmark if correct
-                if is_correct:
-                    # Show success indicator
-                    st.markdown(f"### {t('predicted_class')}")
-                    st.markdown(f"**{result['categoria_predita']}**")
-                    # SVG checkmark
-                    checkmark_svg = """
-                    <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="30" cy="30" r="28" fill="#10b981" opacity="0.2"/>
-                        <path d="M 20 30 L 27 37 L 40 24" stroke="#10b981" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    """
-                    st.markdown(checkmark_svg, unsafe_allow_html=True)
                 else:
                     st.metric(t('predicted_class'), result['categoria_predita'])
             with col2:
@@ -1672,231 +1573,211 @@ Explain clearly and concisely why this text belongs to this category."""
                     ''', unsafe_allow_html=True)
                     st.session_state.log_saved_for_current = True
     
-    # Tab 2: Monitoring
-    with tab2:
-        st.header(t('monitoring_dashboard'))
+    # --- TAB 2: MONITORING ---
+    with tab_monitor:
+        st.subheader(t('monitoring_dashboard'))
         
-        # Advanced filters (bonus feature inspired by Módulo 16)
-        with st.expander("Filtros Avançados" if current_lang == 'pt' else "Advanced Filters"):
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                filter_category = st.multiselect(
-                    "Categoria" if current_lang == 'pt' else "Category",
-                    options=["Economia", "Esportes", "Polícia e Direitos", "Política", "Turismo", "Variedades e Sociedade"],
-                    default=[]
-                )
-            with col2:
-                filter_embedding = st.multiselect(
-                    "Embedding" if current_lang == 'pt' else "Embedding",
-                    options=["TF-IDF", "BERT"],
-                    default=[]
-                )
-            with col3:
-                filter_model = st.multiselect(
-                    "Modelo" if current_lang == 'pt' else "Model",
-                    options=["SVM", "XGBoost"],
-                    default=[]
-                )
+        # Load logs
+        imports = _lazy_imports()
+        logs_df = imports['load_prediction_logs']()
         
-        # Use cookie-based predictions (persists across page refreshes)
-        # Load from session_state (which is synced with cookies on save)
-        session_predictions = st.session_state.get('session_predictions', [])
-        
-        if not session_predictions:
-            st.info(t('no_predictions'))
-            st.caption("**Dica**: As predições são salvas em cookies e persistem mesmo após atualizar a página (F5). Cada navegador/computador tem seu próprio histórico." if current_lang == 'pt' else "**Tip**: Predictions are saved in cookies and persist even after refreshing the page (F5). Each browser/computer has its own history.")
-        else:
-            # Convert to DataFrame for easier manipulation
-            logs_df = pd.DataFrame(session_predictions)
-            
-            # Apply filters
-            if filter_category:
-                logs_df = logs_df[logs_df['categoria_predita'].isin(filter_category)]
-            if filter_embedding:
-                logs_df = logs_df[logs_df['embedding_usado'].isin(filter_embedding)]
-            if filter_model:
-                logs_df = logs_df[logs_df['modelo_usado'].isin(filter_model)]
-            
-            if logs_df.empty:
-                st.info("Nenhuma predição encontrada com os filtros selecionados." if current_lang == 'pt' else "No predictions found with selected filters.")
+        # Add current session predictions to logs_df for display
+        if st.session_state.session_predictions:
+            session_df = pd.DataFrame(st.session_state.session_predictions)
+            if not logs_df.empty:
+                # Align columns
+                common_cols = list(set(logs_df.columns) & set(session_df.columns))
+                if common_cols:
+                    logs_df = pd.concat([logs_df, session_df[common_cols]], ignore_index=True)
             else:
-                # Calculate statistics from session data
-                stats = {
-                    'total_predictions': len(logs_df),
-                    'avg_score': float(logs_df['score'].mean()) if 'score' in logs_df.columns else 0.0,
-                    'by_class': logs_df['categoria_predita'].value_counts().to_dict() if 'categoria_predita' in logs_df.columns else {},
-                    'by_model': logs_df['modelo_usado'].value_counts().to_dict() if 'modelo_usado' in logs_df.columns else {},
-                    'by_embedding': logs_df['embedding_usado'].value_counts().to_dict() if 'embedding_usado' in logs_df.columns else {},
-                    'date_range': {
-                        'start': logs_df['timestamp'].min() if 'timestamp' in logs_df.columns and not logs_df.empty else None,
-                        'end': logs_df['timestamp'].max() if 'timestamp' in logs_df.columns and not logs_df.empty else None
-                    }
+                logs_df = session_df
+        
+        if logs_df.empty:
+            empty_state(
+                icon="analytics",
+                title=t('no_predictions'),
+                description="Use a aba 'Classificação' para analisar notícias e gerar dados para este dashboard."
+            )
+        else:
+            # Calculate stats
+            stats = {
+                'total_predictions': len(logs_df),
+                'avg_score': logs_df['score'].mean() if 'score' in logs_df.columns else 0,
+                'by_class': logs_df['categoria_predita'].value_counts().to_dict() if 'categoria_predita' in logs_df.columns else {},
+                'by_model': logs_df['modelo_usado'].value_counts().to_dict() if 'modelo_usado' in logs_df.columns else {},
+                'by_embedding': logs_df['embedding_usado'].value_counts().to_dict() if 'embedding_usado' in logs_df.columns else {},
+                'date_range': {
+                    'start': logs_df['timestamp'].min() if 'timestamp' in logs_df.columns and not logs_df.empty else None,
+                    'end': logs_df['timestamp'].max() if 'timestamp' in logs_df.columns and not logs_df.empty else None
                 }
-                
-                # Summary metrics
-                col1, col2, col3, col4 = st.columns(4)
-                with col1:
-                    st.metric(t('total_predictions'), stats['total_predictions'])
-                with col2:
-                    st.metric(t('avg_score'), f"{stats['avg_score']:.2%}")
-                with col3:
-                    most_common = max(stats['by_class'].items(), key=lambda x: x[1]) if stats['by_class'] else ("N/A", 0)
-                    st.metric(t('most_common'), f"{most_common[0]} ({most_common[1]})")
-                with col4:
-                    if stats['date_range']['start']:
-                        st.metric(t('date_range'), f"{stats['date_range']['start'][:10]} a {stats['date_range']['end'][:10]}" if current_lang == 'pt' else f"{stats['date_range']['start'][:10]} to {stats['date_range']['end'][:10]}")
-                
-                st.divider()
-                
-                # Charts
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    st.subheader(t('by_class'))
-                    if stats['by_class']:
-                        class_df = pd.DataFrame({
-                            'Categoria' if current_lang == 'pt' else 'Category': list(stats['by_class'].keys()),
-                            'Quantidade' if current_lang == 'pt' else 'Count': list(stats['by_class'].values())
-                        })
-                        fig = px.pie(
-                            class_df,
-                            values='Quantidade' if current_lang == 'pt' else 'Count',
-                            names='Categoria' if current_lang == 'pt' else 'Category',
-                            title=t('dist_by_category')
-                        )
-                        fig = update_chart_layout(fig)
-                        st.plotly_chart(fig, width='stretch')
-                
-                with col2:
-                    st.subheader(t('by_model'))
-                    if stats['by_model']:
-                        model_df = pd.DataFrame({
-                            'Modelo' if current_lang == 'pt' else 'Model': list(stats['by_model'].keys()),
-                            'Quantidade' if current_lang == 'pt' else 'Count': list(stats['by_model'].values())
-                        })
-                        fig = px.bar(
-                            model_df,
-                            x='Modelo' if current_lang == 'pt' else 'Model',
-                            y='Quantidade' if current_lang == 'pt' else 'Count',
-                            title=t('usage_by_model'),
-                            color='Quantidade' if current_lang == 'pt' else 'Count',
-                            color_continuous_scale='Blues'
-                        )
-                        fig = update_chart_layout(fig)
-                        st.plotly_chart(fig, width='stretch')
-                
-                # Temporal evolution
-                if 'timestamp' in logs_df.columns:
-                    st.subheader(t('temporal_evolution'))
-                    logs_df['date'] = pd.to_datetime(logs_df['timestamp']).dt.date
-                    daily_counts = logs_df.groupby('date').size().reset_index(name='count')
-                    daily_counts = daily_counts.sort_values('date')
-                    
-                    fig = px.line(
-                        daily_counts,
-                        x='date',
-                        y='count',
-                        title=t('predictions_over_time'),
-                        markers=True
-                    )
-                    fig = update_chart_layout(fig)
-                    st.plotly_chart(fig, width='stretch')
+            }
             
-            # Additional visualizations
-            st.divider()
-            st.subheader("📊 Análise Comparativa Avançada" if current_lang == 'pt' else "📊 Advanced Comparative Analysis")
-            
-            # Optimization Comparison Section
-            st.divider()
-            st.subheader("🎯 Comparação: Antes vs Depois da Otimização (Optuna)" if current_lang == 'pt' else "🎯 Comparison: Before vs After Optimization (Optuna)")
-            
-            try:
-                opt_comparison_path = Path(__file__).parent.parent / 'models' / 'optimization_comparison.csv'
-                if opt_comparison_path.exists():
-                    opt_df = pd.read_csv(opt_comparison_path)
-                    
-                    # Create comparison chart
-                    fig = go.Figure()
-                    
-                    models_list = opt_df['Model'].tolist()
-                    f1_optimized = opt_df['F1-Optimized'].tolist()
-                    f1_default = opt_df['F1-Default'].tolist()
-                    improvements = opt_df['Improvement %'].tolist()
-                    
-                    fig.add_trace(go.Bar(
-                        name='F1-Default (Padrão)' if current_lang == 'pt' else 'F1-Default',
-                        x=models_list,
-                        y=f1_default,
-                        marker_color='lightblue',
-                        text=[f'{val:.3f}' for val in f1_default],
-                        textposition='auto'
-                    ))
-                    
-                    fig.add_trace(go.Bar(
-                        name='F1-Optimized (Otimizado)' if current_lang == 'pt' else 'F1-Optimized',
-                        x=models_list,
-                        y=f1_optimized,
-                        marker_color='darkblue',
-                        text=[f'{val:.3f}' for val in f1_optimized],
-                        textposition='auto'
-                    ))
-                    
-                    fig.update_layout(
-                        title='Comparação F1-Macro: Padrão vs Otimizado (K-fold CV)' if current_lang == 'pt' else 'F1-Macro Comparison: Default vs Optimized (K-fold CV)',
-                        xaxis_title='Modelo' if current_lang == 'pt' else 'Model',
-                        yaxis_title='F1-Macro',
-                        barmode='group',
-                        height=500,
-                        showlegend=True
-                    )
-                    fig = update_chart_layout(fig)
-                    
-                    st.plotly_chart(fig, width='stretch')
-                    
-                    # Improvement metrics
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        st.markdown("**Melhorias por Modelo**" if current_lang == 'pt' else "**Improvements by Model**")
-                        improvement_df = pd.DataFrame({
-                            'Modelo' if current_lang == 'pt' else 'Model': models_list,
-                            'Melhoria (%)' if current_lang == 'pt' else 'Improvement (%)': [f"+{imp:.2f}%" for imp in improvements]
-                        })
-                        st.dataframe(improvement_df, width='stretch', hide_index=True)
-                    
-                    with col2:
-                        st.markdown("**Tabela Comparativa Completa**" if current_lang == 'pt' else "**Complete Comparison Table**")
-                        display_df = opt_df.copy()
-                        display_df['F1-Optimized'] = display_df['F1-Optimized'].round(4)
-                        display_df['F1-Default'] = display_df['F1-Default'].round(4)
-                        display_df['Improvement'] = display_df['Improvement'].round(4)
-                        display_df['Improvement %'] = display_df['Improvement %'].round(2)
-                        if current_lang == 'pt':
-                            display_df.columns = ['Modelo', 'F1-Otimizado', 'F1-Padrão', 'Melhoria', 'Melhoria (%)']
-                        st.dataframe(display_df, width='stretch', hide_index=True)
-                    
-                    # Key insights
-                    st.info("""
-                    **💡 Principais Descobertas:**
-                    - **BERT + XGBoost**: Maior ganho (+3.96%) - otimização muito benéfica
-                    - **TF-IDF + XGBoost**: Ganho significativo (+2.32%) - hiperparâmetros padrão não eram ideais
-                    - **BERT + SVM**: Pequeno ganho (+0.37%) - mudou para kernel RBF (importante!)
-                    - **TF-IDF + SVM**: Ganho marginal (+0.02%) - já estava bem otimizado
-                    """ if current_lang == 'pt' else """
-                    **💡 Key Findings:**
-                    - **BERT + XGBoost**: Largest gain (+3.96%) - optimization very beneficial
-                    - **TF-IDF + XGBoost**: Significant gain (+2.32%) - default hyperparameters not ideal
-                    - **BERT + SVM**: Small gain (+0.37%) - changed to RBF kernel (important!)
-                    - **TF-IDF + SVM**: Marginal gain (+0.02%) - already well optimized
-                    """)
-                else:
-                    st.warning("Arquivo de comparação de otimização não encontrado. Execute scripts/run_optimization.py primeiro." if current_lang == 'pt' else "Optimization comparison file not found. Run scripts/run_optimization.py first.")
-            except Exception as e:
-                st.warning(f"Erro ao carregar comparação de otimização: {e}" if current_lang == 'pt' else f"Error loading optimization comparison: {e}")
+            # Summary metrics using Info Cards
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                info_card(t('total_predictions'), str(stats['total_predictions']), icon="list_alt")
+            with col2:
+                info_card(t('avg_score'), f"{stats['avg_score']:.1%}", icon="speed")
+            with col3:
+                most_common = max(stats['by_class'].items(), key=lambda x: x[1]) if stats['by_class'] else ("N/A", 0)
+                info_card(t('most_common'), most_common[0], icon="category")
+            with col4:
+                date_str = "N/A"
+                if stats['date_range']['start']:
+                    start_date = pd.to_datetime(stats['date_range']['start']).strftime('%d/%m')
+                    end_date = pd.to_datetime(stats['date_range']['end']).strftime('%d/%m')
+                    date_str = f"{start_date} - {end_date}"
+                info_card(t('date_range'), date_str, icon="date_range")
             
             st.divider()
-            st.subheader("📈 Visualizações Adicionais" if current_lang == 'pt' else "📈 Additional Visualizations")
             
+            # Charts
             col1, col2 = st.columns(2)
+            
+            with col1:
+                st.subheader(t('by_class'))
+                if stats['by_class']:
+                    class_df = pd.DataFrame({
+                        'Categoria' if current_lang == 'pt' else 'Category': list(stats['by_class'].keys()),
+                        'Quantidade' if current_lang == 'pt' else 'Count': list(stats['by_class'].values())
+                    })
+                    fig = px.pie(
+                        class_df,
+                        values='Quantidade' if current_lang == 'pt' else 'Count',
+                        names='Categoria' if current_lang == 'pt' else 'Category',
+                        title=t('dist_by_category'),
+                        color_discrete_sequence=px.colors.sequential.Blues_r
+                    )
+                    fig = update_chart_layout(fig)
+                    st.plotly_chart(fig, use_container_width=True)
+            
+            with col2:
+                st.subheader(t('by_model'))
+                if stats['by_model']:
+                    model_df = pd.DataFrame({
+                        'Modelo' if current_lang == 'pt' else 'Model': list(stats['by_model'].keys()),
+                        'Quantidade' if current_lang == 'pt' else 'Count': list(stats['by_model'].values())
+                    })
+                    fig = px.bar(
+                        model_df,
+                        x='Modelo' if current_lang == 'pt' else 'Model',
+                        y='Quantidade' if current_lang == 'pt' else 'Count',
+                        title=t('usage_by_model'),
+                        color='Quantidade' if current_lang == 'pt' else 'Count',
+                        color_continuous_scale='Blues'
+                    )
+                    fig = update_chart_layout(fig)
+                    st.plotly_chart(fig, use_container_width=True)
+            
+            # Temporal evolution
+            if 'timestamp' in logs_df.columns:
+                st.subheader(t('temporal_evolution'))
+                logs_df['date'] = pd.to_datetime(logs_df['timestamp']).dt.date
+                daily_counts = logs_df.groupby('date').size().reset_index(name='count')
+                daily_counts = daily_counts.sort_values('date')
+                
+                fig = px.line(
+                    daily_counts,
+                    x='date',
+                    y='count',
+                    title=t('predictions_over_time'),
+                    markers=True
+                )
+                fig.update_traces(line_color=DESIGN_TOKENS['colors']['primary'], line_width=3)
+                fig = update_chart_layout(fig)
+                st.plotly_chart(fig, use_container_width=True)
+    
+    # --- TAB 3: ANALYSIS (TESTS) ---
+    with tab_analysis:
+        st.subheader(t('tests'))
+        
+        # Optimization Comparison Section
+        st.markdown("### 🎯 Comparação: Antes vs Depois da Otimização (Optuna)" if current_lang == 'pt' else "### 🎯 Comparison: Before vs After Optimization (Optuna)")
+        
+        try:
+            opt_comparison_path = Path(__file__).parent.parent / 'models' / 'optimization_comparison.csv'
+            if opt_comparison_path.exists():
+                opt_df = pd.read_csv(opt_comparison_path)
+                
+                # Create comparison chart
+                fig = go.Figure()
+                
+                models_list = opt_df['Model'].tolist()
+                f1_optimized = opt_df['F1-Optimized'].tolist()
+                f1_default = opt_df['F1-Default'].tolist()
+                improvements = opt_df['Improvement %'].tolist()
+                
+                fig.add_trace(go.Bar(
+                    name='F1-Default (Padrão)' if current_lang == 'pt' else 'F1-Default',
+                    x=models_list,
+                    y=f1_default,
+                    marker_color='#464b5f', # Darker gray
+                    text=[f'{val:.3f}' for val in f1_default],
+                    textposition='auto'
+                ))
+                
+                fig.add_trace(go.Bar(
+                    name='F1-Optimized (Otimizado)' if current_lang == 'pt' else 'F1-Optimized',
+                    x=models_list,
+                    y=f1_optimized,
+                    marker_color=DESIGN_TOKENS['colors']['primary'],
+                    text=[f'{val:.3f}' for val in f1_optimized],
+                    textposition='auto'
+                ))
+                
+                fig.update_layout(
+                    title='Comparação F1-Macro: Padrão vs Otimizado (K-fold CV)' if current_lang == 'pt' else 'F1-Macro Comparison: Default vs Optimized (K-fold CV)',
+                    xaxis_title='Modelo' if current_lang == 'pt' else 'Model',
+                    yaxis_title='F1-Macro',
+                    barmode='group',
+                    height=400,
+                    showlegend=True
+                )
+                fig = update_chart_layout(fig)
+                
+                st.plotly_chart(fig, use_container_width=True)
+                
+                # Improvement metrics
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("**Melhorias por Modelo**" if current_lang == 'pt' else "**Improvements by Model**")
+                    improvement_df = pd.DataFrame({
+                        'Modelo' if current_lang == 'pt' else 'Model': models_list,
+                        'Melhoria (%)' if current_lang == 'pt' else 'Improvement (%)': [f"+{imp:.2f}%" for imp in improvements]
+                    })
+                    st.dataframe(improvement_df, use_container_width=True, hide_index=True)
+                
+                with col2:
+                    st.markdown("**Tabela Comparativa Completa**" if current_lang == 'pt' else "**Complete Comparison Table**")
+                    display_df = opt_df.copy()
+                    display_df['F1-Optimized'] = display_df['F1-Optimized'].round(4)
+                    display_df['F1-Default'] = display_df['F1-Default'].round(4)
+                    display_df['Improvement'] = display_df['Improvement'].round(4)
+                    display_df['Improvement %'] = display_df['Improvement %'].round(2)
+                    if current_lang == 'pt':
+                        display_df.columns = ['Modelo', 'F1-Otimizado', 'F1-Padrão', 'Melhoria', 'Melhoria (%)']
+                    st.dataframe(display_df, use_container_width=True, hide_index=True)
+                
+                # Key insights
+                st.info("""
+                **💡 Principais Descobertas:**
+                - **BERT + XGBoost**: Maior ganho (+3.96%) - otimização muito benéfica
+                - **TF-IDF + XGBoost**: Ganho significativo (+2.32%) - hiperparâmetros padrão não eram ideais
+                - **BERT + SVM**: Pequeno ganho (+0.37%) - mudou para kernel RBF (importante!)
+                - **TF-IDF + SVM**: Ganho marginal (+0.02%) - já estava bem otimizado
+                """ if current_lang == 'pt' else """
+                **💡 Key Findings:**
+                - **BERT + XGBoost**: Largest gain (+3.96%) - optimization very beneficial
+                - **TF-IDF + XGBoost**: Significant gain (+2.32%) - default hyperparameters not ideal
+                - **BERT + SVM**: Small gain (+0.37%) - changed to RBF kernel (important!)
+                - **TF-IDF + SVM**: Marginal gain (+0.02%) - already well optimized
+                """)
+            else:
+                st.warning("Arquivo de comparação de otimização não encontrado. Execute scripts/run_optimization.py primeiro." if current_lang == 'pt' else "Optimization comparison file not found. Run scripts/run_optimization.py first.")
+        except Exception as e:
+            st.warning(f"Erro ao carregar comparação de otimização: {e}" if current_lang == 'pt' else f"Error loading optimization comparison: {e}")
+        
+        st.divider()
             
             with col1:
                 # Score distribution by embedding
