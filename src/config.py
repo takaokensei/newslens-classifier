@@ -59,12 +59,30 @@ MODELS_CONFIG = {
 # These will be used after running optimization
 OPTIMIZED_HYPERPARAMS = None
 
+def _get_groq_api_key():
+    """Retrieve Groq API Key from environment or Streamlit secrets."""
+    # 1. Try environment variable (local .env)
+    api_key = os.getenv('GROQ_API_KEY')
+    if api_key:
+        return api_key
+    
+    # 2. Try Streamlit Secrets (Cloud)
+    try:
+        import streamlit as st
+        # Check standard secrets.toml format
+        if "GROQ_API_KEY" in st.secrets:
+            return st.secrets["GROQ_API_KEY"]
+    except (ImportError, FileNotFoundError, AttributeError):
+        pass
+        
+    return None
+
 # 4. LLM API Configuration (Cost Control)
 LLM_CONFIG = {
     'provider': 'groq',
     'model': 'llama-3.3-70b-versatile',  # Updated to available model
     'max_examples_differential': 10,  # Hard limit
-    'api_key': os.getenv('GROQ_API_KEY')  # Environment variable
+    'api_key': _get_groq_api_key()  # Fetch securely
 }
 
 # 5. Paths Configuration
