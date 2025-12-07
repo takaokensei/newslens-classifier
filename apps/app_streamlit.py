@@ -518,7 +518,7 @@ def _apply_custom_css(theme='dark'):
             font-family: 'Material Icons';
             font-weight: normal;
             font-style: normal;
-            font-size: 24px;  /* Preferred icon size */
+            font-size: 24px;
             display: inline-block;
             line-height: 1;
             text-transform: none;
@@ -526,14 +526,56 @@ def _apply_custom_css(theme='dark'):
             word-wrap: normal;
             white-space: nowrap;
             direction: ltr;
-            /* Support for all WebKit browsers. */
             -webkit-font-smoothing: antialiased;
-            /* Support for Safari and Chrome. */
             text-rendering: optimizeLegibility;
-            /* Support for Firefox. */
             -moz-osx-font-smoothing: grayscale;
-            /* Support for IE. */
             font-feature-settings: 'liga';
+        }}
+        
+        /* Dataframes and Tables */
+        .stDataFrame,
+        [data-testid="stDataFrame"],
+        .dataframe {{
+            background-color: {c['card_bg']} !important;
+            border: 1px solid {c['border']} !important;
+        }}
+        
+        .stDataFrame table,
+        [data-testid="stDataFrame"] table,
+        .dataframe table {{
+            background-color: {c['card_bg']}  !important;
+            color: {c['text']} !important;
+        }}
+        
+        .stDataFrame th,
+        [data-testid="stDataFrame"] th,
+        .dataframe th {{
+            background-color: {c['sidebar_bg']} !important;
+            color: {c['text']} !important;
+            border-bottom: 2px solid {c['accent']} !important;
+            font-weight: 600 !important;
+        }}
+        
+        .stDataFrame td,
+        [data-testid="stDataFrame"] td,
+        .dataframe td {{
+            background-color: {c['card_bg']} !important;
+            color: {c['text']} !important;
+            border-bottom: 1px solid {c['border']} !important;
+        }}
+        
+        /* Markdown in cards */
+        .stMarkdown {{
+            color: {c['text']} !important;
+        }}
+        
+        /* Checkboxes */
+        .stCheckbox {{
+            color: {c['text']} !important;
+        }}
+        
+        .stCheckbox label {{
+            color: {c['text']} !important;
         }}
         
         /* Tabs */
