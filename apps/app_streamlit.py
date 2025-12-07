@@ -964,15 +964,18 @@ def main():
     icon_color = '#ffffff'
     
     # Header with Logo - Better spacing and LARGER logo
-    # Header with Logo - Clean and Aligned
-    col_logo, col_title = st.columns([1.5, 10])  # Increased logo column width
-    with col_logo:
-        # Larger logo: 100px to match title visual weight
-        # Margin top adjusted to align center with the single-line title
-        st.markdown(f'<div style="margin-top: 10px;">{render_svg("logo", 100, icon_color)}</div>', unsafe_allow_html=True)
-    with col_title:
-        # Title only, as requested
-        st.markdown(f'<h1 style="margin-top: 20px; margin-bottom: 0;">{t("title")}</h1>', unsafe_allow_html=True)
+    # Header with Logo - Flexbox for precise alignment
+    # Using a single markdown block to ensure logo and title are next to each other with fixed gap
+    st.markdown(f"""
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div style="flex-shrink: 0;">
+                {render_svg("logo", 100, icon_color)}
+            </div>
+            <div>
+                <h1 style="margin: 0; padding: 0; border: none;">{t("title")}</h1>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
     
     # Sidebar Header
     with st.sidebar:
