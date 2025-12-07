@@ -1326,7 +1326,7 @@ def main():
                         st.session_state.session_predictions.append(prediction_entry)
                     
                     # Save to cookie
-                    save_predictions_to_cookie(st.session_state.session_predictions)
+                    save_predictions_to_local_storage(st.session_state.session_predictions)
                     st.session_state.validation_test_saved = True
             else:
                 # Show existing results (from previous test)
