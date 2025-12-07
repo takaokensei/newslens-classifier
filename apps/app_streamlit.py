@@ -729,110 +729,81 @@ if 'session_predictions' not in st.session_state:
     st.session_state.session_predictions = []
 
 
-def save_predictions_to_cookie(predictions: list) -> None:
-    """Save predictions to browser cookie using JavaScript."""
+def save_predictions_to_local_storage(predictions: list) -> None:
+    """Save predictions to browser LocalStorage using JavaScript."""
     if not predictions:
-        cookie_data = ""
+        json_str = "[]"
     else:
-        # Encode predictions as base64 JSON to avoid cookie size limits
+        # Encode as JSON
         json_str = json.dumps(predictions)
-        cookie_data = base64.b64encode(json_str.encode('utf-8')).decode('utf-8')
         # Escape quotes for JavaScript
-        cookie_data = cookie_data.replace('"', '\\"').replace("'", "\\'")
+        json_str = json_str.replace('\\', '\\\\').replace('"', '\\"').replace("'", "\\'")
     
-    # JavaScript to set cookie (expires in 30 days)
+    # JavaScript to set LocalStorage
     js_code = f"""
     <script>
     (function() {{
-        function setCookie(name, value, days) {{
-            var expires = "";
-            if (days) {{
-                var date = new Date();
-                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-                expires = "; expires=" + date.toUTCString();
-            }}
-            document.cookie = name + "=" + encodeURIComponent(value || "") + expires + "; path=/; SameSite=Lax";
+        try {{
+            localStorage.setItem("newslens_predictions", "{json_str}");
+        }} catch (e) {{
+            console.error("Error saving to localStorage:", e);
         }}
-        setCookie("newslens_predictions", "{cookie_data}", 30);
     }})();
     </script>
     """
     st.components.v1.html(js_code, height=0)
 
 
-def load_and_sync_cookie_predictions():
-    """Load predictions from cookie and sync with session_state on page load."""
-    # Initialize cookie_loaded flag if not exists
-    if 'cookie_loaded' not in st.session_state:
-        st.session_state.cookie_loaded = False
+def load_and_sync_local_storage_predictions():
+    """Load predictions from LocalStorage and sync with session_state on page load."""
+    # Initialize loaded flag if not exists
+    if 'storage_loaded' not in st.session_state:
+        st.session_state.storage_loaded = False
     
     # Only try to load if we don't have predictions in session_state and haven't loaded yet
-    if not st.session_state.session_predictions and not st.session_state.cookie_loaded:
+    if not st.session_state.session_predictions and not st.session_state.storage_loaded:
         # Check query params first (set by JavaScript component on first load)
         query_params = st.query_params
-        cookie_data_param = query_params.get("cookie_data", None)
+        storage_data_param = query_params.get("storage_data", None)
         
-        if cookie_data_param:
-            # Decode from base64
+        if storage_data_param:
+            # Decode from base64 (we encode in JS to be safe in URL)
             try:
-                decoded = base64.b64decode(cookie_data_param).decode('utf-8')
+                decoded = base64.b64decode(storage_data_param).decode('utf-8')
                 predictions = json.loads(decoded)
                 if predictions and isinstance(predictions, list):
                     st.session_state.session_predictions = predictions
-                    st.session_state.cookie_loaded = True
+                    st.session_state.storage_loaded = True
                     # Clear query param to avoid reloading
-                    st.query_params.clear()
+                    if "storage_data" in st.query_params:
+                        del st.query_params["storage_data"]
                     # Note: Don't call st.rerun() here - let the natural rerun from query param change handle it
             except Exception as e:
-                print(f"Error loading predictions from cookie: {e}")
-                st.session_state.cookie_loaded = True  # Mark as loaded even on error to avoid retry loop
+                print(f"Error loading predictions from storage: {e}")
+                st.session_state.storage_loaded = True  # Mark as loaded even on error to avoid retry loop
         else:
-            # JavaScript component to read cookie and update query params (only if no data in session_state)
-            # This triggers a rerun with the cookie data
+            # JavaScript component to read LocalStorage and update query params
+            # We encode in base64 to safely pass via URL
             js_code = """
             <script>
             (function() {
-                function getCookie(name) {
-                    var nameEQ = name + "=";
-                    var ca = document.cookie.split(';');
-                    for(var i = 0; i < ca.length; i++) {
-                        var c = ca[i];
-                        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-                        if (c.indexOf(nameEQ) == 0) {
-                            return decodeURIComponent(c.substring(nameEQ.length, c.length));
-                        }
-                    }
-                    return null;
-                }
-                
-                // Access parent window (main Streamlit app window, not iframe)
                 try {
-                    var parentWindow = window.parent;
-                    var parentUrl = new URL(parentWindow.location.href);
-                    
-                    // Only try to load if query param doesn't already have data
-                    if (!parentUrl.searchParams.has("cookie_data")) {
-                        var cookieValue = getCookie("newslens_predictions");
-                        if (cookieValue && cookieValue.length > 0) {
-                            // Update parent window URL with cookie data to trigger rerun
-                            parentUrl.searchParams.set("cookie_data", cookieValue);
-                            // Use parent window's history.replaceState (works in main window)
+                    var storageValue = localStorage.getItem("newslens_predictions");
+                    if (storageValue && storageValue.length > 2) { // > 2 because "[]" is empty
+                        // Base64 encode to be safe in URL
+                        var encoded = btoa(unescape(encodeURIComponent(storageValue)));
+                        
+                        var parentWindow = window.parent;
+                        var parentUrl = new URL(parentWindow.location.href);
+                        
+                        if (!parentUrl.searchParams.has("storage_data")) {
+                            parentUrl.searchParams.set("storage_data", encoded);
                             parentWindow.history.replaceState({}, '', parentUrl.toString());
-                            // Trigger Streamlit rerun by reloading parent window
                             parentWindow.location.reload();
                         }
                     }
                 } catch(e) {
-                    // If we can't access parent (security restriction), try direct reload with query param
-                    console.log("Cannot access parent window, using direct reload");
-                    var cookieValue = getCookie("newslens_predictions");
-                    if (cookieValue && cookieValue.length > 0) {
-                        var currentUrl = new URL(window.location.href);
-                        if (!currentUrl.searchParams.has("cookie_data")) {
-                            currentUrl.searchParams.set("cookie_data", cookieValue);
-                            window.location.href = currentUrl.toString();
-                        }
-                    }
+                    console.log("Error accessing localStorage or parent window:", e);
                 }
             })();
             </script>
@@ -841,7 +812,7 @@ def load_and_sync_cookie_predictions():
     else:
         # If we already have predictions or have loaded, mark as loaded
         if st.session_state.session_predictions:
-            st.session_state.cookie_loaded = True
+            st.session_state.storage_loaded = True
 
 
 @st.cache_resource
@@ -965,8 +936,8 @@ def main():
     # Apply Swiss Design CSS with current theme
     _apply_custom_css(st.session_state.theme)
 
-    # Load predictions from cookie on page load (survives F5)
-    load_and_sync_cookie_predictions()
+    # Load predictions from LocalStorage on page load (survives F5)
+    load_and_sync_local_storage_predictions()
     
     # Sidebar - Language Selector Only
     with st.sidebar:
@@ -1799,8 +1770,8 @@ Explain clearly and concisely why this text belongs to this category."""
                     'fonte': 'streamlit'
                 }
                 st.session_state.session_predictions.append(prediction_entry)
-                # Save to cookie (persists across F5 and browser restarts for 30 days)
-                save_predictions_to_cookie(st.session_state.session_predictions)
+                # Save to LocalStorage (persists across F5 and browser restarts)
+                save_predictions_to_local_storage(st.session_state.session_predictions)
                 
                 if not st.session_state.get('log_saved_for_current', False):
                     # Success message with dynamic styling
@@ -2152,8 +2123,8 @@ Explain clearly and concisely why this text belongs to this category."""
                     if st.session_state.get('session_predictions'):
                         if st.button("🗑️ Limpar Histórico" if current_lang == 'pt' else "🗑️ Clear History", width='stretch'):
                             st.session_state.session_predictions = []
-                            # Clear cookie
-                            save_predictions_to_cookie([])
+                            # Clear LocalStorage
+                            save_predictions_to_local_storage([])
                             st.success("Histórico limpo!" if current_lang == 'pt' else "History cleared!")
                             st.rerun()
 
